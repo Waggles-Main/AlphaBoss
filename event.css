@@ -16,10 +16,9 @@
 
 :root {
     --bg: #162222;
+    --panel-dark: #2e3a3c;
     --shadow: rgba(0,0,0,.5);
     --accent-red: #ff5f4f;
-    --accent-blue: #1f8df2;
-    --accent-green: #56a67a;
 }
 
 * { box-sizing: border-box; }
@@ -34,82 +33,64 @@ body {
     min-height: 100vh;
 }
 
-.menu-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 48px;
-    padding: 16px;
-}
-
-.title-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-}
-
-.title-row {
-    display: flex;
-    gap: 10px;
-}
-
-.title-tile {
-    background: #ffffff;
-    color: #1e2f33;
-    border-radius: 8px;
-    width: 58px;
-    height: 58px;
-    display: grid;
-    place-items: center;
-    font-family: 'Monoton', cursive;
-    font-size: 42px;
-    border: 1px solid #b9c4d4;
-    box-shadow: 0 4px 0 var(--shadow);
-}
-
-.menu-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+.event-screen {
     width: 100%;
-    max-width: 328px;
-}
-
-.menu-actions-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    max-width: 360px;
+    height: 100vh;
+    max-height: 780px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
     gap: 16px;
 }
 
-.menu-btn {
+.event-header {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 4px 0 var(--shadow);
+    flex-shrink: 0;
+}
+
+.event-header h2 {
+    font-family: m5x7;
+    font-size: 36px;
+    margin: 0;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.event-header p {
+    font-family: m6x11plus;
+    font-size: 18px;
+    margin: 4px 0 0;
+}
+
+.event-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.event-choice-btn {
     appearance: none;
     border: none;
     color: white;
-    padding: 20px;
+    padding: 14px;
     border-radius: 16px;
-    font-family: m6x11plus;
-    font-size: 18px;
+    font-family: m5x7;
+    font-size: 36px;
     text-align: center;
     text-decoration: none;
     box-shadow: 0 4px 0 black;
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
+    background-color: var(--accent-red);
 }
 
-.menu-btn:active {
+.event-choice-btn:active {
     transform: translateY(2px);
     box-shadow: 0 2px 0 black;
-}
-
-.btn-play {
-    background-color: var(--accent-green);
-}
-
-.btn-options {
-    background-color: var(--accent-blue);
-}
-
-.btn-stats {
-    background-color: var(--accent-red);
 }

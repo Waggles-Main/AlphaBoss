@@ -59,7 +59,7 @@ body {
 
 /* New styles for the glowing marquee title */
 .shop-title-sign {
-    font-family: m5x7;
+    font-family: 'Monoton', cursive;
     font-size: 48px;
     color: #fefefe;
     animation: flicker 3s linear infinite;

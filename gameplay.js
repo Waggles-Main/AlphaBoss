@@ -673,6 +673,7 @@ function initDevControls() {
     const devNavMenuBtn = document.getElementById('devNavMenu');
     const devNavGameBtn = document.getElementById('devNavGame');
     const devNavShopBtn = document.getElementById('devNavShop');
+    const devNavEventBtn = document.getElementById('devNavEvent');
 
 
     if (!devRefreshBtn) return; // Assume panel doesn't exist if one button is missing
@@ -710,6 +711,11 @@ function initDevControls() {
     // Navigate to the shop screen
     devNavShopBtn.addEventListener('click', () => {
         window.location.href = 'shop.html';
+    });
+
+    // Navigate to the event screen
+    devNavEventBtn.addEventListener('click', () => {
+        window.location.href = 'event.html';
     });
 }
 
