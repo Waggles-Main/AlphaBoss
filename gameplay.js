@@ -45,6 +45,7 @@ const state = {
     bagTiles: [],
     currentBagSort: 'alpha',
     round: 1, // Start at round 1
+    isMusicPlaying: false,
 };
 
 // --- UTILITY FUNCTIONS ---
@@ -164,6 +165,13 @@ function toggleTile(index, el) {
         createConfetti(el); // Trigger confetti effect on selection
         el.classList.add('selected');
         el.setAttribute('aria-pressed', 'true');
+        if (sounds.tileClick) sounds.tileClick.play(); // Play click sound
+
+        // Start background music on the first user interaction to comply with browser policies
+        if (!state.isMusicPlaying && sounds.background) {
+            sounds.background.play();
+            state.isMusicPlaying = true;
+        }
     }
     renderChips();
     updateDevScorePanel();
@@ -450,6 +458,7 @@ function showError(message) {
     errorEl.style.cssText = `
         animation: errorShake 0.5s ease-in-out;`;
     document.body.appendChild(errorEl);
+    if (sounds.error) sounds.error.play(); // Play error sound
     setTimeout(() => { errorEl.remove(); }, 2000);
 }
 
@@ -486,6 +495,7 @@ function showSuccess(word, score) {
     successEl.appendChild(wordEl);
     document.body.appendChild(successEl);
     
+    if (sounds.success) sounds.success.play(); // Play success sound
     createParticles(successEl);
 
     // Remove the element after the animation is well and truly over
@@ -758,6 +768,7 @@ function initTileHoverEffects() {
     tiles.forEach(tile => {
         tile.addEventListener('mouseenter', () => {
             // Add the hovering class to trigger the wobble animation and base scale.
+            if (sounds.tileHover) sounds.tileHover.play();
             tile.classList.add('hovering');
         });
 
@@ -819,6 +830,13 @@ function initHowToPlayModal() {
 
     gotItBtn.addEventListener('click', () => {
         overlay.style.display = 'none';
+
+        // Start background music after the user dismisses the tutorial
+        if (!state.isMusicPlaying && sounds.background) {
+            sounds.background.play();
+            state.isMusicPlaying = true;
+        }
+
         localStorage.setItem('alphaBossPlayedBefore', 'true');
     }, { once: true }); // Ensure the listener only fires once
 }
