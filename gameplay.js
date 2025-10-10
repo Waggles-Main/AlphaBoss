@@ -45,7 +45,7 @@ const state = {
     bagTiles: [],
     currentBagSort: 'alpha',
     round: 1, // Start at round 1
-    isMusicPlaying: false,
+    audioUnlocked: false,
 };
 
 // --- UTILITY FUNCTIONS ---
@@ -166,12 +166,7 @@ function toggleTile(index, el) {
         el.classList.add('selected');
         el.setAttribute('aria-pressed', 'true');
         if (sounds.tileClick) sounds.tileClick.play(); // Play click sound
-
-        // Start background music on the first user interaction to comply with browser policies
-        if (!state.isMusicPlaying && sounds.background) {
-            sounds.background.play();
-            state.isMusicPlaying = true;
-        }
+        unlockAudio(); // Ensure audio is unlocked on the first click
     }
     renderChips();
     updateDevScorePanel();
@@ -729,6 +724,16 @@ function initDevControls() {
     });
 }
 
+function unlockAudio() {
+    if (state.audioUnlocked) return;
+    // Howler.js uses a single AudioContext. Resuming it allows all sounds to play.
+    if (Howler.ctx && Howler.ctx.state === 'suspended') {
+        Howler.ctx.resume();
+    }
+    state.audioUnlocked = true;
+    console.log('Audio context unlocked.');
+}
+
 function initGooglyEyes() {
     const bossPortrait = document.querySelector('.boss-portrait');
     const pupils = document.querySelectorAll('.pupil');
@@ -830,13 +835,7 @@ function initHowToPlayModal() {
 
     gotItBtn.addEventListener('click', () => {
         overlay.style.display = 'none';
-
-        // Start background music after the user dismisses the tutorial
-        if (!state.isMusicPlaying && sounds.background) {
-            sounds.background.play();
-            state.isMusicPlaying = true;
-        }
-
+        unlockAudio(); // Unlock audio after the user interacts with the modal
         localStorage.setItem('alphaBossPlayedBefore', 'true');
     }, { once: true }); // Ensure the listener only fires once
 }

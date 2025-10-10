@@ -5,12 +5,12 @@
 
 const sounds = {
     // Background music
-    background: new Howl({
-        src: ['sounds/background.wav'],
-        loop: true,
-        volume: 0.3,
-        html5: true // Helps with autoplay policies on some browsers
-    }),
+    // background: new Howl({
+    //     src: ['sounds/background.wav'],
+    //     loop: true,
+    //     volume: 0.3,
+    //     html5: true // Helps with autoplay policies on some browsers
+    // }),
     // Sound for hovering over a tile
     tileHover: new Howl({
         src: ['sounds/tilehover.mp3'],
