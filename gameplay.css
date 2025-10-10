@@ -16,7 +16,7 @@
 
 :root {
     --bg: #162222;
-    --panel: #2e3a3c;
+    --panel: rgba(46, 58, 60, 0.85); /* Made panel slightly transparent */
     --panel-dark: #2e3a3c;
     --panel-soft: #2e3a3c;
     --ink: #e8f2f3;
@@ -40,9 +40,42 @@
 html, body { height: 100%; }
 body {
     margin: 0;
-    background: var(--bg);
+    background-color: #0c1010; /* Darker background for the effect */
     color: var(--ink);
     font-family: m6x11plus, m5x7, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    overflow: hidden; /* Prevents scrollbars from the blob */
+}
+
+/* New styles for the background effect */
+#blur {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: -1;
+    backdrop-filter: blur(12vmax);
+}
+
+#blob {
+    background: linear-gradient(to right, var(--accent-blue), var(--accent-red));
+    height: 34vmax;
+    aspect-ratio: 1;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    animation: rotate 20s infinite;
+    opacity: 0.7;
+    z-index: -2;
+}
+
+@keyframes rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 .screen {
@@ -349,39 +382,103 @@ body {
     padding: 0; 
     aspect-ratio: 1;
     max-width: 100%;
-    background: #152020;
+    /* Add perspective to create a 3D space for child elements */
+    perspective: 1000px;
+    background: transparent;
 }
 .tile { 
     position: relative; 
-    background: var(--tile-bg); 
-    color: var(--tile-ink); 
-    border-radius: 8px; 
-    aspect-ratio: 1;
     display: flex; 
-    flex-direction: column; 
     justify-content: center; 
     align-items: center;
-    font-family: m6x11plus; 
-    font-size: 48px; 
-    box-shadow: 0 4px 0 var(--shadow); 
+    aspect-ratio: 1;
     user-select: none; 
-    padding: 4px;
-    border: 1px solid var(--tile-border);
     margin: 4px;
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
-    box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Smooth transition for the hover effect and selection */
+    transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+    transform-style: preserve-3d; /* Ensures children are rendered in 3D space */
+    /* Remove visual styles from the container */
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
 }
+
+/* New animator wrapper gets the visual styles */
+.tile-animator {
+    width: 100%;
+    height: 100%;
+    background: var(--tile-bg);
+    color: var(--tile-ink);
+    border-radius: 8px;
+    border: 1px solid var(--tile-border);
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 4px;
+    transition: background-color 0.2s, color 0.2s; /* For smooth selection */
+}
+
+/* New inner wrapper for tile content */
+.tile-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: m6x11plus; 
+    font-size: 48px;
+    position: relative;
+}
+
+/* This class will be added via JS on hover to apply the wobble and scale effect */
+/* Apply animation and scale to the new animator wrapper on hover */
+.tile.hovering .tile-animator {
+    animation: wobble-gelatine .6s ease-out 1 forwards; /* Play once and hold the final state */
+}
+
 .tile .val { 
     font-family: m5x7; 
     font-size: 18px; 
     color: #0096f0; 
     font-weight: bold;
-    position: absolute;
+    position: absolute; /* Position relative to .tile-content */
     bottom: 4px;
     right: 4px;
     line-height: 1;
 }
-.tile.selected { 
+
+/* New combined animation for wobble and gelatine effects */
+@keyframes wobble-gelatine {
+  0% { transform: scale(1.0) rotate(0deg); }
+  20% { transform: scale(1.25, 1.15) rotate(-2deg); }
+  40% { transform: scale(1.1, 1.2) rotate(2deg); }
+  60% { transform: scale(1.2, 1.1) rotate(-1deg); }
+  /* Settle into a slightly enlarged state and begin rocking */
+  75% { transform: scale(1.1) rotate(1.5deg); }
+  100% { transform: scale(1.1) rotate(-1.5deg); }
+}
+
+/* --- MODIFIER STYLES --- */
+/* Style for the "Booster" enhancement */
+.tile.enhanced-booster .tile-animator {
+    box-shadow: 0 4px 0 var(--shadow), inset 0 0 0 4px var(--accent-blue);
+}
+
+/* Style for the "Steel" enhancement */
+.tile.enhanced-steel .tile-animator {
+    background-color: #c0c0c0; /* Silver color */
+    background-image: linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.3) 25%, transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.3) 75%,
+        transparent 75%, transparent
+    );
+    background-size: 40px 40px;
+    color: #333;
+}
+
+.tile.selected .tile-animator { 
     background: var(--chip-bg); 
     color: #111; 
 }
@@ -446,6 +543,22 @@ body {
     90% { transform: translate(-50%, -50%) rotate(-2deg); }
 }
 
+.error-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--accent-red);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 16px;
+    font-family: m6x11plus;
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 10000;
+    box-shadow: 0 8px 0 var(--shadow);
+}
+
 @keyframes successPop {
     0% { 
         transform: translate(-50%, -50%) scale(0.8); 
@@ -494,13 +607,45 @@ body {
     font-family: m6x11plus, m5x7, sans-serif;
     font-size: 48px;
     font-weight: bold;
-    color: var(--accent-green);
+    color: white;
     text-shadow: 0 4px 0 var(--shadow);
     padding: 20px 30px;
     border-radius: 16px;
-    background: var(--ink);
+    background: var(--accent-green);
     z-index: 10;
-    animation: successPopWord 300ms ease-out forwards;
+    animation: successPopWord 400ms ease-out forwards;
+    position: relative; /* Required for pseudo-elements */
+    overflow: hidden;   /* Keeps shine effect contained */
+}
+
+/* New shine effect pseudo-element */
+.success-word::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 300%;
+    background: linear-gradient(
+        110deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 60%
+    );
+    transform: translate(-50%, -50%) rotate(-45deg);
+    animation: shine 2.5s ease-in-out infinite;
+}
+
+/* Styles for the new SVG sparkles */
+.success-word svg {
+    position: absolute;
+    width: 12px; /* Adjust size of sparkles */
+    aspect-ratio: 1;
+    top: calc(var(--y) * 1%);
+    left: calc(var(--x) * 1%);
+    transform: translate(-50%, -50%) scale(0);
+    animation: sparkle 1s ease-out both;
+    animation-delay: calc(0.15s * var(--d));
 }
 
 .particle {
@@ -520,6 +665,18 @@ body {
     100% { transform: scale(1); opacity: 1; }
 }
 
+/* New keyframes for the shine and sparkle effects */
+@keyframes shine {
+    0% { transform: translate(-50%, -50%) rotate(-45deg) translateX(-100%); }
+    100% { transform: translate(-50%, -50%) rotate(-45deg) translateX(100%); }
+}
+
+@keyframes sparkle {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(var(--s, 1.2)); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0); opacity: 0.5; }
+}
+
 @keyframes explode {
     0% {
         transform: translate(0, 0) scale(1);
@@ -531,6 +688,48 @@ body {
         opacity: 0;
     }
 }
+
+/* Class to trigger the slam animation */
+.chip.slamming {
+    animation: chip-slam 0.4s ease-in-out;
+}
+
+/* New animation for the chip slam effect */
+@keyframes chip-slam {
+    0% { transform: translateY(0) scale(1); }
+    40% { transform: translateY(-30px) scale(1.1); }
+    70% { transform: translateY(5px) scale(0.95); }
+    85% { transform: translateY(-5px) scale(1.05); }
+    100% { transform: translateY(0) scale(1); }
+}
+
+
+/* New styles for the confetti effect on tile click */
+.confetti-particle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 10001; /* Above other elements */
+    transform-origin: center;
+    /* The animation is set dynamically via JS */
+    animation: confetti-fly 1s ease-out forwards;
+}
+
+@keyframes confetti-fly {
+    0% {
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        /* Use CSS variables set by JS for random destinations */
+        transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(0) rotate(var(--r));
+        opacity: 0;
+    }
+}
+
+
 /* In gameplay.css */
 
 /* Bag Modal Styles */
@@ -588,6 +787,14 @@ body {
     margin: 0;
     color: white;
     text-shadow: 0 2px 0 var(--shadow);
+}
+
+.bag-info {
+    text-align: center;
+    font-family: m6x11plus;
+    font-size: 16px;
+    color: var(--muted);
+    margin-top: -8px; /* Pull it closer to the title */
 }
 
 .sort-container {
@@ -678,26 +885,269 @@ body {
     line-height: 1;
 }
 
-/* Add to the end of gameplay.css */
-
-.tile:hover {
-    /* Apply the animation on hover and bring the tile to the front */
-    animation: float 2.5s ease-in-out infinite;
-    z-index: 10;
+/* --- DEV PANEL STYLES --- */
+.dev-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--panel);
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 2px solid var(--accent-red);
 }
 
-/* Defines the floating motion */
-@keyframes float {
-  0% {
-    transform: translateY(-5px) rotate(-2deg);
-    box-shadow: 0 7px 0 var(--shadow);
-  }
-  50% {
-    transform: translateY(-9px) rotate(2deg);
-    box-shadow: 0 11px 0 var(--shadow);
-  }
-  100% {
-    transform: translateY(-5px) rotate(-2deg);
-    box-shadow: 0 7px 0 var(--shadow);
-  }
+.dev-panel .dev-title {
+    margin: 0 0 10px;
+    text-align: center;
+    font-family: m5x7;
+    color: var(--accent-red);
+    font-size: 24px;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.dev-panel .dev-subtitle {
+    margin: 10px 0 5px;
+    text-align: center;
+    font-family: m6x11plus;
+    color: var(--muted);
+    font-size: 18px;
+    border-top: 1px solid var(--tile-border);
+    padding-top: 10px;
+}
+
+#devScoreDetails {
+    font-family: m5x7;
+    font-size: 16px;
+    color: white;
+    text-align: left;
+    white-space: pre-wrap; /* To respect newlines */
+    background: #152020;
+    padding: 8px;
+    border-radius: 4px;
+    min-height: 50px;
+}
+
+.dev-panel button {
+    appearance: none;
+    border: 1px solid var(--tile-border);
+    background: var(--panel-soft);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    font-family: m6x11plus;
+    font-size: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    cursor: pointer;
+}
+
+/* --- VICTORY MODAL STYLES --- */
+.victory-modal {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 16px;
+    width: 100%;
+    max-width: 328px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border: 2px solid #3b4b4f;
+    animation: successPopWord 0.5s ease-out; /* Reuse pop animation */
+}
+
+.victory-title {
+    font-family: m5x7;
+    font-size: 36px;
+    text-align: center;
+    margin: 0 0 8px;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.victory-calculations {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.victory-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.victory-row.flavor-text .victory-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--accent-red);
+    flex-shrink: 0;
+}
+
+.victory-row.flavor-text .victory-text-box {
+    background: #e8eaed;
+    color: #444748;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: m6x11plus;
+    font-size: 14px;
+    line-height: 1.2;
+    flex-grow: 1;
+}
+
+.victory-label-num {
+    font-family: m5x7;
+    font-size: 32px;
+    color: var(--accent-blue);
+    text-shadow: 0 2px 0 var(--shadow);
+    width: 30px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.victory-label {
+    font-family: m6x11plus;
+    font-size: 18px;
+    color: white;
+    flex-grow: 1;
+}
+
+.victory-value {
+    font-family: m5x7;
+    font-size: 32px;
+    text-shadow: 0 2px 0 var(--shadow);
+    flex-shrink: 0;
+    min-width: 40px;
+    text-align: right;
+}
+
+.victory-value.money {
+    color: var(--accent-orange);
+}
+
+.victory-value.negative {
+    color: var(--accent-red);
+}
+
+.victory-divider {
+    height: 1px;
+    background-color: var(--tile-border);
+    opacity: 0.5;
+    margin: 0 20px;
+}
+
+.victory-cashout-btn {
+    appearance: none;
+    background: var(--accent-orange);
+    color: white;
+    border: 1px solid var(--tile-border);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: m5x7;
+    font-size: 36px;
+    text-shadow: 0 2px 0 var(--shadow);
+    box-shadow: 0 4px 0 var(--shadow);
+    cursor: pointer;
+    margin: 0 50px;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.victory-cashout-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--shadow);
+}
+
+/* --- DEFEAT MODAL STYLES --- */
+.defeat-modal {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 16px;
+    width: 100%;
+    max-width: 328px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border: 2px solid #3b4b4f;
+    animation: successPopWord 0.5s ease-out;
+}
+
+.defeat-title {
+    font-family: m5x7;
+    font-size: 36px;
+    text-align: center;
+    margin: 0;
+    color: var(--accent-red);
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.defeat-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.defeat-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.defeat-label {
+    font-family: m5x7;
+    font-size: 24px;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.defeat-value-box {
+    background: #e8eaed;
+    color: #444748;
+    border-radius: 16px;
+    padding: 8px 16px;
+    font-family: m6x11plus;
+    font-size: 14px;
+    line-height: 1.2;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.defeat-divider {
+    height: 1px;
+    background-color: var(--tile-border);
+    opacity: 0.5;
+}
+
+.defeat-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.defeat-actions button {
+    appearance: none;
+    border: none;
+    color: white;
+    padding: 16px;
+    border-radius: 16px;
+    font-family: m6x11plus;
+    font-size: 20px;
+    box-shadow: 0 4px 0 black;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.btn-new-run {
+    background-color: var(--accent-green);
+}
+
+.btn-main-menu {
+    background-color: var(--accent-red);
 }

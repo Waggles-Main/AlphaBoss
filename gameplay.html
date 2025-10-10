@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="gameplay.css">
 </head>
 <body>
+    <!-- Elements for the background cursor effect -->
+    <div id="blob"></div>
+    <div id="blur"></div>
+
     <main class="screen">
         <!-- Round Information -->
         <section class="round-info">
@@ -69,7 +73,6 @@
 
         <!-- Scoring Area -->
         <section class="scoring">
-            <div class="panel-title">SCORING AREA</div>
             <div class="chips-container">
                 <div class="chips" id="scoreChips">
                     <!-- Chips will be dynamically added here -->
@@ -107,6 +110,9 @@
       <div class="bag-modal">
         <button class="btn-close" id="btnCloseBagModal" aria-label="Close bag view">&times;</button>
         <h2 class="bag-title">BAG</h2>
+        <div class="bag-info">
+            <span id="tilesRemainingInfo">Tiles remaining: 0</span>
+        </div>
         <div class="sort-container">
           <span class="sort-label">SORT</span>
           <div class="sort-controls">
@@ -121,7 +127,80 @@
         </div>
       </div>
     </div>
+
+    <div class="modal-overlay" id="victoryModalOverlay">
+        <div class="victory-modal">
+            <h2 class="victory-title">VICTORY</h2>
+            <!-- This row is for flavor text, can be populated later -->
+            <div class="victory-row flavor-text">
+                <div class="victory-icon boss-icon"></div>
+                <div class="victory-text-box">
+                    <span>You won! Here are your spoils...</span>
+                </div>
+            </div>
+            <div class="victory-calculations">
+                <!-- This row calculates bonus for beating the boss -->
+                <div class="victory-row" id="victoryBossRow">
+                    <span class="victory-label-num">1</span>
+                    <span class="victory-label">BOSS BEATEN</span>
+                    <span class="victory-value money" id="victoryBossValue"></span>
+                </div>
+                <!-- This row calculates bonus for words remaining -->
+                <div class="victory-row" id="victoryWordsRow">
+                    <span class="victory-label-num" id="victoryWordsCount"></span>
+                    <span class="victory-label">WORDS REMAINING ($2 EACH)</span>
+                    <span class="victory-value money" id="victoryWordsValue"></span>
+                </div>
+            </div>
+            <div class="victory-divider"></div>
+            <button class="victory-cashout-btn" id="victoryCashOutBtn">CASH OUT: $0</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="defeatModalOverlay">
+        <div class="defeat-modal">
+            <h2 class="defeat-title">GAME OVER :(</h2>
+            <div class="defeat-stats">
+                <div class="defeat-stat-row">
+                    <span class="defeat-label">Best word</span>
+                    <div class="defeat-value-box"><span id="defeatBestWord">N/A</span></div>
+                </div>
+                <div class="defeat-stat-row">
+                    <span class="defeat-label">Words played</span>
+                    <div class="defeat-value-box"><span id="defeatWordsPlayed">0</span></div>
+                </div>
+                <div class="defeat-stat-row">
+                    <span class="defeat-label">Round</span>
+                    <div class="defeat-value-box"><span id="defeatRound">1</span></div>
+                </div>
+                <div class="defeat-stat-row">
+                    <span class="defeat-label">Defeated by</span>
+                    <div class="defeat-value-box"><span id="defeatReason">Out of words</span></div>
+                </div>
+            </div>
+            <div class="defeat-divider"></div>
+            <div class="defeat-actions">
+                <button class="btn-new-run" id="defeatNewRun">NEW RUN</button>
+                <button class="btn-main-menu" id="defeatMainMenu">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="devPanel" class="dev-panel">
+        <h3 class="dev-title">DEV CONTROLS</h3>
+        <button id="devRefresh">Refresh Board</button>
+        <button id="devWin">Auto Win Round</button>
+        <button id="devLose">Auto Lose Round</button>
+        <div class="dev-score-calc">
+            <h4 class="dev-subtitle">Score Breakdown</h4>
+            <div id="devScoreDetails">Select tiles...</div>
+        </div>
+        <h4 class="dev-subtitle">Navigation</h4>
+        <button id="devNavMenu">Main Menu</button>
+        <button id="devNavGame">Gameplay</button>
+        <button id="devNavShop">Shop</button>
+    </div>
+
     <script src="gameplay.js"></script>
 </body>
 </html>
-

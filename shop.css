@@ -1,0 +1,210 @@
+@font-face {
+    font-family: 'm5x7';
+    src: url('Fonts/m5x7.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'm6x11plus';
+    src: url('Fonts/m6x11plus.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --bg: #162222;
+    --panel-dark: #2e3a3c;
+    --shadow: rgba(0,0,0,.5);
+    --accent-red: #ff5f4f;
+    --accent-blue: #1f8df2;
+    --accent-green: #56a67a;
+    --accent-orange: #fd8c1f;
+    --tile-border: #b9c4d4;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background-color: var(--bg);
+    color: white;
+    font-family: m6x11plus, m5x7, system-ui, sans-serif;
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+}
+
+.shop-screen {
+    width: 100%;
+    max-width: 360px;
+    height: 100vh;
+    max-height: 780px;
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.shop-header {
+    background: var(--panel-dark);
+    border: 4px solid var(--accent-red);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 4px 0 var(--shadow);
+}
+
+/* New styles for the glowing marquee title */
+.shop-title-sign {
+    font-family: m5x7;
+    font-size: 48px;
+    color: #fefefe;
+    animation: flicker 3s linear infinite;
+}
+
+.shop-title-sign .flicker {
+    animation: flicker 1.5s linear infinite;
+}
+
+.shop-title-sign .fast-flicker {
+    animation: flicker 0.8s linear infinite;
+}
+
+@keyframes flicker {
+    0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+        opacity: 0.99;
+        text-shadow: 
+            -1px -1px 0 #fd8c1f, 1px -1px 0 #ffc83d, -1px 1px 0 #fd8c1f, 1px 1px 0 #ffc83d,
+            0 0 5px #fff, 0 0 15px #ff9a22, 0 0 25px #ff9a22, 0 0 40px #ff9a22, 0 0 60px #fd8c1f;
+    }
+    20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+        opacity: 0.4;
+        text-shadow: none;
+    }
+}
+
+.shop-header p {
+    font-family: m6x11plus;
+    font-size: 11px;
+    margin: 4px 0 0;
+    color: white;
+}
+
+.shop-top-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.shop-btn {
+    appearance: none;
+    border: none;
+    color: white;
+    padding: 16px;
+    border-radius: 16px;
+    font-family: m6x11plus;
+    font-size: 18px;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: 0 4px 0 black;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.shop-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 black;
+}
+
+.btn-bag {
+    background-color: var(--accent-blue);
+}
+
+.money-display {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.money-label {
+    font-family: m6x11plus;
+    font-size: 11px;
+}
+
+.money-value {
+    font-family: m5x7;
+    font-size: 32px;
+    color: var(--accent-orange);
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.shop-main {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-grow: 1;
+}
+
+.btn-reroll {
+    background-color: var(--accent-red);
+    font-family: m5x7;
+    font-size: 36px;
+    padding: 14px;
+}
+
+.shop-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    flex-grow: 1;
+}
+
+.shop-item {
+    background: white;
+    border: 1px solid var(--tile-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 0 var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.item-icon {
+    font-family: m6x11plus;
+    font-size: 64px;
+    color: #1e2f33;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.item-price {
+    font-family: m5x7;
+    font-size: 32px;
+    color: var(--accent-orange);
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.shop-footer {
+    flex-shrink: 0;
+}
+
+.btn-continue {
+    background-color: var(--accent-green);
+    display: block;
+    font-family: m6x11plus;
+    font-size: 20px;
+}

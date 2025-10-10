@@ -7,6 +7,7 @@ A web-based rogue-like word game that combines the classic Boggle mechanics with
 ### Core Gameplay
 - **4x4 Boggle Board**: Find words by connecting adjacent letters
 - **Word Validation**: Built-in dictionary with 200+ common words
+- **Word Validation**: Official Scrabble dictionary (NWL2020) for comprehensive word checking
 - **Scoring System**: Points based on word length with bonus for rare letters
 - **Time Pressure**: 60-second rounds with upgradeable time extensions
 
