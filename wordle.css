@@ -1,0 +1,197 @@
+@font-face {
+    font-family: 'm5x7';
+    src: url('Fonts/m5x7.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'm6x11plus';
+    src: url('Fonts/m6x11plus.ttf') format('truetype');
+}
+
+:root {
+    --bg: #162222;
+    --panel-dark: #2e3a3c;
+    --shadow: rgba(0,0,0,.5);
+    --correct: #56a67a;
+    --present: #fd8c1f;
+    --absent: #3a4a4f;
+    --key-bg: #818384;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background-color: var(--bg);
+    color: white;
+    font-family: m6x11plus, sans-serif;
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+}
+
+.wordle-container {
+    width: 100%;
+    max-width: 360px;
+    height: 100vh;
+    max-height: 780px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.wordle-header {
+    text-align: center;
+}
+
+.wordle-header h1 {
+    font-family: m5x7;
+    font-size: 36px;
+    margin: 0;
+    text-shadow: 0 2px 0 var(--shadow);
+    letter-spacing: 2px;
+}
+
+.wordle-grid {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    gap: 8px;
+}
+
+.grid-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.grid-tile {
+    width: 56px;
+    height: 56px;
+    border: 2px solid var(--absent);
+    color: white;
+    font-family: m5x7;
+    font-size: 36px;
+    display: grid;
+    place-items: center;
+    text-transform: uppercase;
+    transition: transform 0.2s;
+}
+
+.grid-tile.filled {
+    border-color: #565758;
+    animation: pop-in 0.1s;
+}
+
+@keyframes pop-in {
+    from { transform: scale(0.8); }
+    to { transform: scale(1); }
+}
+
+.grid-tile.flip {
+    animation: flip 0.6s ease-in-out forwards;
+}
+
+@keyframes flip {
+    0% { transform: rotateX(0deg); }
+    50% { transform: rotateX(90deg); }
+    100% { transform: rotateX(0deg); }
+}
+
+.grid-tile.correct {
+    background-color: var(--correct);
+    border-color: var(--correct);
+}
+
+.grid-tile.present {
+    background-color: var(--present);
+    border-color: var(--present);
+}
+
+.grid-tile.absent {
+    background-color: var(--absent);
+    border-color: var(--absent);
+}
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.keyboard button {
+    font-family: m6x11plus;
+    font-weight: bold;
+    font-size: 14px;
+    background-color: var(--key-bg);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 18px 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.2s;
+}
+
+.keyboard button.key-large {
+    padding: 18px 16px;
+    font-size: 12px;
+}
+
+.keyboard button:active {
+    background-color: #a1a3a4;
+}
+
+.keyboard button.correct { background-color: var(--correct); }
+.keyboard button.present { background-color: var(--present); }
+.keyboard button.absent { background-color: var(--absent); }
+
+/* Result Modal */
+.result-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.result-modal {
+    background: var(--panel-dark);
+    padding: 24px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 0 var(--shadow);
+    animation: pop-in 0.3s ease-out;
+}
+
+.result-modal h2 {
+    font-family: m5x7;
+    font-size: 36px;
+    margin: 0 0 8px;
+}
+
+.result-modal p {
+    font-family: m6x11plus;
+    font-size: 18px;
+    margin: 0 0 24px;
+}
+
+.result-modal a {
+    background-color: var(--correct);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: m6x11plus;
+    font-size: 20px;
+    box-shadow: 0 4px 0 black;
+}

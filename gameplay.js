@@ -679,6 +679,7 @@ function initDevControls() {
     const devNavGameBtn = document.getElementById('devNavGame');
     const devNavShopBtn = document.getElementById('devNavShop');
     const devNavEventBtn = document.getElementById('devNavEvent');
+    const devNavWordleBtn = document.createElement('button');
 
 
     if (!devRefreshBtn) return; // Assume panel doesn't exist if one button is missing
@@ -722,6 +723,29 @@ function initDevControls() {
     devNavEventBtn.addEventListener('click', () => {
         window.location.href = 'event.html';
     });
+
+    // Add a new button for the Wordle event specifically
+    devNavWordleBtn.id = 'devNavWordle';
+    devNavWordleBtn.textContent = 'Wordle Event';
+    devNavEventBtn.after(devNavWordleBtn); // Place it after the generic event button
+    devNavWordleBtn.addEventListener('click', () => {
+        window.location.href = 'wordle.html';
+    });
+}
+
+function initAudioUnlock() {
+    const unlock = () => {
+        if (state.audioUnlocked || !Howler.ctx) return;
+        if (Howler.ctx.state === 'suspended') {
+            Howler.ctx.resume();
+        }
+        state.audioUnlocked = true;
+        // Once unlocked, we don't need these listeners anymore.
+        document.body.removeEventListener('click', unlock);
+        document.body.removeEventListener('touchend', unlock);
+    };
+    document.body.addEventListener('click', unlock);
+    document.body.addEventListener('touchend', unlock);
 }
 
 function unlockAudio() {
@@ -880,6 +904,7 @@ async function init() {
     initBlobEffect(); // Initialize the new background effect
     initDevControls(); // Initialize the developer control panel
     initHowToPlayModal(); // Check if we need to show the tutorial
+    initAudioUnlock(); // Set up the listener to unlock audio on first interaction
 }
 
 // Start the game
