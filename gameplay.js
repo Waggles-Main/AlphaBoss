@@ -806,6 +806,22 @@ function initBlobEffect() {
     }
 }
 
+function initHowToPlayModal() {
+    const hasPlayedBefore = localStorage.getItem('alphaBossPlayedBefore');
+    if (hasPlayedBefore) {
+        return; // Don't show the modal if they've played before
+    }
+
+    const overlay = document.getElementById('howToPlayModalOverlay');
+    const gotItBtn = document.getElementById('howToPlayGotIt');
+
+    overlay.style.display = 'flex';
+
+    gotItBtn.addEventListener('click', () => {
+        overlay.style.display = 'none';
+        localStorage.setItem('alphaBossPlayedBefore', 'true');
+    }, { once: true }); // Ensure the listener only fires once
+}
 
 async function init() {
     // Initialize game state object
@@ -846,6 +862,7 @@ async function init() {
     initGooglyEyes();
     initBlobEffect(); // Initialize the new background effect
     initDevControls(); // Initialize the developer control panel
+    initHowToPlayModal(); // Check if we need to show the tutorial
 }
 
 // Start the game
