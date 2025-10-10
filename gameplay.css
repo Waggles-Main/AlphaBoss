@@ -1,0 +1,703 @@
+@font-face {
+    font-family: 'm5x7';
+    src: url('Fonts/m5x7.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'm6x11plus';
+    src: url('Fonts/m6x11plus.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --bg: #162222;
+    --panel: #2e3a3c;
+    --panel-dark: #2e3a3c;
+    --panel-soft: #2e3a3c;
+    --ink: #e8f2f3;
+    --muted: #a3b3b7;
+    --accent-red: #ff5f4f;
+    --accent-blue: #1f8df2;
+    --accent-green: #56a67a;
+    --accent-orange: #fd8c1f;
+    --chip-bg: #fd8c1f;
+    --tile-bg: #ffffff;
+    --tile-ink: #1e2f33;
+    --tile-border: #b9c4d4;
+    --shadow: rgba(0,0,0,.5);
+    --radius: 8px;
+    --progress-bg: #dcdcdc;
+    --progress-fill: #56a67a;
+    --progress-stop: #fd8c1f;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: m6x11plus, m5x7, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.screen {
+    max-width: 360px;
+    margin: 0 auto;
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: auto auto auto auto 1fr auto;
+    gap: 8px;
+    padding: 8px 16px 8px;
+}
+
+.round-info { 
+    background: var(--panel); 
+    border-radius: 16px; 
+    padding: 10px 16px; 
+    box-shadow: 0 4px 0 var(--shadow); 
+}
+.boss { 
+    display: grid; 
+    grid-template-columns: 44px 1fr 23px; 
+    gap: 8px; 
+    align-items: center; 
+    margin-bottom: 4px;
+}
+.boss-portrait { 
+    width: 44px; 
+    height: 44px; 
+    border-radius: 50%; 
+    background: var(--accent-red); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: m5x7;
+    color: white;
+    font-size: 10px;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+
+.googly-eyes {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+}
+
+.eye {
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+}
+
+.pupil {
+    width: 4px;
+    height: 4px;
+    background: black;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.1s ease-out;
+}
+.boss-dialog { 
+    background: #e8eaed; 
+    color: #1e2f33; 
+    border-radius: 10px; 
+    padding: 8px 16px; 
+    font-family: m6x11plus; 
+    font-size: 12px;
+    line-height: 1.2;
+}
+.round-indicator { 
+    text-align: center; 
+}
+.round-label { 
+    font-size: 11px; 
+    color: white; 
+    font-family: m6x11plus;
+}
+.round-value { 
+    font-family: m5x7; 
+    font-size: 24px; 
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.scores { 
+    display: grid; 
+    grid-template-columns: 59px 1fr 59px; 
+    gap: 8px; 
+    align-items: center; 
+}
+.score-label, .target-label { 
+    font-size: 11px; 
+    color: white; 
+    font-family: m6x11plus;
+}
+.score-value, .target-value { 
+    font-family: m5x7; 
+    font-size: 24px; 
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+.target-value {
+    color: var(--accent-red);
+}
+.progress { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+.progress .bar { 
+    height: 12px; 
+    border-radius: 0; 
+    background: var(--progress-bg); 
+    overflow: hidden; 
+    position: relative;
+    width: 100%;
+}
+.progress .bar span { 
+    display: block; 
+    height: 100%; 
+    width: 12%; 
+    background: var(--progress-fill); 
+    position: relative;
+}
+.progress .bar::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--progress-stop);
+    border-radius: 50%;
+}
+
+.player-strip { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 8px; 
+}
+.pill { 
+    background: var(--panel); 
+    border-radius: 16px; 
+    padding: 10px; 
+    text-align: center; 
+    box-shadow: 0 4px 0 var(--shadow); 
+}
+.pill-label { 
+    font-size: 11px; 
+    color: white; 
+    font-family: m6x11plus;
+}
+.pill-value { 
+    font-family: m5x7; 
+    font-size: 32px; 
+    margin-top: 2px; 
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+.pill .money { 
+    color: var(--accent-orange); 
+}
+
+.item-tabs { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 16px; 
+}
+.tab { 
+    appearance: none; 
+    border: 0; 
+    background: var(--panel); 
+    color: white; 
+    padding: 12px 8px; 
+    border-radius: 16px; 
+    font-family: m6x11plus; 
+    font-size: 18px;
+    box-shadow: 0 4px 0 var(--shadow); 
+}
+.tab[aria-pressed="true"] { 
+    outline: 2px solid #3b4b4f; 
+}
+
+.scoring { 
+    background: var(--panel); 
+    border-radius: 16px; 
+    padding: 8px 16px; 
+    box-shadow: 0 4px 0 var(--shadow);
+}
+.panel-title { 
+    color: white; 
+    margin-bottom: 8px; 
+    font-family: m6x11plus;
+    font-size: 18px;
+}
+.chips-container { 
+    position: relative; 
+    height: 56px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    overflow: hidden;
+}
+.chips { 
+    display: flex; 
+    gap: 4px; 
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    padding: 0 4px;
+    z-index: 2;
+}
+.chips-placeholder { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    gap: 4px; 
+    z-index: 1;
+    max-width: 100%;
+}
+.placeholder-chip { 
+    width: 56px; 
+    height: 56px; 
+    background: transparent; 
+    border: 2px dashed rgba(255, 255, 255, 0.1); 
+    border-radius: 8px; 
+    opacity: 0.3;
+    flex-shrink: 0;
+}
+.chip { 
+    background: var(--chip-bg); 
+    color: #111; 
+    border-radius: 8px; 
+    padding: 8px 10px; 
+    font-family: m6x11plus; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 2px; 
+    box-shadow: 0 4px 0 var(--shadow); 
+    border: 1px solid var(--tile-border);
+    transition: all 0.2s ease;
+
+    /* ▼ NEW SIZING LOGIC ▼ */
+    flex-basis: 56px; /* This is the ideal size */
+    flex-grow: 0;     /* Prevents chips from growing larger than their ideal size */
+    flex-shrink: 1;   /* THIS IS THE KEY: Allows chips to shrink when space is limited */
+    min-width: 0;     /* Important for allowing flex items to shrink properly */
+    aspect-ratio: 1;  /* Maintains a perfect square shape as the width changes */
+    /* ▲ END NEW SIZING LOGIC ▲ */
+
+    /* ... other styles */
+}
+.chip .v { 
+    font-family: m5x7; 
+    font-size: 11px; 
+    background: rgba(0,0,0,.15); 
+    padding: 2px 4px; 
+    border-radius: 6px; 
+    font-weight: bold;
+}
+.base-score { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-top: 8px; 
+    padding-top: 6px; 
+    border-top: 1px dashed #334349; 
+}
+.base-score .muted { 
+    color: white; 
+    font-size: 18px; 
+    font-family: m6x11plus;
+}
+.base-score .base-value { 
+    font-family: m5x7; 
+    font-size: 18px; 
+    color: white;
+}
+
+.grid { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 0; 
+    padding: 0; 
+    aspect-ratio: 1;
+    max-width: 100%;
+    background: #152020;
+}
+.tile { 
+    position: relative; 
+    background: var(--tile-bg); 
+    color: var(--tile-ink); 
+    border-radius: 8px; 
+    aspect-ratio: 1;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center;
+    font-family: m6x11plus; 
+    font-size: 48px; 
+    box-shadow: 0 4px 0 var(--shadow); 
+    user-select: none; 
+    padding: 4px;
+    border: 1px solid var(--tile-border);
+    margin: 4px;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+    box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tile .val { 
+    font-family: m5x7; 
+    font-size: 18px; 
+    color: #0096f0; 
+    font-weight: bold;
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    line-height: 1;
+}
+.tile.selected { 
+    background: var(--chip-bg); 
+    color: #111; 
+}
+
+.actions { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 12px; 
+    margin-top: 6px; 
+}
+.btn { 
+    appearance: none; 
+    border: 0; 
+    padding: 16px 10px; 
+    border-radius: 16px; 
+    font-family: m6x11plus; 
+    color: #fff; 
+    box-shadow: 0 5px 0 var(--shadow); 
+    font-size: 18px;
+}
+.btn-clear { 
+    background: #f36a66; 
+}
+.btn-secondary { 
+    background: #1574d5; 
+}
+.btn-play { 
+    background: #5caf8d; 
+}
+
+.chips::-webkit-scrollbar { height: 6px; }
+.chips::-webkit-scrollbar-thumb { background: #3a4a4f; border-radius: 8px; }
+
+@media (min-width: 360px) {
+    .screen { max-width: 360px; }
+}
+
+/* Animations for word validation */
+@keyframes screenShake {
+    0%, 100% { transform: translateX(0); }
+    10% { transform: translateX(-5px); }
+    20% { transform: translateX(5px); }
+    30% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    50% { transform: translateX(-5px); }
+    60% { transform: translateX(5px); }
+    70% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+    90% { transform: translateX(-5px); }
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translate(-50%, -50%); }
+    10% { transform: translate(-50%, -50%) rotate(-2deg); }
+    20% { transform: translate(-50%, -50%) rotate(2deg); }
+    30% { transform: translate(-50%, -50%) rotate(-2deg); }
+    40% { transform: translate(-50%, -50%) rotate(2deg); }
+    50% { transform: translate(-50%, -50%) rotate(-2deg); }
+    60% { transform: translate(-50%, -50%) rotate(2deg); }
+    70% { transform: translate(-50%, -50%) rotate(-2deg); }
+    80% { transform: translate(-50%, -50%) rotate(2deg); }
+    90% { transform: translate(-50%, -50%) rotate(-2deg); }
+}
+
+@keyframes successPop {
+    0% { 
+        transform: translate(-50%, -50%) scale(0.8); 
+        opacity: 0; 
+    }
+    50% { 
+        transform: translate(-50%, -50%) scale(1.1); 
+        opacity: 1; 
+    }
+    100% { 
+        transform: translate(-50%, -50%) scale(1); 
+        opacity: 1; 
+    }
+}
+
+/* Add these new styles to your gameplay.css file */
+
+.chip {
+    cursor: grab; /* Indicates the chips are draggable */
+}
+
+.chip:active {
+    cursor: grabbing;
+}
+
+/* Style for the chip being dragged */
+.chip.dragging {
+    opacity: 0.5;
+}
+
+/* Replace the old .success-message and related @keyframes with this new section */
+
+.success-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    pointer-events: none; /* This allows clicks to pass through the container */
+}
+
+.success-word {
+    font-family: m6x11plus, m5x7, sans-serif;
+    font-size: 48px;
+    font-weight: bold;
+    color: var(--accent-green);
+    text-shadow: 0 4px 0 var(--shadow);
+    padding: 20px 30px;
+    border-radius: 16px;
+    background: var(--ink);
+    z-index: 10;
+    animation: successPopWord 300ms ease-out forwards;
+}
+
+.particle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: var(--accent-orange);
+    border-radius: 50%;
+    opacity: 0; /* Will be made visible by the animation */
+}
+
+@keyframes successPopWord {
+    0% { transform: scale(0.5); opacity: 0; }
+    80% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes explode {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        /* These --x and --y variables are set dynamically in the JS */
+        transform: translate(var(--x), var(--y)) scale(0);
+        opacity: 0;
+    }
+}
+/* In gameplay.css */
+
+/* Bag Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 16px;
+}
+
+.bag-modal {
+    background: var(--panel);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 24px;
+    width: 100%;
+    max-width: 420px;
+    height: 90vh;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    border: 2px solid #3b4b4f;
+}
+
+.btn-close {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--accent-red);
+    color: white;
+    border: 2px solid white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 2px 0 var(--shadow);
+    font-family: m5x7;
+}
+
+.bag-title {
+    font-family: m5x7;
+    font-size: 36px;
+    text-align: center;
+    margin: 0;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.sort-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.sort-label {
+    font-family: m6x11plus;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.sort-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+}
+
+.sort-btn {
+    appearance: none;
+    border: 1px solid var(--tile-border);
+    background: var(--panel-soft);
+    color: white;
+    padding: 12px 8px;
+    border-radius: 8px;
+    font-family: m6x11plus;
+    font-size: 24px;
+    box-shadow: 0 4px 0 var(--shadow);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.sort-btn.active {
+    background: var(--accent-orange);
+    color: white;
+}
+
+.bag-grid-container {
+    background: #152020;
+    border-radius: 8px;
+    padding: 12px;
+    overflow-y: auto;
+    flex-grow: 1; /* This makes the container fill the available space */
+}
+
+/* Custom scrollbar for the bag grid */
+.bag-grid-container::-webkit-scrollbar { width: 8px; }
+.bag-grid-container::-webkit-scrollbar-track { background: transparent; }
+.bag-grid-container::-webkit-scrollbar-thumb { background: #3a4a4f; border-radius: 8px; }
+
+.bag-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 12px;
+}
+
+.bag-tile {
+    background: var(--tile-bg);
+    color: var(--tile-ink);
+    border-radius: 8px;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: m6x11plus;
+    font-size: 36px;
+    box-shadow: 0 4px 0 var(--shadow);
+    user-select: none;
+    padding: 4px;
+    border: 1px solid var(--tile-border);
+    position: relative;
+}
+
+.bag-tile .val {
+    font-family: m5x7;
+    font-size: 16px;
+    color: #0096f0;
+    font-weight: bold;
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    line-height: 1;
+}
+
+/* Add to the end of gameplay.css */
+
+.tile:hover {
+    /* Apply the animation on hover and bring the tile to the front */
+    animation: float 2.5s ease-in-out infinite;
+    z-index: 10;
+}
+
+/* Defines the floating motion */
+@keyframes float {
+  0% {
+    transform: translateY(-5px) rotate(-2deg);
+    box-shadow: 0 7px 0 var(--shadow);
+  }
+  50% {
+    transform: translateY(-9px) rotate(2deg);
+    box-shadow: 0 11px 0 var(--shadow);
+  }
+  100% {
+    transform: translateY(-5px) rotate(-2deg);
+    box-shadow: 0 7px 0 var(--shadow);
+  }
+}
