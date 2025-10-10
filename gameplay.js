@@ -107,6 +107,10 @@ function generateGrid() {
         const tileAnimator = document.createElement('div');
         tileAnimator.className = 'tile-animator';
 
+        // Add the fly-in animation with a staggered delay
+        tileAnimator.classList.add('fly-in');
+        tileAnimator.style.animationDelay = `${idx * 40}ms`;
+
         // Create an inner wrapper for the content and gelatine effect
         const tileContent = document.createElement('div');
         tileContent.className = 'tile-content';
@@ -121,7 +125,7 @@ function generateGrid() {
     initTileHoverEffects(); // Add this call to initialize the new hover effects
 }
 
-function repopulateGrid(usedTiles) {
+function repopulateGrid(usedTiles, delayStart = 0) {
     usedTiles.forEach(usedTile => {
         const newLetter = drawTile();
         const tileElement = gridEl.querySelector(`[data-index="${usedTile.index}"]`);
@@ -138,11 +142,21 @@ function repopulateGrid(usedTiles) {
                 tileElement.classList.add('enhanced-booster');
             }
 
-            const tileContent = tileElement.querySelector('.tile-content'); // This still works as it's the innermost element
+            const tileAnimator = tileElement.querySelector('.tile-animator');
+            const tileContent = tileAnimator.querySelector('.tile-content');
             const displayLetter = newLetter === 'Q' ? 'Qu' : newLetter === '_' ? '' : newLetter;
             // Update the content of the inner wrapper
             tileContent.innerHTML = `${displayLetter}<span class="val">${TILE_VALUES[newLetter]}</span>`;
             tileElement.dataset.letter = newLetter;
+
+            // Re-trigger the fly-in animation for the new tile
+            if (tileAnimator) {
+                tileAnimator.classList.remove('fly-in');
+                // Force a reflow before re-adding the class
+                void tileAnimator.offsetWidth;
+                tileAnimator.classList.add('fly-in');
+                tileAnimator.style.animationDelay = `${delayStart}ms`;
+            }
         }
     });
 }
@@ -170,6 +184,7 @@ function toggleTile(index, el) {
     }
     renderChips();
     updateDevScorePanel();
+    updateScoringJuice();
 }
 
 function deselectChip(selectedIndex) {
@@ -187,6 +202,7 @@ function deselectChip(selectedIndex) {
     state.selected.splice(selectedIndex, 1);
     renderChips();
     updateDevScorePanel();
+    updateScoringJuice();
 }
 
 
@@ -240,7 +256,7 @@ async function playWord() {
 
     showSuccess(validatedWord, score); // Show success message
     clearSelection();
-    repopulateGrid(usedTilesInfo);
+    repopulateGrid(usedTilesInfo, 500); // Delay repopulation to not clash with success animation
     updateRoundUI();
 
     // Check for win/loss conditions after every successful word
@@ -258,6 +274,7 @@ function clearSelection() {
     });
     renderChips();
     updateDevScorePanel();
+    updateScoringJuice();
 }
 
 function gameOver() {
@@ -363,6 +380,23 @@ function renderChips() {
     baseScoreEl.textContent = String(base);
 }
 
+function updateScoringJuice() {
+    const playBtn = document.getElementById('btnPlay');
+    if (!playBtn) return;
+    const wordLength = state.selected.length;
+
+    // Remove classes to reset state
+    playBtn.classList.remove('wobble-play', 'glow-play');
+
+    // Apply new classes based on word length
+    if (wordLength >= 5) {
+        // 5+ letters: Glow (which includes the wobble)
+        playBtn.classList.add('glow-play');
+    } else if (wordLength >= 4) {
+        // 4 letters: Just wobble
+        playBtn.classList.add('wobble-play');
+    }
+}
 // --- Drag and Drop Functions ---
 function dragStart(e) {
     dragStartIndex = +e.target.dataset.selectedIndex;

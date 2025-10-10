@@ -417,6 +417,19 @@ body {
     transition: background-color 0.2s, color 0.2s; /* For smooth selection */
 }
 
+/* New animation for tiles flying from the bag */
+.tile-animator.fly-in {
+    /* Start invisible and off-screen */
+    opacity: 0;
+    transform: translateY(300px) scale(0.2);
+    /* Apply the animation */
+    animation: fly-from-bag 0.6s cubic-bezier(0.2, 0.8, 0.2, 1.2) forwards;
+}
+
+@keyframes fly-from-bag {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* New inner wrapper for tile content */
 .tile-content {
     width: 100%;
@@ -432,8 +445,9 @@ body {
 
 /* This class will be added via JS on hover to apply the wobble and scale effect */
 /* Apply animation and scale to the new animator wrapper on hover */
-.tile.hovering .tile-animator {
-    animation: wobble-gelatine .6s ease-out 1 forwards; /* Play once and hold the final state */
+.tile.hovering {
+    /* Apply the wobble animation directly to the tile container */
+    animation: wobble-gelatine .6s ease-out 1 forwards;
 }
 
 .tile .val { 
@@ -498,6 +512,18 @@ body {
     color: #fff; 
     box-shadow: 0 5px 0 var(--shadow); 
     font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s, filter 0.2s;
+}
+
+.btn:hover {
+    filter: brightness(1.15);
+}
+
+.btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 3px 0 var(--shadow);
+    filter: brightness(1);
 }
 .btn-clear { 
     background: #f36a66; 
@@ -507,6 +533,27 @@ body {
 }
 .btn-play { 
     background: #5caf8d; 
+}
+
+/* --- NEW JUICE EFFECTS --- */
+.wobble-play {
+    animation: gentle-wobble 1.5s ease-in-out infinite;
+}
+
+.glow-play {
+    /* This animation combines the wobble and adds a glow */
+    animation: gentle-wobble 1.5s ease-in-out infinite, glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes gentle-wobble {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(-1.5deg) scale(1.02); }
+    75% { transform: rotate(1.5deg) scale(1.02); }
+}
+
+@keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 5px 0 var(--shadow), 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--accent-green); }
+    50% { box-shadow: 0 5px 0 var(--shadow), 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--accent-green); }
 }
 
 .chips::-webkit-scrollbar { height: 6px; }
