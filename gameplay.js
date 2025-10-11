@@ -1,7 +1,10 @@
 // Minimal placeholder gameplay logic to render a 4x4 grid and basic interactions
 const gridEl = document.getElementById('tileGrid');
 const chipsEl = document.getElementById('scoreChips');
-const baseScoreEl = document.getElementById('baseScore');
+const calcValueEl = document.getElementById('calcValue');
+const calcMultEl = document.getElementById('calcMult');
+const calcMultMultEl = document.getElementById('calcMultMult');
+const calcTotalEl = document.getElementById('calcTotal');
 const roundScoreEl = document.getElementById('roundScore');
 const targetScoreEl = document.getElementById('targetScore');
 const progressBarEl = document.getElementById('progressBar');
@@ -26,6 +29,18 @@ const TILE_VALUES = {
     _: 0
 };
 
+// Centralized constants to avoid magic strings
+const CONSTANTS = {
+    MODIFIER_TYPES: {
+        ENHANCEMENT: 'enhancement',
+        SEAL: 'seal',
+    },
+    MODIFIERS: {
+        BOOSTER: 'booster',
+        MULTIPLIER: 'multiplier',
+    },
+};
+
 // New round-based score targets
 const ROUND_TARGETS = [20, 50, 125, 300, 650, 1200, 2100, 3000];
 
@@ -40,9 +55,42 @@ let dictionary = [];
 let dragStartIndex;
 
 // --- GAME STATE & LOGIC ---
+
+/**
+ * Represents a single tile on the game grid.
+ */
+class Tile {
+    constructor(letter, index = null) {
+        this.id = `tile-${index ?? 'pool'}-${Date.now()}-${Math.random()}`; // Unique ID for the tile instance
+        this.index = index;
+        this.letter = letter;
+        this.value = TILE_VALUES[letter] || 0; // Base point value
+        this.mult = 0;                         // Additive bonus (e.g., +5 from a booster)
+        this.mult_mult = 1;                    // Multiplicative bonus (not used yet, but available)
+        this.type = null;                      // 'enhancement', 'seal', etc.
+        this.modifier = null;                  // 'booster', 'steel', etc.
+
+        // --- MODIFIER ASSIGNMENT ---
+        // Placeholder for modifier logic. Here, we'll give a 15% chance for a tile to be Enhanced.
+        const rand = Math.random();
+        if (rand < 0.15) { // 15% chance for a Booster
+            this.type = CONSTANTS.MODIFIER_TYPES.ENHANCEMENT;
+            this.modifier = CONSTANTS.MODIFIERS.BOOSTER;
+            this.mult = 10; // Booster adds +10 to the tile's score contribution
+        } else if (rand < 0.25) { // Next 10% chance for a Multiplier
+            this.type = CONSTANTS.MODIFIER_TYPES.ENHANCEMENT;
+            this.modifier = CONSTANTS.MODIFIERS.MULTIPLIER;
+            this.mult_mult = 2; // Multiplies the tile's contribution by 2
+        }
+    }
+}
+
 const state = {
-    tilePool: [],
+    grid: [], // This will hold the 16 Tile objects for the grid.
+    masterTileSet: [], // All 84 tiles for the entire run.
+    availableTiles: [], // Tiles available to be drawn in the current round.
     bagTiles: [],
+    upgrades: {},
     currentBagSort: 'alpha',
     round: 1, // Start at round 1
     audioUnlocked: false,
@@ -70,55 +118,66 @@ async function loadDictionary() {
 }
 
 function drawTile() {
-    // Use state.tilePool instead of global tilePool
-    if (state.tilePool.length === 0) {
+    // Draw from the pool of tiles available for the current round.
+    if (state.availableTiles.length === 0) {
         console.log("Tile pool is empty!");
-        return '_'; // Return a blank tile if the pool is empty
+        return new Tile('_'); // Return a blank Tile object if the pool is empty
     }
-    return state.tilePool.pop();
+    return state.availableTiles.pop();
 }
 
 function generateGrid() {
     gridEl.innerHTML = '';
+    state.grid = []; // Clear the state grid
+
     for (let idx = 0; idx < 16; idx++) {
-        const letter = drawTile();
+        const tileObject = drawTile();
+        tileObject.index = idx; // Assign grid index to the drawn tile
+        state.grid.push(tileObject);
+
         const tile = document.createElement('button');
         tile.className = 'tile';
         tile.dataset.index = String(idx);
-        tile.dataset.letter = letter;
         tile.setAttribute('aria-pressed', 'false');
-
-        // --- MODIFIER ASSIGNMENT ---
-        // Placeholder for modifier logic. Here, we'll give a 15% chance for a tile to be Enhanced.
-        if (Math.random() < 0.15) {
-            // For now, we only have one type of enhancement: Booster
-            tile.dataset.modifier = 'enhanced';
-            tile.dataset.modifierType = 'booster';
-            tile.classList.add('enhanced-booster');
-        }
-        // Future modifier classes can be added here:
-        // else if (Math.random() < 0.1) {
-        //   tile.dataset.modifier = 'seal';
-        //   tile.dataset.modifierType = '...';
-        //   tile.classList.add('seal-...');
-        // }
 
         // Create a new wrapper for animation to avoid conflicts with JS transform
         const tileAnimator = document.createElement('div');
         tileAnimator.className = 'tile-animator';
+        tile.appendChild(tileAnimator); // Append animator to the tile early
 
-        // Add the fly-in animation with a staggered delay
         tileAnimator.classList.add('fly-in');
         tileAnimator.style.animationDelay = `${idx * 40}ms`;
+
+        tileAnimator.addEventListener('animationend', () => {
+            tileAnimator.classList.remove('fly-in');
+            tile.style.pointerEvents = 'auto';
+        }, { once: true });
+
+        // Apply Top Row enhancement visual if purchased
+        if (state.upgrades.topRow && idx < 4) {
+            tile.classList.add('top-row-enhanced');
+        }
+
+        // Apply visual class and modifiers to the correct elements
+        if (tileObject.modifier === CONSTANTS.MODIFIERS.BOOSTER) {
+            tile.classList.add('enhanced-booster');
+        } else if (tileObject.modifier === CONSTANTS.MODIFIERS.MULTIPLIER) {
+            // Add a visual indicator for the multiplier inside the animator
+            const multIcon = document.createElement('div');
+            multIcon.className = 'mult-icon';
+            multIcon.textContent = '×';
+            tileAnimator.appendChild(multIcon);
+        }
+
 
         // Create an inner wrapper for the content and gelatine effect
         const tileContent = document.createElement('div');
         tileContent.className = 'tile-content';
 
-        const displayLetter = letter === 'Q' ? 'Qu' : letter === '_' ? '' : letter;
-        tileContent.innerHTML = `${displayLetter}<span class="val">${TILE_VALUES[letter]}</span>`;
+        const displayLetter = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter === '_' ? '' : tileObject.letter;
+        const displayValue = tileObject.value + tileObject.mult;
+        tileContent.innerHTML = `${displayLetter}<span class="val">${displayValue}</span>`;
         tileAnimator.appendChild(tileContent);
-        tile.appendChild(tileAnimator);
         tile.addEventListener('click', () => toggleTile(idx, tile));
         gridEl.appendChild(tile);
     }
@@ -127,35 +186,55 @@ function generateGrid() {
 
 function repopulateGrid(usedTiles, delayStart = 0) {
     usedTiles.forEach(usedTile => {
-        const newLetter = drawTile();
-        const tileElement = gridEl.querySelector(`[data-index="${usedTile.index}"]`);
+        const index = usedTile.index;
+
+        const newTileObject = drawTile();
+        newTileObject.index = index; // Assign grid index
+        state.grid[index] = newTileObject;
+
+        const tileElement = gridEl.querySelector(`[data-index="${index}"]`);
         if (tileElement) {
             // Clear old modifiers and classes
             tileElement.className = 'tile'; // Reset classes
-            delete tileElement.dataset.modifier;
-            delete tileElement.dataset.modifierType;
-
-            // Add a chance for the new tile to have a modifier
-            if (Math.random() < 0.15) {
-                tileElement.dataset.modifier = 'enhanced';
-                tileElement.dataset.modifierType = 'booster';
-                tileElement.classList.add('enhanced-booster');
-            }
 
             const tileAnimator = tileElement.querySelector('.tile-animator');
+            // Clear any old modifier icons
+            const oldIcon = tileAnimator.querySelector('.mult-icon');
+            if (oldIcon) oldIcon.remove();
+
+            // Apply Top Row enhancement visual if purchased
+            if (state.upgrades.topRow && index < 4) {
+                tileElement.classList.add('top-row-enhanced');
+            }
+
+            // Apply new visual class based on the new tile object
+            if (newTileObject.modifier === CONSTANTS.MODIFIERS.BOOSTER) {
+                tileElement.classList.add('enhanced-booster');
+            } else if (newTileObject.modifier === CONSTANTS.MODIFIERS.MULTIPLIER) {
+                // Add a visual indicator for the multiplier
+                const multIcon = document.createElement('div');
+                multIcon.className = 'mult-icon';
+                multIcon.textContent = '×';
+                tileAnimator.appendChild(multIcon);
+            }
+
             const tileContent = tileAnimator.querySelector('.tile-content');
-            const displayLetter = newLetter === 'Q' ? 'Qu' : newLetter === '_' ? '' : newLetter;
-            // Update the content of the inner wrapper
-            tileContent.innerHTML = `${displayLetter}<span class="val">${TILE_VALUES[newLetter]}</span>`;
-            tileElement.dataset.letter = newLetter;
+            const displayLetter = newTileObject.letter === 'Q' ? 'Qu' : newTileObject.letter === '_' ? '' : newTileObject.letter;
+            const displayValue = newTileObject.value + newTileObject.mult;
+            tileContent.innerHTML = `${displayLetter}<span class="val">${displayValue}</span>`;
 
             // Re-trigger the fly-in animation for the new tile
             if (tileAnimator) {
-                tileAnimator.classList.remove('fly-in');
                 // Force a reflow before re-adding the class
                 void tileAnimator.offsetWidth;
                 tileAnimator.classList.add('fly-in');
                 tileAnimator.style.animationDelay = `${delayStart}ms`;
+
+                // Add a new one-time listener to clean up after this specific animation
+                tileAnimator.addEventListener('animationend', () => {
+                    tileAnimator.classList.remove('fly-in');
+                    tileElement.style.pointerEvents = 'auto';
+                }, { once: true });
             }
         }
     });
@@ -163,10 +242,8 @@ function repopulateGrid(usedTiles, delayStart = 0) {
 
 
 function toggleTile(index, el) {
-    const letter = el.dataset.letter;
-    const modifier = el.dataset.modifier;
-    const modifierType = el.dataset.modifierType;
-    const foundIndex = state.selected.findIndex(s => s.index === index);
+    const tileObject = state.grid[index];
+    const foundIndex = state.selected.findIndex(selectedTile => selectedTile.index === index);
 
     if (foundIndex >= 0) {
         // This part handles deselecting a tile from the main grid
@@ -175,7 +252,7 @@ function toggleTile(index, el) {
         el.setAttribute('aria-pressed', 'false');
     } else {
         // This part handles selecting a new tile
-        state.selected.push({ index, letter, modifier, modifierType });
+        state.selected.push(tileObject);
         createConfetti(el); // Trigger confetti effect on selection
         el.classList.add('selected');
         el.setAttribute('aria-pressed', 'true');
@@ -184,6 +261,7 @@ function toggleTile(index, el) {
     }
     renderChips();
     updateDevScorePanel();
+    updateScoreCalculation();
     updateScoringJuice();
 }
 
@@ -202,6 +280,7 @@ function deselectChip(selectedIndex) {
     state.selected.splice(selectedIndex, 1);
     renderChips();
     updateDevScorePanel();
+    updateScoreCalculation();
     updateScoringJuice();
 }
 
@@ -224,7 +303,7 @@ async function playWord() {
 
     // --- New Animation Logic ---
     // Get the chips before they are cleared from the DOM
-    const chipsToAnimate = document.querySelectorAll('#scoreChips .chip');
+    const chipsToAnimate = chipsEl.querySelectorAll('.chip');
     const animationDuration = 400; // Must match CSS animation duration
     const staggerDelay = 75;       // Time between each chip animation start
 
@@ -242,7 +321,7 @@ async function playWord() {
     // --- End of Animation Logic ---
 
     // Now, proceed with the rest of the game logic
-    const score = calculateWordScore(state.selected);
+    const { finalScore: score } = calculateWordScore(state.selected);
     state.roundScore += score;
     state.wordsRemaining--;
 
@@ -274,6 +353,7 @@ function clearSelection() {
     });
     renderChips();
     updateDevScorePanel();
+    updateScoreCalculation();
     updateScoringJuice();
 }
 
@@ -307,9 +387,12 @@ function showDefeatScreen() {
     const mainMenuBtn = document.getElementById('defeatMainMenu');
 
     newRunBtn.onclick = () => {
-        overlay.style.display = 'none';
-        state.round = 1; // Reset to round 1 for a new run
-        init(); // Start a new run
+        // Clear all run-specific data from localStorage to ensure a fresh start.
+        localStorage.removeItem('alphaBossRound');
+        localStorage.removeItem('alphaBossMoney');
+        localStorage.removeItem('alphaBossMasterTileSet');
+        // Reload the page to re-initialize the game state from scratch.
+        window.location.reload();
     };
     mainMenuBtn.onclick = () => {
         // Navigate to the main menu
@@ -331,6 +414,11 @@ function showVictoryScreen() {
     const totalWinnings = bossBonus + wordsBonus;
 
     // Update player's total money
+    // Save the new money total and the next round number to localStorage
+    localStorage.setItem('alphaBossMoney', state.money + totalWinnings);
+    localStorage.setItem('alphaBossRound', state.round + 1);
+    // No longer need to save the tile pool, as the master set is already saved.
+
     state.money += totalWinnings; 
 
     // --- Populate Modal UI ---
@@ -362,8 +450,8 @@ function renderChips() {
         chip.dataset.selectedIndex = index;
 
         const displayLetter = s.letter === 'Q' ? 'Qu' : s.letter === '_' ? '' : s.letter;
-        chip.innerHTML = `${displayLetter}<span class="v">${TILE_VALUES[s.letter]}</span>`;
-        
+        chip.innerHTML = `${displayLetter}`;
+
         // Add event listener to deselect by clicking the chip
         chip.addEventListener('click', () => deselectChip(index));
 
@@ -377,7 +465,17 @@ function renderChips() {
         base += TILE_VALUES[s.letter];
     });
 
-    baseScoreEl.textContent = String(base);
+    // This function is now obsolete as the new calculation UI replaces it.
+    // baseScoreEl.textContent = String(base);
+}
+
+function updateScoreCalculation() {
+    const { baseScore, tileMultiplier, lengthMultiplier, finalScore } = calculateWordScore(state.selected);
+
+    calcValueEl.textContent = baseScore;
+    calcMultEl.textContent = `${tileMultiplier.toFixed(1)}x`;
+    calcMultMultEl.textContent = `${lengthMultiplier.toFixed(1)}x`;
+    calcTotalEl.textContent = finalScore;
 }
 
 function updateScoringJuice() {
@@ -456,28 +554,35 @@ function validateWord(word) {
 }
 
 function calculateWordScore(selectedTiles) {
-    let score = 0;
+    let baseScore = 0;
+    let tileMultiplier = 1;
+    let bonusMultiplier = 0; // For grid modifiers like Top Row
     const wordLength = selectedTiles.length;
 
-    // Calculate base score from letters
+    // 1. Calculate base score and tile-specific multipliers
     selectedTiles.forEach(tile => {
-        score += TILE_VALUES[tile.letter] || 0;
+        baseScore += tile.value + tile.mult;
+        tileMultiplier *= tile.mult_mult;
 
-        // --- MODIFIER EFFECT LOGIC ---
-        // Apply bonus points for specific modifiers
-        if (tile.modifier === 'enhanced') {
-            if (tile.modifierType === 'booster') {
-                score += 5; // Add +5 for the Booster effect
-            }
+        // Check for Top Row bonus
+        if (state.upgrades.topRow && tile.index < 4) {
+            bonusMultiplier += 1;
         }
-        // Future modifier effects can be added here
     });
 
-    // Apply word length multiplier
-    const lengthMultiplier = WORD_LENGTH_MULTIPLIERS[wordLength] || 1;
-    score *= lengthMultiplier;
+    // 2. Get the word length multiplier
+    const lengthMultiplier = (WORD_LENGTH_MULTIPLIERS[wordLength] || 1) + bonusMultiplier;
 
-    return score;
+    // 3. Calculate the final score
+    const finalScore = Math.round(baseScore * tileMultiplier * lengthMultiplier);
+
+    // Return a detailed object for use in different UI components
+    return {
+        baseScore,
+        tileMultiplier,
+        lengthMultiplier,
+        finalScore
+    };
 }
 
 function showError(message) {
@@ -597,11 +702,17 @@ function shakeScreen() {
 
 function openBagModal() {
     const tilesRemainingInfo = document.getElementById('tilesRemainingInfo');
+    const availableTileIds = new Set(state.availableTiles.map(t => t.id));
+
     if (tilesRemainingInfo) {
-        tilesRemainingInfo.textContent = `Tiles remaining: ${state.tilePool.length}`;
+        tilesRemainingInfo.textContent = `Tiles remaining: ${state.availableTiles.length}`;
     }
 
-    state.bagTiles = [...state.tilePool]; // Create a copy of the remaining tiles in the pool
+    // The bag now shows the master set, with a flag for availability.
+    state.bagTiles = state.masterTileSet.map(tile => ({
+        ...tile,
+        isAvailable: availableTileIds.has(tile.id)
+    }));
     sortBagTiles(state.currentBagSort, false); // Apply current sort without re-rendering yet
     renderBagTiles();
     bagModalOverlay.style.display = 'flex';
@@ -620,14 +731,19 @@ function sortBagTiles(sortBy, shouldRender = true) {
     });
 
     if (sortBy === 'alpha') {
-        state.bagTiles.sort((a, b) => a.localeCompare(b));
+        state.bagTiles.sort((a, b) => a.letter.localeCompare(b.letter));
     } else if (sortBy === 'value') {
-        // Sort by value descending, then by letter ascending for ties
-        state.bagTiles.sort((a, b) => TILE_VALUES[b] - TILE_VALUES[a] || a.localeCompare(b));
+        // Sort by availability first, then value
+        state.bagTiles.sort((a, b) => {
+            if (a.isAvailable !== b.isAvailable) return b.isAvailable - a.isAvailable;
+            return (b.value + b.mult) - (a.value + a.mult) || a.letter.localeCompare(b.letter);
+        });
     } else if (sortBy === 'type') {
-        // This is a placeholder as requested. For now, it defaults to alphabetical.
-        // You could later sort by Vowel vs. Consonant here.
-        state.bagTiles.sort((a, b) => a.localeCompare(b));
+        // Sort by availability first, then modifier type
+        state.bagTiles.sort((a, b) => {
+            if (a.isAvailable !== b.isAvailable) return b.isAvailable - a.isAvailable;
+            return (b.modifier ? 1 : 0) - (a.modifier ? 1 : 0) || a.letter.localeCompare(b.letter);
+        });
     }
     
     if (shouldRender) {
@@ -637,12 +753,26 @@ function sortBagTiles(sortBy, shouldRender = true) {
 
 function renderBagTiles() {
     bagGrid.innerHTML = ''; // Clear previous tiles
-    state.bagTiles.forEach(letter => {
+    state.bagTiles.forEach(tileObject => {
         const tile = document.createElement('div');
         tile.className = 'bag-tile';
+        if (!tileObject.isAvailable) {
+            tile.classList.add('used');
+        }
 
-        const displayLetter = letter === 'Q' ? 'Qu' : letter === '_' ? '' : letter;
-        tile.innerHTML = `${displayLetter}<span class="val">${TILE_VALUES[letter]}</span>`;
+        const displayLetter = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter === '_' ? '' : tileObject.letter;
+        const displayValue = tileObject.value + tileObject.mult;
+        tile.innerHTML = `${displayLetter}<span class="val">${displayValue}</span>`;
+
+        // If the tile has a modifier, add the corresponding class
+        if (tileObject.modifier === CONSTANTS.MODIFIERS.BOOSTER) {
+            tile.classList.add('enhanced-booster');
+        } else if (tileObject.modifier === CONSTANTS.MODIFIERS.MULTIPLIER) {
+            const multIcon = document.createElement('div');
+            multIcon.className = 'mult-icon';
+            multIcon.textContent = '×';
+            tile.appendChild(multIcon);
+        }
         
         bagGrid.appendChild(tile);
     });
@@ -670,6 +800,14 @@ sortControls.addEventListener('click', (e) => {
     }
 });
 
+// Add a right-click listener to the grid to clear the current selection
+gridEl.addEventListener('contextmenu', (e) => {
+    e.preventDefault(); // Prevent the default browser right-click menu
+    if (state.selected.length > 0) {
+        clearSelection();
+    }
+});
+
 function updateDevScorePanel() {
     const detailsEl = document.getElementById('devScoreDetails');
     if (!detailsEl) return;
@@ -684,13 +822,13 @@ function updateDevScorePanel() {
 
     state.selected.forEach(tile => {
         const letter = tile.letter;
-        const baseValue = TILE_VALUES[letter] || 0;
+        const baseValue = tile.value;
         let line = `${letter}: ${baseValue} pts`;
         baseScore += baseValue;
 
-        if (tile.modifier === 'enhanced' && tile.modifierType === 'booster') {
-            line += ' (+5 Booster)';
-            baseScore += 5;
+        if (tile.modifier === CONSTANTS.MODIFIERS.BOOSTER && tile.mult > 0) {
+            line += ` (+${tile.mult} Booster)`;
+            baseScore += tile.mult;
         }
         breakdown += line + '\n';
     });
@@ -701,7 +839,7 @@ function updateDevScorePanel() {
         breakdown += `Length Bonus (x${lengthMultiplier})\n`;
     }
 
-    const finalScore = Math.round(calculateWordScore(state.selected));
+    const { finalScore } = calculateWordScore(state.selected);
     detailsEl.textContent = `${breakdown}------------------\nTotal: ${finalScore} pts`;
 }
 
@@ -824,44 +962,49 @@ function initGooglyEyes() {
 
 function initTileHoverEffects() {
     const tiles = document.querySelectorAll('.tile');
-    const MAX_ROTATION = 12; // Exaggerated rotation for a more dramatic tilt.
-    // The scale is now handled in CSS via the .hovering class
-    const HOVER_TRANSLATE_Z = 40; // Increased "spring up" distance.
+    const MAX_ROTATION = 20; // Max degrees of rotation for the tilt effect.
+    const HOVER_TRANSLATE_Z = 40; // How much the tile "pops up" on hover.
 
     tiles.forEach(tile => {
         tile.addEventListener('mouseenter', () => {
-            // Add the hovering class to trigger the wobble animation and base scale.
+            // Add the hovering class to trigger the wobble animation on the child.
             if (sounds.tileHover) sounds.tileHover.play();
             tile.classList.add('hovering');
-        });
-
-        tile.addEventListener('mousemove', (e) => {
-            if (!tile.classList.contains('hovering')) return;
-
-            const rect = tile.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-
-            // Calculate the rotation amount based on mouse position relative to the center
-            const rotateY = ((x - centerX) / centerX) * MAX_ROTATION;
-            const rotateX = -1 * ((y - centerY) / centerY) * MAX_ROTATION;
-
-            // Apply a transform to lift and rotate the tile. Scale is handled by CSS.
-            tile.style.transform = `perspective(1000px) translateZ(${HOVER_TRANSLATE_Z}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             tile.style.zIndex = '10';
         });
 
+        tile.addEventListener('mousemove', (e) => {
+            // This effect only runs while the tile is being hovered.
+            if (!tile.classList.contains('hovering')) return;
+
+            const rect = tile.getBoundingClientRect();
+            // Calculate mouse position relative to the tile's center.
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            // Calculate rotation values. The further from the center, the more it tilts.
+            const rotateY = (x / centerX) * MAX_ROTATION;
+            const rotateX = -1 * (y / centerY) * MAX_ROTATION;
+
+            // Apply a 3D transform to lift and rotate the tile.
+            // This inline style on the parent `.tile` won't conflict with the
+            // CSS animation on the child `.tile-animator`.
+            tile.style.transform = `perspective(1000px) translateZ(${HOVER_TRANSLATE_Z}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
         tile.addEventListener('mouseleave', () => {
-            // Remove the class to stop the wobble and reset the scale
+            // Remove the class to stop the wobble.
             tile.classList.remove('hovering');
-            // Reset the transform and z-index smoothly
+            // Reset the transform to its original state.
             tile.style.transform = `perspective(1000px) translateZ(0) rotateX(0) rotateY(0)`;
 
+            // Delay the z-index change to prevent the tile from clipping under
+            // adjacent tiles before the transition animation is complete.
             setTimeout(() => {
                 tile.style.zIndex = '1';
-            }, 150); // Delay z-index change to prevent flickering with adjacent tiles
+            }, 150);
         });
     });
 }
@@ -899,17 +1042,27 @@ function initHowToPlayModal() {
 }
 
 async function init() {
+    // Load persistent data from localStorage
+    const savedRound = localStorage.getItem('alphaBossRound');
+    state.round = savedRound ? parseInt(savedRound, 10) : 1;
+
+    const savedMoney = localStorage.getItem('alphaBossMoney');
+    const savedUpgrades = localStorage.getItem('alphaBossUpgrades');
+
+    state.upgrades = savedUpgrades ? JSON.parse(savedUpgrades) : {};
+
     // Initialize game state object
     Object.assign(state, {
         selected: [],
+        // round: savedRound ? parseInt(savedRound, 10) : 1, // This is now set before Object.assign
         roundScore: 0,
         // Set target score based on the current round.
         // If we go past the defined rounds, it keeps the last target.
         target: ROUND_TARGETS[Math.min(state.round - 1, ROUND_TARGETS.length - 1)],
-        wordsRemaining: 5,
+        wordsRemaining: 5, // This should be reset every round
         discards: 5,
-        // Money should persist between rounds, so we don't reset it here.
-        money: 4,
+        // Load money from storage, or default to 4 for a new game.
+        money: savedMoney ? parseInt(savedMoney, 10) : 4,
         bestWord: {
             word: '',
             score: 0,
@@ -917,16 +1070,30 @@ async function init() {
     });
     // 1. Create and shuffle the tile pool for the game session
     // Only reset money if it's the first round of a new game.
+    // The tile pool is now only created at the start of a run (round 1).
     if (state.round === 1) {
-        state.money = 4;
+        // This is a new run, reset money and save it.
+        state.money = 4; 
+        localStorage.setItem('alphaBossMoney', state.money);
+        // Create and save the master set of tiles for the run.
+        localStorage.removeItem('alphaBossUpgrades'); // Clear upgrades on a new run
+        state.masterTileSet = TILE_DISTRIBUTION.map(letter => new Tile(letter));
+        localStorage.setItem('alphaBossMasterTileSet', JSON.stringify(state.masterTileSet));
+    } else {
+        // On subsequent rounds, load the master set.
+        const savedMasterSet = localStorage.getItem('alphaBossMasterTileSet');
+        state.masterTileSet = savedMasterSet ? JSON.parse(savedMasterSet) : TILE_DISTRIBUTION.map(letter => new Tile(letter));
     }
 
-    state.tilePool = [...TILE_DISTRIBUTION];
-    shuffleArray(state.tilePool);
+    // For every round, create a fresh, shuffled pool of available tiles from the master set.
+    state.availableTiles = [...state.masterTileSet];
+    shuffleArray(state.availableTiles);
 
     // 2. Load the dictionary
     await loadDictionary();
 
+    // Update the money display
+    document.getElementById('money').textContent = `$${state.money}`;
     // 3. Generate the initial grid from the pool
     generateGrid();
 

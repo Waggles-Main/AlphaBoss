@@ -73,22 +73,24 @@
 
         <!-- Scoring Area -->
         <section class="scoring">
-            <div class="chips-container">
-                <div class="chips" id="scoreChips">
-                    <!-- Chips will be dynamically added here -->
-                </div>
-                <div class="chips-placeholder">
-                    <!-- Fixed placeholder to maintain layout -->
-                    <div class="placeholder-chip"></div>
-                    <div class="placeholder-chip"></div>
-                    <div class="placeholder-chip"></div>
-                    <div class="placeholder-chip"></div>
-                    <div class="placeholder-chip"></div>
-                </div>
+            <div class="chips" id="scoreChips">
+                <!-- Chips will be dynamically added here -->
             </div>
-            <div class="base-score">
-                <span class="muted">BASE SCORE: (TOTAL POINT VALUE)</span>
-                <span class="base-value" id="baseScore">0</span>
+            <!-- New Score Calculation Breakdown -->
+            <div class="score-calculation">
+                <div class="calc-box value-box">
+                    <span class="calc-value" id="calcValue">0</span>
+                </div>
+                <span class="calc-operator">×</span>
+                <div class="calc-box mult-box">
+                    <span class="calc-value" id="calcMult">1.0x</span>
+                </div>
+                <span class="calc-operator">×</span>
+                <div class="calc-box mult-mult-box">
+                    <span class="calc-value" id="calcMultMult">1.0x</span>
+                </div>
+                <span class="calc-operator">=</span>
+                <div class="calc-total" id="calcTotal">0</div>
             </div>
         </section>
 

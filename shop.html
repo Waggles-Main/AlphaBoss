@@ -29,9 +29,9 @@
         <main class="shop-main">
             <button class="shop-btn btn-reroll">REROLL $5</button>
             <div class="shop-items">
-                <div class="shop-item">
-                    <div class="item-icon">x</div>
-                    <div class="item-price">$4</div>
+                <div class="shop-item" id="upgrade-top-row" data-cost="10">
+                    <div class="item-icon">TR</div>
+                    <div class="item-price">$10</div>
                 </div>
                 <div class="shop-item">
                     <div class="item-icon">x</div>
@@ -48,6 +48,29 @@
             <a href="event.html" class="shop-btn btn-continue">CONTINUE</a>
         </footer>
     </div>
+
+    <div class="modal-overlay" id="bagModalOverlay">
+      <div class="bag-modal">
+        <button class="btn-close" id="btnCloseBagModal" aria-label="Close bag view">&times;</button>
+        <h2 class="bag-title">BAG</h2>
+        <div class="bag-info">
+            <span id="tilesRemainingInfo">Tiles remaining: 0</span>
+        </div>
+        <div class="sort-container">
+          <span class="sort-label">SORT</span>
+          <div class="sort-controls">
+            <button class="sort-btn active" id="sortAZ" data-sort="alpha">A-Z</button>
+            <button class="sort-btn" id="sortType" data-sort="type">TYPE</button>
+            <button class="sort-btn" id="sortValue" data-sort="value">VALUE</button>
+          </div>
+        </div>
+        <div class="bag-grid-container">
+            <div class="bag-grid" id="bagGrid">
+                </div>
+        </div>
+      </div>
+    </div>
+
     <script src="shop.js"></script>
 </body>
 </html>

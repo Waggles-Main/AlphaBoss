@@ -276,20 +276,6 @@ body {
     border-radius: 16px; 
     padding: 8px 16px; 
     box-shadow: 0 4px 0 var(--shadow);
-}
-.panel-title { 
-    color: white; 
-    margin-bottom: 8px; 
-    font-family: m6x11plus;
-    font-size: 18px;
-}
-.chips-container { 
-    position: relative; 
-    height: 56px; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    max-width: 100%;
     overflow: hidden;
 }
 .chips { 
@@ -297,43 +283,21 @@ body {
     gap: 4px; 
     justify-content: center;
     align-items: center;
-    flex-wrap: nowrap;
+    flex-wrap: nowrap; /* Keep chips in a single line */
     max-width: 100%;
     padding: 0 4px;
     z-index: 2;
-}
-.chips-placeholder { 
-    position: absolute; 
-    top: 0; 
-    left: 0; 
-    right: 0; 
-    display: flex; 
-    justify-content: center;
-    align-items: center;
-    gap: 4px; 
-    z-index: 1;
-    max-width: 100%;
-}
-.placeholder-chip { 
-    width: 56px; 
-    height: 56px; 
-    background: transparent; 
-    border: 2px dashed rgba(255, 255, 255, 0.1); 
-    border-radius: 8px; 
-    opacity: 0.3;
-    flex-shrink: 0;
+    min-height: 56px; /* Reserve space to prevent layout shift */
 }
 .chip { 
     background: var(--chip-bg); 
     color: #111; 
     border-radius: 8px; 
-    padding: 8px 10px; 
-    font-family: m6x11plus; 
+    font-family: m6x11plus;
+    font-size: 36px; /* Increased font size for the letter */
     display: flex; 
-    flex-direction: column; 
     justify-content: center; 
     align-items: center; 
-    gap: 2px; 
     box-shadow: 0 4px 0 var(--shadow); 
     border: 1px solid var(--tile-border);
     transition: all 0.2s ease;
@@ -344,17 +308,10 @@ body {
     flex-shrink: 1;   /* THIS IS THE KEY: Allows chips to shrink when space is limited */
     min-width: 0;     /* Important for allowing flex items to shrink properly */
     aspect-ratio: 1;  /* Maintains a perfect square shape as the width changes */
+    max-height: 56px; /* Ensures chips don't grow taller than their base size */
     /* ▲ END NEW SIZING LOGIC ▲ */
 
     /* ... other styles */
-}
-.chip .v { 
-    font-family: m5x7; 
-    font-size: 11px; 
-    background: rgba(0,0,0,.15); 
-    padding: 2px 4px; 
-    border-radius: 6px; 
-    font-weight: bold;
 }
 .base-score { 
     display: flex; 
@@ -375,6 +332,66 @@ body {
     color: white;
 }
 
+.score-calculation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 6px 0;
+    border-top: 1px dashed #334349;
+}
+
+.calc-box {
+    flex: 1;
+    padding: 8px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 0 var(--shadow);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.calc-box .calc-value {
+    font-family: m5x7;
+    font-size: 24px;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.value-box {
+    background-color: var(--accent-blue);
+}
+
+.mult-box {
+    background-color: var(--accent-red);
+}
+
+.mult-mult-box {
+    background-color: #7a73bb; /* Purple color from the design */
+}
+
+.calc-operator {
+    font-family: m5x7;
+    font-size: 32px;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.calc-total {
+    font-family: m5x7;
+    font-size: 36px;
+    color: var(--accent-orange);
+    text-shadow: 0 2px 0 var(--shadow);
+    background: var(--panel-soft);
+    padding: 6px 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 0 var(--shadow);
+    border: 1px solid rgba(255,255,255,0.2);
+    min-width: 60px;
+    text-align: center;
+}
+
+
 .grid { 
     display: grid; 
     grid-template-columns: repeat(4, 1fr); 
@@ -393,15 +410,27 @@ body {
     align-items: center;
     aspect-ratio: 1;
     user-select: none; 
-    margin: 4px;
-    /* Smooth transition for the hover effect and selection */
-    transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+    margin: 2px; /* Reduced margin to tighten the grid slightly */
+    /* Smooth transition for transform properties (tilt, selection) */
+    transition: transform 0.15s ease-out;
     transform-style: preserve-3d; /* Ensures children are rendered in 3D space */
     /* Remove visual styles from the container */
     background: transparent;
-    border: none;
+    border: 2px solid transparent; /* Add transparent border to prevent layout shift on selection */
     padding: 0;
     box-shadow: none;
+}
+
+/* Style for the Top Row grid modifier */
+.tile.top-row-enhanced::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    background: transparent;
+    border: 4px solid #7A73BB;
+    border-radius: 12px; /* Slightly larger radius than the tile */
+    z-index: -1; /* Position it behind the tile animator */
+    pointer-events: none;
 }
 
 /* New animator wrapper gets the visual styles */
@@ -422,6 +451,8 @@ body {
     /* Start invisible and off-screen */
     opacity: 0;
     transform: translateY(300px) scale(0.2);
+    /* Disable hover/click events during the animation to prevent conflicts */
+    pointer-events: none;
     /* Apply the animation */
     animation: fly-from-bag 0.6s cubic-bezier(0.2, 0.8, 0.2, 1.2) forwards;
 }
@@ -443,12 +474,7 @@ body {
     position: relative;
 }
 
-/* This class will be added via JS on hover to apply the wobble and scale effect */
-/* Apply animation and scale to the new animator wrapper on hover */
-.tile.hovering {
-    /* Apply the wobble animation directly to the tile container */
-    animation: wobble-gelatine .6s ease-out 1 forwards;
-}
+
 
 .tile .val { 
     font-family: m5x7; 
@@ -461,15 +487,37 @@ body {
     line-height: 1;
 }
 
+/* Style for the new multiplier icon */
+.mult-icon {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    font-family: m5x7;
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--accent-red);
+    text-shadow: 0 1px 0 var(--shadow);
+    line-height: 1;
+    pointer-events: none; /* Make sure it doesn't interfere with hover */
+    z-index: 2; /* Ensure it's above the 'used' overlay */
+}
+
+
+/* This class is added via JS on hover. */
+/* The animation now targets the inner .tile-animator to avoid conflicts. */
+.tile.hovering .tile-animator {
+    /* Apply the wobble animation to the inner animator */
+    animation: wobble-gelatine .3s ease-out forwards;
+}
+
 /* New combined animation for wobble and gelatine effects */
 @keyframes wobble-gelatine {
-  0% { transform: scale(1.0) rotate(0deg); }
-  20% { transform: scale(1.25, 1.15) rotate(-2deg); }
-  40% { transform: scale(1.1, 1.2) rotate(2deg); }
-  60% { transform: scale(1.2, 1.1) rotate(-1deg); }
-  /* Settle into a slightly enlarged state and begin rocking */
-  75% { transform: scale(1.1) rotate(1.5deg); }
-  100% { transform: scale(1.1) rotate(-1.5deg); }
+  0% { transform: scale(1.0); }
+  20% { transform: scale(1.15, 1.05); }
+  40% { transform: scale(0.95, 1.05); }
+  60% { transform: scale(1.05, 1); }
+  80% { transform: scale(1, 1.02); }
+  100% { transform: scale(1); }
 }
 
 /* --- MODIFIER STYLES --- */
@@ -495,6 +543,8 @@ body {
 .tile.selected .tile-animator { 
     background: var(--chip-bg); 
     color: #111; 
+    transform: scale(0.9); /* Slightly shrink selected tiles */
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1.2), background-color 0.2s;
 }
 
 .actions { 
@@ -930,6 +980,25 @@ body {
     bottom: 4px;
     right: 4px;
     line-height: 1;
+}
+
+.bag-tile.enhanced-booster {
+    box-shadow: 0 4px 0 var(--shadow), inset 0 0 0 4px var(--accent-blue);
+}
+
+.bag-tile.used::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6); /* Dark overlay */
+    border-radius: inherit; /* Match the parent's border-radius */
+    z-index: 1; /* Sit on top of the content but below any other icons if needed */
+}
+
+.bag-tile.used {
+    /* We no longer need opacity as the ::after element handles the dimming */
+    background: #4a4a4a; /* Darken the background slightly */
+    color: #999;
 }
 
 /* --- DEV PANEL STYLES --- */

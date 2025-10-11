@@ -184,6 +184,12 @@ body {
     cursor: pointer;
 }
 
+.shop-item.purchased {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .item-icon {
     font-family: m6x11plus;
     font-size: 64px;
@@ -208,3 +214,184 @@ body {
     font-family: m6x11plus;
     font-size: 20px;
 }
+
+/* --- MODAL STYLES (Copied from gameplay.css) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 16px;
+}
+
+.bag-modal {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 24px;
+    width: 100%;
+    max-width: 420px;
+    height: 90vh;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    border: 2px solid #3b4b4f;
+}
+
+.btn-close {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--accent-red);
+    color: white;
+    border: 2px solid white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 2px 0 var(--shadow);
+    font-family: m5x7;
+}
+
+.bag-title {
+    font-family: m5x7;
+    font-size: 36px;
+    text-align: center;
+    margin: 0;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.bag-info {
+    text-align: center;
+    font-family: m6x11plus;
+    font-size: 16px;
+    color: #a3b3b7;
+    margin-top: -8px;
+}
+
+.sort-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.sort-label {
+    font-family: m6x11plus;
+    font-size: 14px;
+    color: #a3b3b7;
+}
+
+.sort-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+}
+
+.sort-btn {
+    appearance: none;
+    border: 1px solid var(--tile-border);
+    background: #2e3a3c;
+    color: white;
+    padding: 12px 8px;
+    border-radius: 8px;
+    font-family: m6x11plus;
+    font-size: 24px;
+    box-shadow: 0 4px 0 var(--shadow);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.sort-btn.active {
+    background: var(--accent-orange);
+    color: white;
+}
+
+.bag-grid-container {
+    background: #152020;
+    border-radius: 8px;
+    padding: 12px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.bag-grid-container::-webkit-scrollbar { width: 8px; }
+.bag-grid-container::-webkit-scrollbar-track { background: transparent; }
+.bag-grid-container::-webkit-scrollbar-thumb { background: #3a4a4f; border-radius: 8px; }
+
+.bag-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 12px;
+}
+
+.bag-tile {
+    background: #ffffff;
+    color: #1e2f33;
+    border-radius: 8px;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: m6x11plus;
+    font-size: 36px;
+    box-shadow: 0 4px 0 var(--shadow);
+    user-select: none;
+    padding: 4px;
+    border: 1px solid var(--tile-border);
+    position: relative;
+}
+
+.bag-tile .val {
+    font-family: m5x7;
+    font-size: 16px;
+    color: #0096f0;
+    font-weight: bold;
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    line-height: 1;
+}
+
+.bag-tile.enhanced-booster {
+    box-shadow: 0 4px 0 var(--shadow), inset 0 0 0 4px var(--accent-blue);
+}
+
+.mult-icon {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    font-family: m5x7;
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--accent-red);
+    text-shadow: 0 1px 0 var(--shadow);
+    line-height: 1;
+    pointer-events: none;
+    z-index: 2; /* Ensure it's above the 'used' overlay */
+}
+
+.bag-tile.used::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6); /* Dark overlay */
+    border-radius: inherit; /* Match the parent's border-radius */
+    z-index: 1;
+}
+
+.bag-tile.used { background: #4a4a4a; color: #999; }
