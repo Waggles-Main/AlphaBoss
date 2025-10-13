@@ -849,18 +849,19 @@ function initDevControls() {
     const devLoseBtn = document.getElementById('devLose');
     const devNavMenuBtn = document.getElementById('devNavMenu');
     const devNavGameBtn = document.getElementById('devNavGame');
-    const devMinimizeBtn = document.getElementById('devMinimizeBtn');
     const devNavShopBtn = document.getElementById('devNavShop');
     const devNavEventBtn = document.getElementById('devNavEvent');
     const devNavWordleBtn = document.createElement('button');
     const devNavScrambleBtn = document.createElement('button');
 
-
     if (!devRefreshBtn) return; // Assume panel doesn't exist if one button is missing
+
+    const devMinimizeBtn = document.getElementById('devMinimizeBtn');
 
     // Minimize/Maximize toggle
     devMinimizeBtn.addEventListener('click', () => {
         const panel = document.getElementById('devPanel');
+        if (!panel) return;
         panel.classList.toggle('minimized');
         if (panel.classList.contains('minimized')) {
             devMinimizeBtn.textContent = '+';
@@ -1091,7 +1092,7 @@ function initTooltips() {
             tooltipEl.style.top = `${rect.top - tooltipEl.offsetHeight - 10}px`; // 10px above the tile
             tooltipEl.classList.add('visible');
 
-        }, 1500); // 1.5 second delay
+        }, 1000); // 1 second delay
     });
 
     gridEl.addEventListener('mouseout', () => {
