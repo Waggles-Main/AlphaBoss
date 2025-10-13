@@ -1,49 +1,56 @@
 @font-face {
     font-family: 'm5x7';
     src: url('Fonts/m5x7.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'm6x11plus';
     src: url('Fonts/m6x11plus.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
 }
 
 :root {
     --bg: #162222;
+    --panel: rgba(46, 58, 60, 0.85);
     --panel-dark: #2e3a3c;
+    --ink: #e8f2f3;
+    --muted: #a3b3b7;
+    --accent-red: #ff5f4f;
+    --accent-blue: #1f8df2;
+    --accent-green: #56a67a;
+    --accent-orange: #fd8c1f;
+    --tile-border: #b9c4d4;
     --shadow: rgba(0,0,0,.5);
-    --correct: #56a67a;
-    --present: #fd8c1f;
-    --absent: #3a4a4f;
     --key-bg: #818384;
+    --key-bg-correct: #538d4e;
+    --key-bg-present: #b59f3b;
+    --key-bg-absent: #3a3a3c;
 }
-
-* { box-sizing: border-box; }
 
 body {
     margin: 0;
     background-color: var(--bg);
     color: white;
-    font-family: m6x11plus, sans-serif;
-    display: grid;
-    place-items: center;
+    font-family: m6x11plus, m5x7, system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     min-height: 100vh;
 }
 
 .wordle-container {
-    width: 100%;
-    max-width: 360px;
-    height: 100vh;
-    max-height: 780px;
-    padding: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 24px;
-}
-
-.wordle-header {
-    text-align: center;
+    width: 100%;
+    max-width: 360px;
+    padding: 16px;
 }
 
 .wordle-header h1 {
@@ -51,7 +58,6 @@ body {
     font-size: 36px;
     margin: 0;
     text-shadow: 0 2px 0 var(--shadow);
-    letter-spacing: 2px;
 }
 
 .wordle-grid {
@@ -60,58 +66,43 @@ body {
     gap: 8px;
 }
 
-.grid-row {
+.wordle-row {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 8px;
 }
 
-.grid-tile {
+.wordle-tile {
     width: 56px;
     height: 56px;
-    border: 2px solid var(--absent);
-    color: white;
-    font-family: m5x7;
-    font-size: 36px;
-    display: grid;
-    place-items: center;
+    border: 2px solid var(--key-bg-absent);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: m6x11plus;
+    font-size: 32px;
+    font-weight: bold;
     text-transform: uppercase;
-    transition: transform 0.2s;
+    transition: transform 0.2s, background-color 0.5s, border-color 0.5s;
 }
 
-.grid-tile.filled {
-    border-color: #565758;
-    animation: pop-in 0.1s;
+.wordle-tile.filled {
+    border-color: var(--muted);
 }
 
-@keyframes pop-in {
-    from { transform: scale(0.8); }
-    to { transform: scale(1); }
+.wordle-tile.correct {
+    background-color: var(--key-bg-correct);
+    border-color: var(--key-bg-correct);
 }
 
-.grid-tile.flip {
-    animation: flip 0.6s ease-in-out forwards;
+.wordle-tile.present {
+    background-color: var(--key-bg-present);
+    border-color: var(--key-bg-present);
 }
 
-@keyframes flip {
-    0% { transform: rotateX(0deg); }
-    50% { transform: rotateX(90deg); }
-    100% { transform: rotateX(0deg); }
-}
-
-.grid-tile.correct {
-    background-color: var(--correct);
-    border-color: var(--correct);
-}
-
-.grid-tile.present {
-    background-color: var(--present);
-    border-color: var(--present);
-}
-
-.grid-tile.absent {
-    background-color: var(--absent);
-    border-color: var(--absent);
+.wordle-tile.absent {
+    background-color: var(--key-bg-absent);
+    border-color: var(--key-bg-absent);
 }
 
 .keyboard {
@@ -129,7 +120,7 @@ body {
 .keyboard button {
     font-family: m6x11plus;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 16px;
     background-color: var(--key-bg);
     color: white;
     border: none;
@@ -137,28 +128,138 @@ body {
     padding: 18px 12px;
     cursor: pointer;
     text-transform: uppercase;
-    transition: background-color 0.2s;
 }
 
 .keyboard button.key-large {
     padding: 18px 16px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
-.keyboard button:active {
-    background-color: #a1a3a4;
+.keyboard button.correct { background-color: var(--key-bg-correct); }
+.keyboard button.present { background-color: var(--key-bg-present); }
+.keyboard button.absent { background-color: var(--key-bg-absent); }
+
+/* --- DEV PANEL STYLES --- */
+.dev-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--panel);
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 2px solid var(--accent-red);
 }
 
-.keyboard button.correct { background-color: var(--correct); }
-.keyboard button.present { background-color: var(--present); }
-.keyboard button.absent { background-color: var(--absent); }
+.dev-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.dev-panel-header .dev-title {
+    margin: 0;
+}
+
+.dev-panel .dev-title {
+    margin: 0 0 10px;
+    text-align: center;
+    font-family: m5x7;
+    color: var(--accent-red);
+    font-size: 24px;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.dev-panel .dev-subtitle {
+    margin: 10px 0 5px;
+    text-align: center;
+    font-family: m6x11plus;
+    color: var(--muted);
+    font-size: 18px;
+    border-top: 1px solid var(--tile-border);
+    padding-top: 10px;
+}
+
+#devScoreDetails {
+    font-family: m5x7;
+    font-size: 16px;
+    color: white;
+    text-align: left;
+    white-space: pre-wrap; /* To respect newlines */
+    background: #152020;
+    padding: 8px;
+    border-radius: 4px;
+    min-height: 50px;
+}
+
+.dev-panel button {
+    appearance: none;
+    border: 1px solid var(--tile-border);
+    background: var(--panel-dark);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    font-family: m6x11plus;
+    font-size: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    cursor: pointer;
+}
+
+.dev-minimize-btn {
+    background: var(--accent-red);
+    border: 1px solid white;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-family: m5x7;
+    font-size: 24px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Styles for the minimized state */
+.dev-panel.minimized .dev-panel-content {
+    display: none;
+}
+
+.dev-panel.minimized .dev-panel-header {
+    margin-bottom: 0;
+}
+
+/* Toast for errors */
+.toast {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-red);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 8px;
+    font-family: m6x11plus;
+    font-size: 18px;
+    z-index: 10001;
+    animation: fade-in-out 3s ease-in-out forwards;
+}
+
+@keyframes fade-in-out {
+    0%, 100% { opacity: 0; transform: translate(-50%, 10px); }
+    10%, 90% { opacity: 1; transform: translate(-50%, 0); }
+}
 
 /* Result Modal */
-.result-modal-overlay {
+.modal-overlay {
     position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
     align-items: center;
     justify-content: center;
     z-index: 100;
@@ -170,28 +271,52 @@ body {
     border-radius: 16px;
     text-align: center;
     box-shadow: 0 4px 0 var(--shadow);
-    animation: pop-in 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 90%;
+    max-width: 320px;
 }
 
 .result-modal h2 {
     font-family: m5x7;
-    font-size: 36px;
-    margin: 0 0 8px;
+    font-size: 48px;
+    margin: 0;
+    text-shadow: 0 2px 0 var(--shadow);
 }
+
+.result-modal .success { color: var(--accent-green); }
+.result-modal .fail { color: var(--accent-red); }
 
 .result-modal p {
     font-family: m6x11plus;
     font-size: 18px;
-    margin: 0 0 24px;
+    margin: 0;
 }
 
-.result-modal a {
-    background-color: var(--correct);
+.result-modal .reward-text {
+    color: var(--accent-orange);
+    font-family: m5x7;
+    font-size: 24px;
+}
+
+.result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.result-actions button {
+    appearance: none;
+    border: none;
     color: white;
-    padding: 16px 32px;
-    border-radius: 8px;
-    text-decoration: none;
+    padding: 16px;
+    border-radius: 16px;
     font-family: m6x11plus;
     font-size: 20px;
     box-shadow: 0 4px 0 black;
+    cursor: pointer;
 }
+
+.result-actions .btn-continue { background-color: var(--accent-green); }

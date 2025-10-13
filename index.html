@@ -27,12 +27,26 @@
             </div>
         </div>
         <div class="menu-actions">
-            <a href="gameplay.html" class="menu-btn btn-play">PLAY</a>
+            <button id="playBtn" class="menu-btn btn-play">PLAY</button>
             <div class="menu-actions-row">
                 <button class="menu-btn btn-options">OPTIONS</button>
                 <button class="menu-btn btn-stats">STATS</button>
             </div>
         </div>
     </div>
+    <script>
+        document.getElementById('playBtn').addEventListener('click', () => {
+            // Clear all data related to a run to ensure a fresh start.
+            localStorage.removeItem('alphaBossRound');
+            localStorage.removeItem('alphaBossMoney');
+            localStorage.removeItem('alphaBossUpgrades');
+            localStorage.removeItem('alphaBossMasterTileSet');
+            // We can also remove the 'played before' flag if we want the tutorial to show on every new run.
+            localStorage.removeItem('alphaBossPlayedBefore');
+
+            // Navigate to the gameplay screen.
+            window.location.href = 'gameplay.html';
+        });
+    </script>
 </body>
 </html>

@@ -853,6 +853,7 @@ function initDevControls() {
     const devNavShopBtn = document.getElementById('devNavShop');
     const devNavEventBtn = document.getElementById('devNavEvent');
     const devNavWordleBtn = document.createElement('button');
+    const devNavScrambleBtn = document.createElement('button');
 
 
     if (!devRefreshBtn) return; // Assume panel doesn't exist if one button is missing
@@ -914,6 +915,14 @@ function initDevControls() {
     devNavEventBtn.after(devNavWordleBtn); // Place it after the generic event button
     devNavWordleBtn.addEventListener('click', () => {
         window.location.href = 'wordle.html';
+    });
+
+    // Add a new button for the Word Scramble event
+    devNavScrambleBtn.id = 'devNavScramble';
+    devNavScrambleBtn.textContent = 'Word Scramble';
+    devNavWordleBtn.after(devNavScrambleBtn); // Place it after the wordle button
+    devNavScrambleBtn.addEventListener('click', () => {
+        window.location.href = 'word-scramble.html';
     });
 }
 

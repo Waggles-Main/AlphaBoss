@@ -1,151 +1,244 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const WORD_LIST = ["BRAIN", "QUERY", "GHOST", "PIXEL", "CHART"];
-    const solution = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+    const DICTIONARY_URL = 'https://raw.githubusercontent.com/scrabblewords/scrabblewords/main/words/North-American/NWL2020.txt';
+    const WORD_LENGTH = 5;
+    const MAX_GUESSES = 6;
+
+    const state = {
+        dictionary: new Set(),
+        solution: '',
+        guesses: [],
+        currentRow: 0,
+        currentCol: 0,
+        isGameOver: false,
+    };
 
     const grid = document.getElementById('wordleGrid');
     const keyboard = document.getElementById('keyboard');
-    const TILE_COUNT = 5;
-    const GUESS_COUNT = 6;
+    const devScoreDetailsEl = document.getElementById('devScoreDetails');
 
-    let currentRow = 0;
-    let currentCol = 0;
-    let guesses = Array(GUESS_COUNT).fill(null).map(() => Array(TILE_COUNT).fill(''));
+    async function init() {
+        await loadDictionary();
+        setupGame();
+        initDevControls();
+    }
 
-    // --- INITIALIZATION ---
-    function createGrid() {
-        for (let i = 0; i < GUESS_COUNT; i++) {
+    async function loadDictionary() {
+        try {
+            const response = await fetch(DICTIONARY_URL);
+            const text = await response.text();
+            const words = text.split('\n').slice(2).map(line => line.split(/[\s\t]/)[0].trim().toUpperCase());
+            state.dictionary = new Set(words);
+            console.log('Wordle dictionary loaded.');
+        } catch (error) {
+            console.error('Failed to load dictionary:', error);
+        }
+    }
+
+    function setupGame() {
+        // Reset state
+        state.guesses = Array(MAX_GUESSES).fill(null).map(() => Array(WORD_LENGTH).fill(''));
+        state.currentRow = 0;
+        state.currentCol = 0;
+        state.isGameOver = false;
+
+        // Select a new word
+        const fiveLetterWords = [...state.dictionary].filter(w => w.length === WORD_LENGTH);
+        state.solution = fiveLetterWords[Math.floor(Math.random() * fiveLetterWords.length)];
+        console.log(`Wordle solution: ${state.solution}`);
+
+        // Build UI
+        buildGrid();
+        updateDevPanel();
+        document.querySelectorAll('.keyboard button').forEach(btn => {
+            btn.className = '';
+            if (btn.dataset.key === 'ENTER' || btn.dataset.key === 'BACKSPACE') {
+                btn.classList.add('key-large');
+            }
+        });
+    }
+
+    function buildGrid() {
+        grid.innerHTML = '';
+        for (let r = 0; r < MAX_GUESSES; r++) {
             const row = document.createElement('div');
-            row.className = 'grid-row';
-            for (let j = 0; j < TILE_COUNT; j++) {
+            row.className = 'wordle-row';
+            for (let c = 0; c < WORD_LENGTH; c++) {
                 const tile = document.createElement('div');
-                tile.className = 'grid-tile';
+                tile.className = 'wordle-tile';
                 row.appendChild(tile);
             }
             grid.appendChild(row);
         }
     }
 
-    // --- INPUT HANDLING ---
-    function handleKeyPress(key) {
-        if (key === 'ENTER') {
-            submitGuess();
-            return;
-        }
-        if (key === 'BACKSPACE') {
-            deleteLetter();
-            return;
-        }
-        if (currentCol < TILE_COUNT && /^[A-Z]$/.test(key)) {
-            addLetter(key);
-        }
-    }
-
-    function addLetter(letter) {
-        guesses[currentRow][currentCol] = letter;
-        const tile = grid.children[currentRow].children[currentCol];
-        tile.textContent = letter;
-        tile.classList.add('filled');
-        currentCol++;
-    }
-
-    function deleteLetter() {
-        if (currentCol > 0) {
-            currentCol--;
-            guesses[currentRow][currentCol] = '';
-            const tile = grid.children[currentRow].children[currentCol];
-            tile.textContent = '';
-            tile.classList.remove('filled');
-        }
-    }
-
-    // --- GUESS SUBMISSION & EVALUATION ---
-    function submitGuess() {
-        if (currentCol !== TILE_COUNT) {
-            // Optionally, add a "not enough letters" message
-            return;
-        }
-
-        const guess = guesses[currentRow].join('');
-        flipTiles(guess);
-    }
-
-    function flipTiles(guess) {
-        const rowTiles = grid.children[currentRow].children;
-        let correctCount = 0;
-
-        for (let i = 0; i < TILE_COUNT; i++) {
-            const tile = rowTiles[i];
-            const letter = guess[i];
-            let state = 'absent';
-
-            if (solution[i] === letter) {
-                state = 'correct';
-                correctCount++;
-            } else if (solution.includes(letter)) {
-                state = 'present';
+    function updateGrid() {
+        for (let r = 0; r < MAX_GUESSES; r++) {
+            for (let c = 0; c < WORD_LENGTH; c++) {
+                const tile = grid.children[r].children[c];
+                tile.textContent = state.guesses[r][c];
+                tile.classList.toggle('filled', !!state.guesses[r][c]);
             }
+        }
+    }
 
-            setTimeout(() => {
-                tile.classList.add('flip');
-                tile.classList.add(state);
-                updateKeyboard(letter, state);
-            }, i * 300);
+    function handleKeyPress(key) {
+        if (state.isGameOver) return;
+
+        if (key === 'ENTER') {
+            if (state.currentCol === WORD_LENGTH) {
+                submitGuess();
+            }
+        } else if (key === 'BACKSPACE') {
+            if (state.currentCol > 0) {
+                state.currentCol--;
+                state.guesses[state.currentRow][state.currentCol] = '';
+                updateGrid();
+            }
+        } else if (state.currentCol < WORD_LENGTH && /^[A-Z]$/.test(key)) {
+            state.guesses[state.currentRow][state.currentCol] = key;
+            state.currentCol++;
+            updateGrid();
+        }
+    }
+
+    function submitGuess() {
+        const guess = state.guesses[state.currentRow].join('');
+        if (!state.dictionary.has(guess)) {
+            showToast('Not in word list');
+            return;
+        }
+
+        const rowEl = grid.children[state.currentRow];
+        const solutionLetters = state.solution.split('');
+
+        // First pass for correct letters
+        for (let i = 0; i < WORD_LENGTH; i++) {
+            if (guess[i] === solutionLetters[i]) {
+                rowEl.children[i].classList.add('correct');
+                updateKeyboard(guess[i], 'correct');
+                solutionLetters[i] = null; // Mark as used
+            }
+        }
+
+        // Second pass for present letters
+        for (let i = 0; i < WORD_LENGTH; i++) {
+            if (!rowEl.children[i].classList.contains('correct')) {
+                if (solutionLetters.includes(guess[i])) {
+                    rowEl.children[i].classList.add('present');
+                    updateKeyboard(guess[i], 'present');
+                    solutionLetters[solutionLetters.indexOf(guess[i])] = null; // Mark as used
+                } else {
+                    rowEl.children[i].classList.add('absent');
+                    updateKeyboard(guess[i], 'absent');
+                }
+            }
+        }
+
+        if (guess === state.solution) {
+            endGame(true);
+        } else if (state.currentRow === MAX_GUESSES - 1) {
+            endGame(false);
+        } else {
+            state.currentRow++;
+            state.currentCol = 0;
+        }
+    }
+
+    function updateKeyboard(key, status) {
+        const keyEl = keyboard.querySelector(`[data-key="${key}"]`);
+        if (keyEl.classList.contains('correct')) return;
+        if (keyEl.classList.contains('present') && status === 'absent') return;
+        keyEl.classList.remove('present', 'absent');
+        keyEl.classList.add(status);
+    }
+
+    function endGame(didWin) {
+        const EVENT_REWARD = 8;
+        state.isGameOver = true;
+
+        if (didWin) {
+            const currentMoney = parseInt(localStorage.getItem('alphaBossMoney') || '0', 10);
+            localStorage.setItem('alphaBossMoney', currentMoney + EVENT_REWARD);
         }
 
         setTimeout(() => {
-            if (correctCount === TILE_COUNT) {
-                endGame(true); // Win
-            } else if (currentRow === GUESS_COUNT - 1) {
-                endGame(false); // Lose
-            } else {
-                currentRow++;
-                currentCol = 0;
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            const modal = document.createElement('div');
+            modal.className = 'result-modal';
+            modal.innerHTML = `
+                <h2 class="${didWin ? 'success' : 'fail'}">${didWin ? 'SUCCESS!' : 'NICE TRY!'}</h2>
+                <p>The word was: <strong>${state.solution}</strong></p>
+                ${didWin ? `<p class="reward-text">You earned +$${EVENT_REWARD}!</p>` : ''}
+                <div class="result-actions">
+                    <button class="btn-continue">CONTINUE</button>
+                </div>
+            `;
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            overlay.style.display = 'flex';
+            modal.querySelector('.btn-continue').addEventListener('click', () => {
+                window.location.href = 'event.html';
+            });
+        }, 1000);
+    }
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // --- DEV PANEL LOGIC ---
+    function updateDevPanel() {
+        if (!devScoreDetailsEl) return;
+        devScoreDetailsEl.textContent = `Solution: ${state.solution}`;
+    }
+
+    function initDevControls() {
+        const devWinBtn = document.getElementById('devWin');
+        const devLoseBtn = document.getElementById('devLose');
+        const devNavMenuBtn = document.getElementById('devNavMenu');
+        const devNavGameBtn = document.getElementById('devNavGame');
+        const devMinimizeBtn = document.getElementById('devMinimizeBtn');
+        const devNavShopBtn = document.getElementById('devNavShop');
+        const devNavEventBtn = document.getElementById('devNavEvent');
+
+        if (!devWinBtn) return;
+
+        devMinimizeBtn.addEventListener('click', () => {
+            const panel = document.getElementById('devPanel');
+            panel.classList.toggle('minimized');
+            devMinimizeBtn.textContent = panel.classList.contains('minimized') ? '+' : '-';
+        });
+
+        devWinBtn.addEventListener('click', () => {
+            if (state.isGameOver) return;
+            // Fill current row with the solution
+            for (let i = 0; i < WORD_LENGTH; i++) {
+                state.guesses[state.currentRow][i] = state.solution[i];
             }
-        }, TILE_COUNT * 300);
+            state.currentCol = WORD_LENGTH;
+            updateGrid();
+            submitGuess();
+        });
+
+        devLoseBtn.addEventListener('click', () => {
+            if (state.isGameOver) return;
+            endGame(false);
+        });
+
+        devNavMenuBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
+        devNavGameBtn.addEventListener('click', () => { window.location.href = 'gameplay.html'; });
+        devNavShopBtn.addEventListener('click', () => { window.location.href = 'shop.html'; });
+        devNavEventBtn.addEventListener('click', () => { window.location.href = 'event.html'; });
+
+        updateDevPanel();
     }
 
-    function updateKeyboard(letter, state) {
-        const key = keyboard.querySelector(`[data-key="${letter}"]`);
-        if (!key) return;
-
-        const currentState = key.dataset.state;
-        if (currentState === 'correct') return;
-        if (currentState === 'present' && state !== 'correct') return;
-
-        key.classList.add(state);
-        key.dataset.state = state;
-    }
-
-    // --- END GAME ---
-    function endGame(didWin) {
-        const overlay = document.createElement('div');
-        overlay.className = 'result-modal-overlay';
-
-        const modal = document.createElement('div');
-        modal.className = 'result-modal';
-
-        const title = document.createElement('h2');
-        const message = document.createElement('p');
-        const continueBtn = document.createElement('a');
-        continueBtn.textContent = 'CONTINUE';
-        continueBtn.href = 'gameplay.html'; // Navigate back to the main game
-
-        if (didWin) {
-            title.textContent = 'YOU WON!';
-            message.textContent = 'Placeholder Outcome: +$10'; // The placeholder outcome
-        } else {
-            title.textContent = 'NICE TRY!';
-            message.textContent = `The word was: ${solution}`;
-        }
-
-        modal.appendChild(title);
-        modal.appendChild(message);
-        modal.appendChild(continueBtn);
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-    }
-
-    // --- EVENT LISTENERS ---
+    // Event Listeners
     keyboard.addEventListener('click', (e) => {
         if (e.target.matches('button')) {
             handleKeyPress(e.target.dataset.key);
@@ -154,13 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', (e) => {
         let key = e.key.toUpperCase();
-        if (key === 'BACKSPACE' || key === 'ENTER') {
-            handleKeyPress(key);
-        } else if (key.length === 1 && key >= 'A' && key <= 'Z') {
+        if (key === 'BACKSPACE' || key === 'ENTER' || /^[A-Z]$/.test(key)) {
             handleKeyPress(key);
         }
     });
 
-    // --- START ---
-    createGrid();
+    init();
 });

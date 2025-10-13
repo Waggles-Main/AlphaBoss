@@ -19,6 +19,9 @@
     --panel-dark: #2e3a3c;
     --shadow: rgba(0,0,0,.5);
     --accent-red: #ff5f4f;
+    --accent-blue: #1f8df2;
+    --accent-green: #56a67a;
+    --muted-dark: #4f6367;
 }
 
 * { box-sizing: border-box; }
@@ -62,7 +65,7 @@ body {
 
 .event-header p {
     font-family: m6x11plus;
-    font-size: 18px;
+    font-size: 16px;
     margin: 4px 0 0;
 }
 
@@ -87,10 +90,34 @@ body {
     box-shadow: 0 4px 0 black;
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
-    background-color: var(--accent-red);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
 }
 
 .event-choice-btn:active {
     transform: translateY(2px);
     box-shadow: 0 2px 0 black;
+}
+
+.reward-tag {
+    font-family: m5x7;
+    font-size: 28px;
+    color: var(--accent-orange);
+    background: rgba(0,0,0,0.2);
+    padding: 2px 8px;
+    border-radius: 8px;
+}
+
+.btn-skip {
+    background-color: var(--muted-dark);
+}
+
+.btn-wordle {
+    background-color: var(--accent-green);
+}
+
+.btn-scramble {
+    background-color: var(--accent-blue);
 }
