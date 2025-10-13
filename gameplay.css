@@ -1326,3 +1326,76 @@ body {
 .how-to-play-content {
     padding: 0 16px;
 }
+
+/* --- TILE TOOLTIP STYLES --- */
+.tile-tooltip {
+    position: fixed;
+    width: 156px;
+    background: #4f6367; /* Color from design */
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    z-index: 9999;
+    pointer-events: none; /* Prevent tooltip from interfering with mouse events */
+    
+    /* Hidden state */
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.tile-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.tooltip-tile {
+    width: 76px;
+    height: 76px;
+    background: white;
+    border: 1px solid var(--tile-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 0 var(--shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.tooltip-letter {
+    font-family: m6x11plus;
+    font-size: 48px;
+    color: #1e2f33;
+    line-height: 1;
+}
+
+.tooltip-value {
+    font-family: m5x7;
+    font-size: 18px;
+    color: var(--accent-blue);
+    font-weight: bold;
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+}
+
+.tooltip-info {
+    font-family: m6x11plus;
+    font-size: 14px;
+    color: white;
+    text-align: center;
+    line-height: 1.4;
+    white-space: pre-wrap; /* To respect newlines */
+}
+
+/* Add styles for enhancements inside the tooltip */
+.tooltip-tile.enhanced-booster {
+    box-shadow: 0 4px 0 var(--shadow), inset 0 0 0 4px var(--accent-blue);
+}
+
+.tooltip-tile .mult-icon { z-index: 1; } /* Ensure mult icon is visible */

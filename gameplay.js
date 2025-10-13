@@ -1009,6 +1009,76 @@ function initTileHoverEffects() {
     });
 }
 
+function initTooltips() {
+    const tooltipEl = document.getElementById('tileTooltip');
+    const tooltipLetterEl = tooltipEl.querySelector('.tooltip-letter');
+    const tooltipValueEl = tooltipEl.querySelector('.tooltip-value');
+    const tooltipInfoEl = tooltipEl.querySelector('.tooltip-info');
+    const tooltipTileEl = tooltipEl.querySelector('.tooltip-tile');
+
+    let tooltipTimer;
+
+    gridEl.addEventListener('mouseover', (e) => {
+        const tile = e.target.closest('.tile');
+        if (!tile) return;
+
+        // Clear any existing timer
+        clearTimeout(tooltipTimer);
+
+        // Start a new timer to show the tooltip
+        tooltipTimer = setTimeout(() => {
+            const index = parseInt(tile.dataset.index, 10);
+            const tileObject = state.grid[index];
+
+            // 1. Populate tooltip content
+            tooltipLetterEl.textContent = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter;
+            tooltipValueEl.textContent = tileObject.value;
+
+            let infoText = `Base Value: ${tileObject.value}`;
+            if (tileObject.mult > 0) {
+                infoText += `\n+${tileObject.mult} (Booster)`;
+            }
+            if (tileObject.mult_mult > 1) {
+                infoText += `\n×${tileObject.mult_mult} Multiplier`;
+            }
+            if (state.upgrades.topRow && tileObject.index < 4) {
+                infoText += `\n+1x Word Multiplier`;
+            }
+            tooltipInfoEl.textContent = infoText;
+
+            // 2. Handle visual enhancements
+            tooltipTileEl.className = 'tooltip-tile'; // Reset classes
+            if (tileObject.modifier === CONSTANTS.MODIFIERS.BOOSTER) {
+                tooltipTileEl.classList.add('enhanced-booster');
+            }
+            if (state.upgrades.topRow && tileObject.index < 4) {
+                tooltipTileEl.classList.add('top-row-enhanced');
+            }
+            // Clear old mult-icon if it exists
+            const oldIcon = tooltipTileEl.querySelector('.mult-icon');
+            if (oldIcon) oldIcon.remove();
+            if (tileObject.modifier === CONSTANTS.MODIFIERS.MULTIPLIER) {
+                const multIcon = document.createElement('div');
+                multIcon.className = 'mult-icon';
+                multIcon.textContent = '×';
+                tooltipTileEl.appendChild(multIcon);
+            }
+
+            // 3. Position and show the tooltip
+            const rect = tile.getBoundingClientRect();
+            tooltipEl.style.left = `${rect.left + rect.width / 2 - tooltipEl.offsetWidth / 2}px`;
+            tooltipEl.style.top = `${rect.top - tooltipEl.offsetHeight - 10}px`; // 10px above the tile
+            tooltipEl.classList.add('visible');
+
+        }, 1500); // 1.5 second delay
+    });
+
+    gridEl.addEventListener('mouseout', () => {
+        clearTimeout(tooltipTimer);
+        tooltipEl.classList.remove('visible');
+    });
+}
+
 function initBlobEffect() {
     const blob = document.getElementById("blob");
     if (!blob) return;
@@ -1105,6 +1175,7 @@ async function init() {
     initBlobEffect(); // Initialize the new background effect
     initDevControls(); // Initialize the developer control panel
     initHowToPlayModal(); // Check if we need to show the tutorial
+    initTooltips(); // Initialize the new tooltip functionality
     initAudioUnlock(); // Set up the listener to unlock audio on first interaction
 }
 

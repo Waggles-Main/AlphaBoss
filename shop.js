@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const moneyValueEl = document.getElementById('shopMoney');
+    const shopScreenEl = document.querySelector('.shop-screen');
     const bagBtn = document.querySelector('.btn-bag');
 
     // Bag Modal Element Selectors
@@ -8,6 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const bagGrid = document.getElementById('bagGrid');
     const sortControls = document.querySelector('.sort-controls');
     const tilesRemainingInfo = document.getElementById('tilesRemainingInfo');
+
+    // Booster Pack Modal Element Selectors
+    const boosterPackOverlay = document.getElementById('boosterPackOverlay');
+    const boosterPackGrid = document.getElementById('boosterPackGrid');
+    const boosterPackConfirmBtn = document.getElementById('boosterPackConfirm');
+    const boosterPackSkipBtn = document.getElementById('boosterPackSkip');
 
     const state = {
         masterTileSet: [],
@@ -35,13 +42,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- SHOP ITEM LOGIC ---
     function initializeShopItems() {
+        const boosterPackItem = document.getElementById('item-booster-pack');
         const topRowUpgrade = document.getElementById('upgrade-top-row');
+
+        boosterPackItem.addEventListener('click', () => purchaseBoosterPack(boosterPackItem));
+
         if (state.upgrades.topRow) {
             topRowUpgrade.classList.add('purchased');
             topRowUpgrade.querySelector('.item-price').textContent = 'OWNED';
         } else {
             topRowUpgrade.addEventListener('click', () => purchaseUpgrade('topRow', topRowUpgrade));
         }
+
     }
 
     function purchaseUpgrade(upgradeId, element) {
@@ -64,6 +76,96 @@ document.addEventListener('DOMContentLoaded', () => {
             element.replaceWith(element.cloneNode(true)); // Remove event listener
         } else {
             console.log("Not enough money!"); // Later, show a UI error
+        }
+    }
+
+    function purchaseBoosterPack(element) {
+        const cost = parseInt(element.dataset.cost, 10);
+        const currentMoney = parseInt(localStorage.getItem('alphaBossMoney'), 10) || 0;
+
+        if (currentMoney >= cost) {
+            const newMoney = currentMoney - cost;
+            localStorage.setItem('alphaBossMoney', newMoney);
+            moneyValueEl.textContent = `$${newMoney}`;
+
+            // Temporarily disable the button after purchase
+            element.classList.add('purchased');
+            element.querySelector('.item-price').textContent = 'USED';
+            element.replaceWith(element.cloneNode(true));
+
+            showBoosterPackModal();
+        } else {
+            console.log("Not enough money for Booster Pack!");
+        }
+    }
+
+    // --- BOOSTER PACK MODAL LOGIC ---
+    function showBoosterPackModal() {
+        shopScreenEl.style.display = 'none'; // Hide shop
+        boosterPackOverlay.style.display = 'flex'; // Show modal
+
+        // Get 16 random tiles that are not already boosters or multipliers
+        const eligibleTiles = state.masterTileSet.filter(t => !t.modifier);
+        shuffleArray(eligibleTiles);
+        const tilesToDisplay = eligibleTiles.slice(0, 16);
+        
+        let selectedTileIds = new Set();
+
+        boosterPackGrid.innerHTML = '';
+        tilesToDisplay.forEach(tileObject => {
+            const tileEl = document.createElement('div');
+            tileEl.className = 'booster-pack-tile';
+            tileEl.dataset.tileId = tileObject.id;
+            
+            const displayLetter = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter;
+            tileEl.innerHTML = `${displayLetter}<span class="val">${tileObject.value}</span>`;
+
+            tileEl.addEventListener('click', () => {
+                if (selectedTileIds.has(tileObject.id)) {
+                    selectedTileIds.delete(tileObject.id);
+                    tileEl.classList.remove('selected');
+                } else {
+                    if (selectedTileIds.size < 4) {
+                        selectedTileIds.add(tileObject.id);
+                        tileEl.classList.add('selected');
+                    }
+                }
+                boosterPackConfirmBtn.textContent = `BOOST (${selectedTileIds.size}/4)`;
+                boosterPackConfirmBtn.disabled = selectedTileIds.size === 0;
+            });
+
+            boosterPackGrid.appendChild(tileEl);
+        });
+
+        boosterPackConfirmBtn.onclick = () => {
+            // Find the selected tiles in the master set and upgrade them
+            selectedTileIds.forEach(id => {
+                const tileToUpgrade = state.masterTileSet.find(t => t.id === id);
+                if (tileToUpgrade) {
+                    tileToUpgrade.modifier = 'booster';
+                    tileToUpgrade.mult = 10;
+                }
+            });
+
+            // Save the updated master set back to localStorage
+            localStorage.setItem('alphaBossMasterTileSet', JSON.stringify(state.masterTileSet));
+            closeBoosterPackModal();
+        };
+
+        boosterPackSkipBtn.onclick = () => {
+            closeBoosterPackModal();
+        };
+    }
+
+    function closeBoosterPackModal() {
+        boosterPackOverlay.style.display = 'none';
+        shopScreenEl.style.display = 'flex';
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
     }
 

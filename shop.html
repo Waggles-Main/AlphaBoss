@@ -29,17 +29,21 @@
         <main class="shop-main">
             <button class="shop-btn btn-reroll">REROLL $5</button>
             <div class="shop-items">
+                <div class="shop-item" id="item-booster-pack" data-cost="8">
+                    <div class="item-icon">BP</div>
+                    <div class="item-price">$8</div>
+                </div>
+                <div class="shop-item">
+                    <div class="item-icon">x</div>
+                    <div class="item-price">$4</div>
+                </div>
+                <div class="shop-item">
+                    <div class="item-icon">x</div>
+                    <div class="item-price">$4</div>
+                </div>
                 <div class="shop-item" id="upgrade-top-row" data-cost="10">
                     <div class="item-icon">TR</div>
                     <div class="item-price">$10</div>
-                </div>
-                <div class="shop-item">
-                    <div class="item-icon">x</div>
-                    <div class="item-price">$4</div>
-                </div>
-                <div class="shop-item">
-                    <div class="item-icon">x</div>
-                    <div class="item-price">$4</div>
                 </div>
             </div>
         </main>
@@ -70,6 +74,22 @@
         </div>
       </div>
     </div>
+
+    <!-- Booster Pack Modal -->
+    <div class="modal-overlay" id="boosterPackOverlay">
+        <div class="booster-pack-modal">
+            <h2 class="booster-pack-title">BOOSTER PACK</h2>
+            <p class="booster-pack-subtitle">CHOOSE UP TO 4 TILES TO ADD +10 TO THEIR POINTS</p>
+            <div class="booster-pack-grid" id="boosterPackGrid">
+                <!-- Tiles to boost will be rendered here by JS -->
+            </div>
+            <div class="booster-pack-actions">
+                <button class="btn-booster-skip" id="boosterPackSkip">SKIP</button>
+                <button class="btn-booster-confirm" id="boosterPackConfirm" disabled>BOOST (0/4)</button>
+            </div>
+        </div>
+    </div>
+
 
     <script src="shop.js"></script>
 </body>
