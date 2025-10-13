@@ -849,12 +849,24 @@ function initDevControls() {
     const devLoseBtn = document.getElementById('devLose');
     const devNavMenuBtn = document.getElementById('devNavMenu');
     const devNavGameBtn = document.getElementById('devNavGame');
+    const devMinimizeBtn = document.getElementById('devMinimizeBtn');
     const devNavShopBtn = document.getElementById('devNavShop');
     const devNavEventBtn = document.getElementById('devNavEvent');
     const devNavWordleBtn = document.createElement('button');
 
 
     if (!devRefreshBtn) return; // Assume panel doesn't exist if one button is missing
+
+    // Minimize/Maximize toggle
+    devMinimizeBtn.addEventListener('click', () => {
+        const panel = document.getElementById('devPanel');
+        panel.classList.toggle('minimized');
+        if (panel.classList.contains('minimized')) {
+            devMinimizeBtn.textContent = '+';
+        } else {
+            devMinimizeBtn.textContent = '-';
+        }
+    });
 
     // Refresh Board: Simply call generateGrid to create a new set of tiles.
     devRefreshBtn.addEventListener('click', () => {

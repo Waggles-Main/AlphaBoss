@@ -1017,6 +1017,16 @@ body {
     border: 2px solid var(--accent-red);
 }
 
+.dev-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.dev-panel-header .dev-title {
+    margin: 0;
+}
+
 .dev-panel .dev-title {
     margin: 0 0 10px;
     text-align: center;
@@ -1059,6 +1069,30 @@ body {
     font-size: 16px;
     box-shadow: 0 4px 0 var(--shadow);
     cursor: pointer;
+}
+
+.dev-minimize-btn {
+    background: var(--accent-red);
+    border: 1px solid white;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-family: m5x7;
+    font-size: 24px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Styles for the minimized state */
+.dev-panel.minimized .dev-panel-content {
+    display: none;
+}
+
+.dev-panel.minimized .dev-panel-header {
+    margin-bottom: 0;
 }
 
 /* --- VICTORY MODAL STYLES --- */
@@ -1396,6 +1430,10 @@ body {
 /* Add styles for enhancements inside the tooltip */
 .tooltip-tile.enhanced-booster {
     box-shadow: 0 4px 0 var(--shadow), inset 0 0 0 4px var(--accent-blue);
+}
+
+.tooltip-tile.top-row-enhanced {
+    box-shadow: 0 4px 0 var(--shadow), inset 0 0 0 4px #7A73BB;
 }
 
 .tooltip-tile .mult-icon { z-index: 1; } /* Ensure mult icon is visible */
