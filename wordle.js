@@ -155,10 +155,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function endGame(didWin) {
         const EVENT_REWARD = 8;
         state.isGameOver = true;
+        const runState = getRunState();
+
+        // Increment the stage index to move past the event
+        if (runState) {
+            runState.stageIndex++;
+        }
 
         if (didWin) {
-            const currentMoney = parseInt(localStorage.getItem('alphaBossMoney') || '0', 10);
-            localStorage.setItem('alphaBossMoney', currentMoney + EVENT_REWARD);
+            if (runState) {
+                runState.money = (runState.money || 0) + EVENT_REWARD;
+            }
+        }
+
+        // Save the final state after all modifications
+        if (runState) {
+            saveRunState(runState);
         }
 
         setTimeout(() => {
@@ -178,7 +190,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(overlay);
             overlay.style.display = 'flex';
             modal.querySelector('.btn-continue').addEventListener('click', () => {
-                window.location.href = 'event.html';
+                // Always return to the between-rounds screen to continue the run
+                window.location.href = 'between-rounds.html';
             });
         }, 1000);
     }
@@ -236,6 +249,15 @@ document.addEventListener('DOMContentLoaded', () => {
         devNavEventBtn.addEventListener('click', () => { window.location.href = 'event.html'; });
 
         updateDevPanel();
+    }
+
+    // Helper functions to manage run state
+    function getRunState() {
+        const savedRun = localStorage.getItem('alphaBossRun');
+        return savedRun ? JSON.parse(savedRun) : null;
+    }
+    function saveRunState(runState) {
+        localStorage.setItem('alphaBossRun', JSON.stringify(runState));
     }
 
     // Event Listeners

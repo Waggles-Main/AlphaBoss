@@ -175,6 +175,14 @@ body {
     text-shadow: 0 2px 0 var(--shadow);
 }
 
+.stage-indicator {
+    font-family: m6x11plus;
+    font-size: 14px;
+    color: var(--accent-orange);
+    text-transform: uppercase;
+    margin-top: -4px;
+}
+
 .scores { 
     display: grid; 
     grid-template-columns: 59px 1fr 59px; 
@@ -604,6 +612,23 @@ button.pill:disabled {
     );
     background-size: 40px 40px;
     color: #333;
+}
+
+/* Style for the "Stone" debuff */
+.tile.debuff-stone .tile-animator {
+    background: #757575; /* Grey color */
+    color: #424242;
+    box-shadow: 0 4px 0 #333;
+}
+
+/* Style for the "Locked" state */
+.tile.locked .tile-animator {
+    /* Add a visual indicator like a chain or lock icon */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(0,0,0,0.2)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%;
+    cursor: not-allowed;
 }
 
 .tile.selected .tile-animator { 
@@ -1191,6 +1216,53 @@ button.pill:disabled {
     font-size: 18px;
     border-top: 1px solid var(--tile-border);
     padding-top: 10px;
+}
+
+.dev-subtitle.collapsible {
+    cursor: pointer;
+    position: relative;
+}
+
+.dev-subtitle.collapsible::after {
+    content: '▼';
+    position: absolute;
+    right: 0;
+    font-size: 12px;
+    transition: transform 0.2s ease-out;
+}
+
+.dev-subtitle.collapsible.collapsed::after {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    max-height: 200px; /* Adjust as needed */
+    overflow-y: auto;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    padding-top: 5px;
+}
+
+.collapsible-content.collapsed {
+    max-height: 0;
+    padding-top: 0;
+    overflow: hidden;
+}
+
+#devBossSelect {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#devBossSelect label {
+    font-family: m6x11plus;
+    font-size: 14px;
+}
+
+.dev-boss-desc {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 12px;
 }
 
 #devScoreDetails {

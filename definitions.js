@@ -494,3 +494,97 @@ const UPGRADE_MAP = {
     'upgrade_refresh': UpgradeRefresh,
     'upgrade_refresh_plus': UpgradeRefreshPlus,
 };
+
+// --- BOSS DEFINITIONS ---
+
+class TheSnag extends Boss {
+    constructor() {
+        super({
+            id: 'boss_the_snag',
+            name: 'The Snag',
+            description: 'Discard 2 random tiles from hand after playing a word.',
+            ante: 2,
+            effect: { type: 'ForceDiscardHand', details: { count: 2 } }
+        });
+    }
+}
+
+class TheHook extends Boss {
+    constructor() {
+        super({
+            id: 'boss_the_hook',
+            name: 'The Hook',
+            description: 'Discards 4 random tiles in grid after every played word.',
+            ante: 3,
+            effect: { type: 'ForceDiscardGrid', details: { count: 4 } }
+        });
+    }
+}
+
+class TheWall extends Boss {
+    constructor() {
+        super({
+            id: 'boss_the_wall',
+            name: 'The Wall',
+            description: 'Extra large score required to beat (4x the round\'s base score).',
+            ante: 2,
+            effect: { type: 'ModifyScoreTarget', details: { multiplier: 4 } }
+        });
+    }
+}
+
+class TheWheel extends Boss {
+    constructor() {
+        super({
+            id: 'boss_the_wheel',
+            name: 'The Wheel',
+            description: '1 in 7 tiles gets randomly debuffed (no value) during the round.',
+            ante: 3,
+            effect: { type: 'DebuffDrawnTiles', details: { chance: 1/7, debuff: 'Stone' } }
+        });
+    }
+}
+
+class TheWater extends Boss {
+    constructor() {
+        super({
+            id: 'boss_the_water',
+            name: 'The Water',
+            description: 'Start exam with 0 refreshes.',
+            ante: 2,
+            effect: { type: 'SetRefreshes', details: { count: 0 } }
+        });
+    }
+}
+
+class TheElbow extends Boss {
+    constructor() {
+        super({
+            id: 'boss_the_elbow',
+            name: 'The Elbow',
+            description: 'First Tile is locked.',
+            ante: 1,
+            effect: { type: 'LockFirstTile', details: {} }
+        });
+    }
+}
+
+// --- GLOBAL BOSS POOL ---
+const ALL_BOSSES = [
+    new TheSnag(),
+    new TheHook(),
+    new TheWall(),
+    new TheWheel(),
+    new TheWater(),
+    new TheElbow(),
+];
+
+// --- BOSS FACTORY MAP ---
+const BOSS_MAP = {
+    'boss_the_wall': TheWall,
+    'boss_the_snag': TheSnag,
+    'boss_the_hook': TheHook,
+    'boss_the_wheel': TheWheel,
+    'boss_the_water': TheWater,
+    'boss_the_elbow': TheElbow,
+};

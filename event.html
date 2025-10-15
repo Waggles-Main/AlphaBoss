@@ -13,10 +13,35 @@
             <p>Choose your fate, or skip to the next round.</p>
         </header>
         <main class="event-choices">
-            <a href="gameplay.html" class="event-choice-btn btn-skip">SKIP</a>
-            <a href="wordle.html" class="event-choice-btn btn-wordle">WORDLE <span class="reward-tag">+$8</span></a>
-            <a href="word-scramble.html" class="event-choice-btn btn-scramble">WORD SCRAMBLE <span class="reward-tag">+$8</span></a>
+            <button id="btnSkip" class="event-choice-btn btn-skip">SKIP</button>
+            <button id="btnWordle" class="event-choice-btn btn-wordle">WORDLE <span class="reward-tag">+$8</span></button>
+            <button id="btnScramble" class="event-choice-btn btn-scramble">WORD SCRAMBLE <span class="reward-tag">+$8</span></button>
         </main>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            function getRunState() {
+                const savedRun = localStorage.getItem('alphaBossRun');
+                return savedRun ? JSON.parse(savedRun) : {};
+            }
+
+            function saveRunState(runState) {
+                localStorage.setItem('alphaBossRun', JSON.stringify(runState));
+            }
+
+            function handleNavigation(destination) {
+                window.location.href = destination;
+            }
+
+            document.getElementById('btnSkip').addEventListener('click', () => {
+                const runState = getRunState();
+                runState.stageIndex++; // Move to the next stage
+                saveRunState(runState);
+                handleNavigation('between-rounds.html');
+            });
+            document.getElementById('btnWordle').addEventListener('click', () => handleNavigation('wordle.html'));
+            document.getElementById('btnScramble').addEventListener('click', () => handleNavigation('word-scramble.html'));
+        });
+    </script>
 </body>
 </html>

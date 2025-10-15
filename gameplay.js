@@ -249,6 +249,8 @@ function repopulateGrid(usedTiles, delayStart = 0) {
                 multIcon.className = 'mult-icon';
                 multIcon.textContent = '×';
                 tileAnimator.appendChild(multIcon);
+            } else if (newTileObject.modifier === 'Stone') {
+                tileElement.classList.add('debuff-stone');
             }
 
             const tileContent = tileAnimator.querySelector('.tile-content');
@@ -279,6 +281,11 @@ function toggleTile(index, el) {
     const foundIndex = state.selected.findIndex(selectedTile => selectedTile.index === index);
 
     if (foundIndex >= 0) {
+        // Prevent deselecting a locked tile
+        if (tileObject.isLocked) {
+            shakeScreen(); // Give feedback that it's locked
+            return;
+        }
         // This part handles deselecting a tile from the main grid
         state.selected.splice(foundIndex, 1);
         el.classList.remove('selected');
@@ -339,6 +346,24 @@ async function playWord() {
     const chipsToAnimate = chipsEl.querySelectorAll('.chip');
     const animationDuration = 400; // Must match CSS animation duration
     const staggerDelay = 75;       // Time between each chip animation start
+
+    // --- Handle Boss Effects on Word Play ---
+    if (state.activeBossEffect) {
+        const effect = state.activeBossEffect;
+        if (effect.type === 'ForceDiscardHand') {
+            // "The Snag" effect
+            // This is a placeholder; a better implementation would show which tiles were discarded.
+            console.log(`Boss forces discard of ${effect.details.count} tiles from hand.`);
+            // We'll implement the actual discard logic after repopulating the grid.
+        }
+        if (effect.type === 'ForceDiscardGrid') {
+            // "The Hook" effect
+            // Discard random tiles from the main grid
+            const gridTiles = state.grid.filter(t => !state.selected.includes(t));
+            shuffleArray(gridTiles);
+            repopulateGrid(gridTiles.slice(0, effect.details.count));
+        }
+    }
 
     // Animate each chip in sequence
     for (let i = 0; i < chipsToAnimate.length; i++) {
@@ -703,6 +728,10 @@ function calculateWordScore(selectedTiles) {
 
     // 1. Calculate base score and tile-specific multipliers
     selectedTiles.forEach(tile => {
+        // Stone tiles from "The Wheel" boss contribute nothing
+        if (tile.modifier === 'Stone') {
+            return;
+        }
         baseScore += tile.value + tile.mult;
         tileMultiplier *= tile.mult_mult;
     });
@@ -1108,8 +1137,29 @@ function updateDevScorePanel() {
         breakdown += `Length Multiplier (x${lengthMultiplier})\n`;
     }
 
+    // Check for Stone tiles
+    if (state.selected.some(t => t.modifier === 'Stone')) {
+        breakdown += `Stone Tile(s): No score contribution\n`;
+    }
+
     const { finalScore } = calculateWordScore(state.selected);
     detailsEl.textContent = `${breakdown}------------------\nTotal: ${finalScore} pts`;
+}
+
+function resetForNewBoss() {
+    // Reset round-specific state that a boss might affect
+    const runState = getRunState();
+    state.wordsRemaining = runState.wordsPerRound || 5;
+    state.discards = runState.refreshesPerRound || 5;
+    state.target = runState.stageTarget || ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
+
+    // Re-apply the new boss effect if one is active
+    if (state.activeBossEffect?.type === 'SetRefreshes') {
+        state.discards = state.activeBossEffect.details.count;
+    }
+    if (state.activeBossEffect?.type === 'ModifyScoreTarget') {
+        state.target = Math.round(state.target * state.activeBossEffect.details.multiplier);
+    }
 }
 
 function initDevControls() {
@@ -1122,6 +1172,8 @@ function initDevControls() {
     const devNavEventBtn = document.getElementById('devNavEvent');
     const devNavWordleBtn = document.createElement('button');
     const devNavScrambleBtn = document.createElement('button');
+    const devBossSelect = document.getElementById('devBossSelect');
+    const devApplyBossBtn = document.getElementById('devApplyBoss');
 
     if (!devRefreshBtn) return; // Assume panel doesn't exist if one button is missing
 
@@ -1194,6 +1246,60 @@ function initDevControls() {
     devNavScrambleBtn.addEventListener('click', () => {
         window.location.href = 'word-scramble.html';
     });
+
+    // --- Boss Selection Logic ---
+    if (devBossSelect && devApplyBossBtn) {
+        const collapsibleTitle = devBossSelect.previousElementSibling;
+        collapsibleTitle.addEventListener('click', () => {
+            collapsibleTitle.classList.toggle('collapsed');
+            devBossSelect.classList.toggle('collapsed');
+        });
+
+        // Add a "None" option
+        const noneLabel = document.createElement('label');
+        noneLabel.innerHTML = `<input type="radio" name="boss" value="none"> None`;
+        devBossSelect.appendChild(noneLabel);
+
+        // Populate with bosses
+        ALL_BOSSES.forEach(boss => {
+            const label = document.createElement('label');
+            label.innerHTML = `<input type="radio" name="boss" value="${boss.id}"> ${boss.name} <span class="dev-boss-desc">- ${boss.description}</span>`;
+            devBossSelect.appendChild(label);
+        });
+
+        // Set the initial checked state
+        const currentBossId = state.activeBossEffect ? BOSS_MAP[state.activeBossEffect.id]?.id : 'none';
+        const currentRadio = devBossSelect.querySelector(`input[value="${currentBossId || 'none'}"]`);
+        if (currentRadio) {
+            currentRadio.checked = true;
+        }
+
+        // Add event listener for the apply button
+        devApplyBossBtn.addEventListener('click', () => {
+            const selectedRadio = devBossSelect.querySelector('input[name="boss"]:checked');
+            if (!selectedRadio) return;
+            const selectedBossId = selectedRadio.value;
+
+            // Remove any existing boss effect
+            if (state.activeBossEffect) {
+                const oldBossId = Object.keys(BOSS_MAP).find(id => BOSS_MAP[id].prototype.constructor.name === state.activeBossEffect.constructorName);
+                if (oldBossId) new (BOSS_MAP[oldBossId])().removeEffect(state);
+            }
+
+            // Apply the new boss effect
+            if (selectedBossId !== 'none') {
+                const NewBossClass = BOSS_MAP[selectedBossId];
+                if (NewBossClass) {
+                    const boss = new NewBossClass();
+                    boss.applyEffect(state);
+                    state.activeBossEffect.constructorName = NewBossClass.name; // Store constructor name
+                }
+            }
+            resetForNewBoss();
+            updateRoundUI();
+            console.log('Switched to boss:', selectedBossId);
+        });
+    }
 }
 
 function initAudioUnlock() {
@@ -1431,6 +1537,30 @@ async function init() {
     state.glyphs = runState.glyphs || [];
     state.target = runState.stageTarget || ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
 
+    // --- Apply Boss Effect if it's an Exam round ---
+    if (runState.stageIndex === 4 && runState.currentBossId) { // 4 is the index for 'exam'
+        const BossClass = BOSS_MAP[runState.currentBossId];
+        if (BossClass) {
+            const boss = new BossClass();
+            boss.applyEffect(state); // The 'state' object is the gameplay state.
+        }
+    }
+
+    // Set the stage indicator text
+    const stageIndicatorEl = document.getElementById('stageIndicator');
+    if (stageIndicatorEl) {
+        const stageNames = {
+            0: 'Quiz', // from between-rounds.js STAGES array
+            1: 'Event',
+            2: 'Test',
+            3: 'Event',
+            4: 'Exam'
+        };
+        // Use a fallback just in case, but the map should cover all valid stages.
+        const stageName = stageNames[runState.stageIndex] ?? 'Unknown';
+        stageIndicatorEl.textContent = stageName;
+    }
+
     // Load and apply saved volume settings
     const savedMusicVolume = localStorage.getItem('alphaBossMusicVolume');
     const savedSfxVolume = localStorage.getItem('alphaBossSfxVolume');
@@ -1461,6 +1591,11 @@ async function init() {
         }
     });
 
+    // Apply boss effects that modify starting state
+    if (state.activeBossEffect?.type === 'SetRefreshes') {
+        state.discards = state.activeBossEffect.details.count;
+    }
+
     // 1. Create or load the master tile set for the run.
     if (runState.masterTileSet) {
         state.masterTileSet = runState.masterTileSet;
@@ -1486,10 +1621,16 @@ async function init() {
     // 3. Generate the initial grid from the pool
     generateGrid();
 
+    // Apply boss effects that modify the grid after it's generated
+    if (state.activeBossEffect?.type === 'LockFirstTile') {
+        state.grid[0].isLocked = true;
+        gridEl.querySelector('[data-index="0"]').classList.add('locked');
+    }
+
     // 4. Initialize UI components
     document.getElementById('roundValue').textContent = state.round;
     renderChips();
-    renderGlyphs(); // This call was missing
+    renderGlyphs();
     updateBossDialog('start');
     updateRoundUI();
     initGooglyEyes();

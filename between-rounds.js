@@ -43,11 +43,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const testScoreEl = stageCards.test.querySelector('.detail-value');
         const examScoreEl = stageCards.exam.querySelector('.detail-value');
         const examTitleEl = stageCards.exam.querySelector('.card-title');
+        const examModifierEl = stageCards.exam.querySelector('.boss-modifier');
+        let examScoreMultiplier = 2; // Default exam score multiplier
+
+        // --- Select and display the boss for the exam ---
+        if (examModifierEl) {
+            const currentAnte = Math.ceil(runState.round / 3); // e.g., Rounds 1-3 are Ante 1
+            const availableBosses = ALL_BOSSES.filter(boss => boss.ante <= currentAnte);
+            const currentBoss = availableBosses[Math.floor(Math.random() * availableBosses.length)];
+            
+            if (currentBoss) {
+                runState.currentBossId = currentBoss.id; // Save the boss for the gameplay screen
+                examModifierEl.textContent = currentBoss.description;
+
+                // Special handling for The Wall boss
+                if (currentBoss.id === 'boss_the_wall') {
+                    examScoreMultiplier = currentBoss.effect.details.multiplier;
+                }
+            }
+        }
 
         const target = ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
         if (quizScoreEl) quizScoreEl.textContent = target;
         if (testScoreEl) testScoreEl.textContent = Math.round(target * 1.5); // Test is harder
-        if (examScoreEl) examScoreEl.textContent = Math.round(target * 2);   // Exam is hardest
+        if (examScoreEl) examScoreEl.textContent = Math.round(target * examScoreMultiplier);
 
         if (runState.round === 8 && examTitleEl) {
             examTitleEl.textContent = 'FINAL EXAM';
@@ -79,10 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         e.preventDefault();
                         e.stopPropagation(); // Prevent any other clicks on the card
                         
+                        runState.stageIndex = index; // Set the correct stage index before saving
                         // Set the target score for the upcoming gameplay session
                         let stageTarget = target;
                         if (stage === 'test') stageTarget = Math.round(target * 1.5);
-                        if (stage === 'exam') stageTarget = Math.round(target * 2);
+                        if (stage === 'exam') stageTarget = Math.round(target * examScoreMultiplier);
                         runState.stageTarget = stageTarget;
                         saveRunState(runState);
 

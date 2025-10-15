@@ -206,6 +206,44 @@ class Tile {
         }
     }
 }
+/*
+ * =============================================================================
+ * 6. BOSS
+ * Represents a special challenge with a unique, round-long effect.
+ * =============================================================================
+ */
+class Boss {
+    /**
+     * @param {object} config - Configuration object for the boss.
+     * @param {string} config.id - Unique identifier.
+     * @param {string} config.name - e.g., "The Wall".
+     * @param {string} config.description - Explains the boss's effect.
+     * @param {number} config.ante - The difficulty tier.
+     * @param {object} config.effect - Defines the specific alteration.
+     */
+    constructor({ id, name, description, ante, effect }) {
+        // Metadata
+        this.id = id;
+        this.ante = ante;
+
+        // Attributes
+        this.name = name;
+        this.description = description;
+
+        // Nested Effect Object
+        this.effect = effect;
+    }
+
+    applyEffect(gameState) {
+        console.log(`Applying effect for boss: ${this.name}`);
+        gameState.activeBossEffect = this.effect;
+    }
+
+    removeEffect(gameState) {
+        console.log(`Removing effect for boss: ${this.name}`);
+        delete gameState.activeBossEffect;
+    }
+}
 
 /**
  * =============================================================================

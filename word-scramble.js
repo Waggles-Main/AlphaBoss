@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultTitleEl = document.getElementById('resultTitle');
     const resultMessageEl = document.getElementById('resultMessage');
     const playAgainBtn = document.getElementById('playAgainBtn');
-    const backToMenuBtn = document.getElementById('backToMenuBtn');
+    const continueBtn = document.getElementById('backToMenuBtn'); // Re-purposing this button
     let dragStartIndex;
     const devScoreDetailsEl = document.getElementById('devScoreDetails');
 
@@ -312,12 +312,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function endGame(didWin) {
         const EVENT_REWARD = 8;
+        const runState = getRunState();
         clearInterval(state.timer);
         state.gameActive = false;
         resultModal.style.display = 'flex';
+
+        // Hide the "Play Again" button as it's not needed in the main game loop
+        playAgainBtn.style.display = 'none';
+        continueBtn.textContent = 'CONTINUE';
+
+        // Increment the stage index to move past the event
+        if (runState) {
+            runState.stageIndex++;
+        }
+
         if (didWin) {
-            const currentMoney = parseInt(localStorage.getItem('alphaBossMoney') || '0', 10);
-            localStorage.setItem('alphaBossMoney', currentMoney + EVENT_REWARD);
+            if (runState) {
+                runState.money = (runState.money || 0) + EVENT_REWARD;
+            }
 
             resultTitleEl.textContent = 'SUCCESS!';
             resultTitleEl.className = 'success';
@@ -326,6 +338,11 @@ document.addEventListener('DOMContentLoaded', () => {
             resultTitleEl.textContent = 'TIME UP!';
             resultTitleEl.className = 'fail';
             resultMessageEl.textContent = `You found ${state.foundWords.size} out of ${state.hiddenWords.length} words.`;
+        }
+
+        // Save the final state after all modifications
+        if (runState) {
+            saveRunState(runState);
         }
     }
 
@@ -470,11 +487,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     playAgainBtn.addEventListener('click', setupGame);
-    backToMenuBtn.addEventListener('click', () => {
-        window.location.href = 'index.html';
+    continueBtn.addEventListener('click', () => {
+        // Always return to the between-rounds screen to continue the run
+        window.location.href = 'between-rounds.html';
     });
 
     // --- INITIALIZE ---
     init();
     initDevControls();
+
+    // Helper functions to manage run state
+    function getRunState() {
+        const savedRun = localStorage.getItem('alphaBossRun');
+        return savedRun ? JSON.parse(savedRun) : null;
+    }
+    function saveRunState(runState) {
+        localStorage.setItem('alphaBossRun', JSON.stringify(runState));
+    }
 });
