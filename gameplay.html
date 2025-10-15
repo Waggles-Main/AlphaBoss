@@ -64,9 +64,12 @@
             </div>
         </section>
 
-        <section class="item-tabs">
-            <button class="tab" aria-pressed="true">PERKS</button>
-            <button class="tab">CONSUMABLES</button>
+        <!-- Glyphs Display Area -->
+        <section class="glyphs-section" id="glyphsSection">
+            <div class="glyph-slots" id="glyphSlots">
+                <!-- Glyphs will be rendered here by JS -->
+            </div>
+            <div class="glyph-counter" id="glyphCounter">0/5</div>
         </section>
 
         <!-- Scoring Area -->
@@ -110,6 +113,10 @@
         <h2 class="bag-title">BAG</h2>
         <div class="bag-info">
             <span id="tilesRemainingInfo">Tiles remaining: 0</span>
+        </div>
+        <div class="bag-upgrades">
+            <h3 class="bag-section-title">UPGRADES</h3>
+            <div class="bag-upgrades-grid" id="bagUpgradesGrid"></div>
         </div>
         <div class="sort-container">
           <span class="sort-label">SORT</span>
@@ -251,9 +258,36 @@
         </div>
     </div>
 
+    <!-- Generic Tooltip Element -->
+    <div class="generic-tooltip" id="genericTooltip">
+        <h3 class="tooltip-title" id="tooltipTitle">Tooltip Title</h3>
+        <p class="tooltip-text" id="tooltipText">Tooltip description goes here.</p>
+    </div>
+
+    <!-- New Glyph Action Tooltip -->
+    <div class="modal-overlay" id="glyphActionOverlay" style="display: none; background: transparent;">
+        <div class="glyph-action-tooltip" id="glyphActionTooltip">
+            <div class="sell-info">
+                <button class="btn-sell" id="glyphSellBtn">Sell?</button>
+                <span class="sell-value" id="glyphSellValue">$0</span>
+            </div>
+            <div class="glyph-display">
+                <div class="glyph-graphic" id="glyphActionGraphic"></div>
+            </div>
+            <div class="glyph-description-box">
+                <h3 class="glyph-name" id="glyphActionName">Glyph Name</h3>
+                <p class="glyph-description" id="glyphActionDescription">Description...</p>
+                <div class="glyph-rarity" id="glyphActionRarity">Common</div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Sound library and manager -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script src="game-objects.js"></script>
+    <script src="definitions.js"></script>
+    <script src="tooltips.js"></script>
     <script src="sound.js"></script>
     <script src="gameplay.js"></script>
 </body>

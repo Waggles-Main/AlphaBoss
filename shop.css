@@ -22,6 +22,7 @@
     --accent-blue: #1f8df2;
     --accent-green: #56a67a;
     --accent-orange: #fd8c1f;
+    --accent-red-dark: #ff3d33;
     --tile-border: #b9c4d4;
 }
 
@@ -57,7 +58,6 @@ body {
     box-shadow: 0 4px 0 var(--shadow);
 }
 
-/* New styles for the glowing marquee title */
 .shop-title-sign {
     font-family: 'Monoton', cursive;
     font-size: 48px;
@@ -119,6 +119,13 @@ body {
     box-shadow: 0 2px 0 black;
 }
 
+.shop-btn:disabled {
+    cursor: not-allowed;
+    filter: brightness(0.6);
+    transform: translateY(0); /* Prevent active state from moving it */
+    box-shadow: 0 4px 0 black;
+}
+
 .btn-bag {
     background-color: var(--accent-blue);
 }
@@ -146,47 +153,110 @@ body {
     text-shadow: 0 2px 0 var(--shadow);
 }
 
-.shop-main {
+.glyphs-section {
     background: var(--panel-dark);
     border-radius: 16px;
+    padding: 16px;
     box-shadow: 0 4px 0 var(--shadow);
+    position: relative; /* For positioning the counter */
+}
+
+.glyph-slots {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+}
+
+.glyph-slot {
+    width: 50px;
+    height: 50px;
+    background-color: transparent;
+    border: 1px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: m6x11plus;
+    font-size: 24px;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.glyph-slot.filled {
+    background-color: var(--accent-blue); /* Example color for a filled slot */
+    border-radius: 4px;
+}
+
+.glyph-counter {
+    position: absolute;
+    bottom: 8px;
+    right: 16px;
+    font-family: m6x11plus;
+    font-size: 11px;
+    color: white;
+}
+
+.shop-main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.shop-section {
+    background: var(--panel-dark);
+    border-radius: 16px;
     padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    flex-grow: 1;
+    box-shadow: 0 4px 0 var(--shadow);
 }
 
 .btn-reroll {
-    background-color: var(--accent-red);
+    background-color: var(--accent-red-dark);
     font-family: m5x7;
     font-size: 36px;
     padding: 14px;
 }
 
-.shop-items {
+.section-title {
+    font-family: m5x7;
+    font-size: 36px;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+    margin: 0;
+    text-align: center;
+}
+
+.item-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    flex-grow: 1;
+    grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+    gap: 16px;
 }
 
 .shop-item {
     background: white;
     border: 1px solid var(--tile-border);
-    border-radius: 8px;
+    border-radius: 4px;
     box-shadow: 0 4px 0 var(--shadow);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-around;
-    padding: 8px;
+    justify-content: space-between;
+    padding: 4px;
     cursor: pointer;
+    aspect-ratio: 1;
+    min-height: 62px;
+    text-align: center;
 }
 
 .shop-item[data-cost]:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 0 var(--shadow);
+}
+
+.shop-item[data-cost]:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--shadow);
 }
 
 .shop-item.purchased {
@@ -197,16 +267,22 @@ body {
 
 .item-icon {
     font-family: m6x11plus;
-    font-size: 64px;
+    font-size: 48px;
     color: #1e2f33;
     text-shadow: 0 2px 0 var(--shadow);
 }
 
+.item-name {
+    font-family: m6x11plus;
+    font-size: 11px;
+    color: black;
+}
+
 .item-price {
     font-family: m5x7;
-    font-size: 32px;
+    font-size: 24px;
     color: var(--accent-orange);
-    text-shadow: 0 2px 0 var(--shadow);
+    line-height: 1;
 }
 
 .shop-footer {
@@ -399,10 +475,49 @@ body {
     z-index: 1;
 }
 
+.bag-upgrades {
+    flex-shrink: 0;
+}
+
+.bag-section-title {
+    font-family: m5x7;
+    font-size: 18px;
+    color: #a3b3b7;
+    text-align: center;
+    margin: 0 0 8px;
+    text-transform: uppercase;
+}
+
+.bag-upgrades-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.bag-upgrade-item {
+    background: var(--accent-green);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: m6x11plus;
+    font-size: 16px;
+    box-shadow: 0 2px 0 var(--shadow);
+    text-align: center;
+}
+
+.bag-empty-text {
+    font-family: m6x11plus;
+    font-size: 14px;
+    color: #a3b3b7;
+    text-align: center;
+    margin: 0;
+}
+
 .bag-tile.used { background: #4a4a4a; color: #999; }
 
-/* --- BOOSTER PACK MODAL STYLES --- */
-.booster-pack-modal {
+/* --- PACK OPENING MODAL STYLES --- */
+.pack-open-modal {
     background: var(--bg);
     width: 100%;
     height: 100%;
@@ -412,7 +527,7 @@ body {
     gap: 16px;
 }
 
-.booster-pack-title {
+.pack-open-title {
     font-family: m5x7;
     font-size: 36px;
     color: white;
@@ -420,7 +535,7 @@ body {
     text-align: center;
 }
 
-.booster-pack-subtitle {
+.pack-open-subtitle {
     font-family: m6x11plus;
     font-size: 14px;
     color: #a3b3b7;
@@ -428,21 +543,19 @@ body {
     text-align: center;
 }
 
-.booster-pack-grid {
+.pack-open-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
     gap: 8px;
     padding: 8px;
     background: var(--panel-dark);
     border-radius: 16px;
-    /* New sizing logic for the grid */
     width: 100%;
-    max-width: 400px; /* Set a max width */
-    aspect-ratio: 1; /* Make the grid container square */
-    align-self: center; /* Center the grid horizontally in the flex container */
+    flex-grow: 1;
+    align-content: flex-start;
 }
 
-.booster-pack-tile {
+.pack-open-item {
     background: white;
     color: #1e2f33;
     border-radius: 8px;
@@ -451,21 +564,19 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-family: m6x11plus;
-    font-size: 36px;
     box-shadow: 0 4px 0 var(--shadow);
     border: 1px solid var(--tile-border);
     position: relative;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 
-.booster-pack-tile.selected {
+.pack-open-item.selected {
     transform: translateY(-4px) scale(1.05);
     box-shadow: 0 8px 0 var(--shadow), inset 0 0 0 4px var(--accent-blue);
 }
 
-.booster-pack-tile .val {
+.pack-open-item .val {
     font-family: m5x7;
     font-size: 16px;
     color: #0096f0;
@@ -475,13 +586,13 @@ body {
     right: 4px;
 }
 
-.booster-pack-actions {
+.pack-open-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
 }
 
-.booster-pack-actions button {
+.pack-open-actions button {
     appearance: none;
     border: none;
     color: white;
@@ -493,15 +604,170 @@ body {
     cursor: pointer;
 }
 
-.btn-booster-skip {
+.btn-pack-skip {
     background-color: #4f6367;
 }
 
-.btn-booster-confirm {
+.btn-pack-confirm {
     background-color: var(--accent-green);
 }
 
-.btn-booster-confirm:disabled {
+.btn-pack-confirm:disabled {
     background-color: #555;
     cursor: not-allowed;
+}
+
+/* --- GLYPH ACTION TOOLTIP (Copied from gameplay.css) --- */
+.glyph-action-tooltip {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 200px;
+    z-index: 10001;
+    pointer-events: auto;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.glyph-action-tooltip.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.sell-info {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 94px;
+}
+
+.btn-sell {
+    appearance: none;
+    border: none;
+    background: var(--accent-green);
+    color: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 0 black;
+    font-family: m6x11plus;
+    font-size: 20px;
+    padding: 4px 16px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.sell-value {
+    font-family: m5x7;
+    font-size: 36px;
+    color: #fd9f00;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.glyph-display {
+    width: 76px;
+    height: 76px;
+    background: white;
+    border: 1px solid var(--tile-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 0 var(--shadow);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.glyph-graphic {
+    font-family: m6x11plus;
+    font-size: 48px;
+    color: var(--tile-ink);
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.glyph-description-box {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 16px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.glyph-name {
+    font-family: m5x7;
+    font-size: 32px;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+    margin: 0;
+}
+
+.glyph-description {
+    font-family: m6x11plus;
+    font-size: 18px;
+    color: white;
+    text-align: center;
+    margin: 0;
+}
+
+.glyph-rarity {
+    background: var(--accent-blue);
+    color: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 0 black;
+    font-family: m6x11plus;
+    font-size: 20px;
+    padding: 4px 16px;
+    margin-top: 8px;
+}
+
+/* --- ERROR & SHAKE ANIMATIONS --- */
+.error-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--accent-red);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 16px;
+    font-family: m6x11plus;
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 10000;
+    box-shadow: 0 8px 0 var(--shadow);
+}
+
+@keyframes screenShake {
+    0%, 100% { transform: translateX(0); }
+    10% { transform: translateX(-5px); }
+    20% { transform: translateX(5px); }
+    30% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    50% { transform: translateX(-5px); }
+    60% { transform: translateX(5px); }
+    70% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+    90% { transform: translateX(-5px); }
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translate(-50%, -50%); }
+    10% { transform: translate(-50%, -50%) rotate(-2deg); }
+    20% { transform: translate(-50%, -50%) rotate(2deg); }
+    30% { transform: translate(-50%, -50%) rotate(-2deg); }
+    40% { transform: translate(-50%, -50%) rotate(2deg); }
+    50% { transform: translate(-50%, -50%) rotate(-2deg); }
+    60% { transform: translate(-50%, -50%) rotate(2deg); }
+    70% { transform: translate(-50%, -50%) rotate(-2deg); }
+    80% { transform: translate(-50%, -50%) rotate(2deg); }
+    90% { transform: translate(-50%, -50%) rotate(-2deg); }
+}
 }

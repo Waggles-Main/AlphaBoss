@@ -12,9 +12,7 @@
 <body>
     <div class="shop-screen">
         <header class="shop-header">
-            <div class="shop-title-sign">
-                <span class="fast-flicker">S</span>H<span class="flicker">O</span>P
-            </div>
+            <div class="shop-title-sign"><span class="fast-flicker">S</span>H<span class="flicker">O</span>P</div>
             <p>*IMPROVE YOUR RUN*</p>
         </header>
 
@@ -26,26 +24,39 @@
             </div>
         </div>
 
-        <main class="shop-main">
-            <button class="shop-btn btn-reroll">REROLL $5</button>
-            <div class="shop-items">
-                <div class="shop-item" id="item-booster-pack" data-cost="8">
-                    <div class="item-icon">BP</div>
-                    <div class="item-price">$8</div>
-                </div>
-                <div class="shop-item">
-                    <div class="item-icon">x</div>
-                    <div class="item-price">$4</div>
-                </div>
-                <div class="shop-item">
-                    <div class="item-icon">x</div>
-                    <div class="item-price">$4</div>
-                </div>
-                <div class="shop-item" id="upgrade-top-row" data-cost="10">
-                    <div class="item-icon">TR</div>
-                    <div class="item-price">$10</div>
-                </div>
+        <!-- Glyphs Display Area -->
+        <section class="glyphs-section" id="glyphsSection">
+            <div class="glyph-slots" id="glyphSlots">
+                <!-- Glyphs will be rendered here by JS -->
             </div>
+            <div class="glyph-counter" id="glyphCounter">0/5</div>
+        </section>
+
+        <main class="shop-main">
+            <!-- Items Section -->
+            <section class="shop-section">
+                <button class="shop-btn btn-reroll">REROLL $5</button>
+                <h2 class="section-title">ITEMS</h2>
+                <div class="item-grid" id="items-grid">
+                    <!-- Items will be rendered here by shop.js -->
+                </div>
+            </section>
+
+            <!-- Upgrades Section -->
+            <section class="shop-section">
+                <h2 class="section-title">UPGRADES</h2>
+                <div class="item-grid" id="upgrades-grid">
+                    <!-- Upgrades will be rendered here by shop.js -->
+                </div>
+            </section>
+
+            <!-- Grab Bags Section -->
+            <section class="shop-section">
+                <h2 class="section-title">GRAB BAGS</h2>
+                <div class="item-grid" id="grabbags-grid">
+                    <!-- Grab Bags will be rendered here by shop.js -->
+                </div>
+            </section>
         </main>
 
         <footer class="shop-footer">
@@ -54,43 +65,72 @@
     </div>
 
     <div class="modal-overlay" id="bagModalOverlay">
-      <div class="bag-modal">
-        <button class="btn-close" id="btnCloseBagModal" aria-label="Close bag view">&times;</button>
-        <h2 class="bag-title">BAG</h2>
-        <div class="bag-info">
-            <span id="tilesRemainingInfo">Tiles remaining: 0</span>
-        </div>
-        <div class="sort-container">
-          <span class="sort-label">SORT</span>
-          <div class="sort-controls">
-            <button class="sort-btn active" id="sortAZ" data-sort="alpha">A-Z</button>
-            <button class="sort-btn" id="sortType" data-sort="type">TYPE</button>
-            <button class="sort-btn" id="sortValue" data-sort="value">VALUE</button>
-          </div>
-        </div>
-        <div class="bag-grid-container">
-            <div class="bag-grid" id="bagGrid">
+        <div class="bag-modal">
+            <button class="btn-close" id="btnCloseBagModal" aria-label="Close bag view">&times;</button>
+            <h2 class="bag-title">BAG</h2>
+            <div class="bag-info">
+                <span id="tilesRemainingInfo">Tiles remaining: 0</span>
+            </div>
+            <div class="bag-upgrades">
+                <h3 class="bag-section-title">UPGRADES</h3>
+                <div class="bag-upgrades-grid" id="bagUpgradesGrid"></div>
+            </div>
+            <div class="sort-container">
+                <span class="sort-label">SORT</span>
+                <div class="sort-controls">
+                    <button class="sort-btn active" id="sortAZ" data-sort="alpha">A-Z</button>
+                    <button class="sort-btn" id="sortType" data-sort="type">TYPE</button>
+                    <button class="sort-btn" id="sortValue" data-sort="value">VALUE</button>
                 </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Booster Pack Modal -->
-    <div class="modal-overlay" id="boosterPackOverlay">
-        <div class="booster-pack-modal">
-            <h2 class="booster-pack-title">BOOSTER PACK</h2>
-            <p class="booster-pack-subtitle">CHOOSE UP TO 4 TILES TO ADD +10 TO THEIR POINTS</p>
-            <div class="booster-pack-grid" id="boosterPackGrid">
-                <!-- Tiles to boost will be rendered here by JS -->
             </div>
-            <div class="booster-pack-actions">
-                <button class="btn-booster-skip" id="boosterPackSkip">SKIP</button>
-                <button class="btn-booster-confirm" id="boosterPackConfirm" disabled>BOOST (0/4)</button>
+            <div class="bag-grid-container">
+                <div class="bag-grid" id="bagGrid"></div>
             </div>
         </div>
     </div>
 
+    <!-- Generic Pack Opening Modal -->
+    <div class="modal-overlay" id="packOpenOverlay">
+        <div class="pack-open-modal">
+            <h2 class="pack-open-title" id="packOpenTitle">Pack Title</h2>
+            <p class="pack-open-subtitle" id="packOpenSubtitle">Pack subtitle</p>
+            <div class="pack-open-grid" id="packOpenGrid">
+                <!-- Items to choose from will be rendered here -->
+            </div>
+            <div class="pack-open-actions">
+                <button class="btn-pack-skip" id="packOpenSkip">SKIP</button>
+                <button class="btn-pack-confirm" id="packOpenConfirm" disabled>CONFIRM (0/1)</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Generic Tooltip Element -->
+    <div class="generic-tooltip" id="genericTooltip">
+        <h3 class="tooltip-title" id="tooltipTitle">Tooltip Title</h3>
+        <p class="tooltip-text" id="tooltipText">Tooltip description goes here.</p>
+    </div>
+
+    <!-- New Glyph Action Tooltip -->
+    <div class="modal-overlay" id="glyphActionOverlay" style="display: none; background: transparent;">
+        <div class="glyph-action-tooltip" id="glyphActionTooltip">
+            <div class="sell-info">
+                <button class="btn-sell" id="glyphSellBtn">Sell?</button>
+                <span class="sell-value" id="glyphSellValue">$0</span>
+            </div>
+            <div class="glyph-display">
+                <div class="glyph-graphic" id="glyphActionGraphic"></div>
+            </div>
+            <div class="glyph-description-box">
+                <h3 class="glyph-name" id="glyphActionName">Glyph Name</h3>
+                <p class="glyph-description" id="glyphActionDescription">Description...</p>
+                <div class="glyph-rarity" id="glyphActionRarity">Common</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game-objects.js"></script>
+    <script src="definitions.js"></script>
+    <script src="tooltips.js"></script>
     <script src="shop.js"></script>
 </body>
 </html>

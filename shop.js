@@ -1,6 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     const moneyValueEl = document.getElementById('shopMoney');
     const shopScreenEl = document.querySelector('.shop-screen');
+    const itemsGridEl = document.getElementById('items-grid');
+    const upgradesGridEl = document.getElementById('upgrades-grid');
+    const grabBagsGridEl = document.getElementById('grabbags-grid');
+    const rerollBtn = document.querySelector('.btn-reroll');
+
     const bagBtn = document.querySelector('.btn-bag');
 
     // Bag Modal Element Selectors
@@ -10,163 +15,359 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortControls = document.querySelector('.sort-controls');
     const tilesRemainingInfo = document.getElementById('tilesRemainingInfo');
 
-    // Booster Pack Modal Element Selectors
-    const boosterPackOverlay = document.getElementById('boosterPackOverlay');
-    const boosterPackGrid = document.getElementById('boosterPackGrid');
-    const boosterPackConfirmBtn = document.getElementById('boosterPackConfirm');
-    const boosterPackSkipBtn = document.getElementById('boosterPackSkip');
+    // Pack Opening Modal Element Selectors
+    const packOpenOverlay = document.getElementById('packOpenOverlay');
+    const packOpenTitle = document.getElementById('packOpenTitle');
+    const packOpenSubtitle = document.getElementById('packOpenSubtitle');
+    const packOpenGrid = document.getElementById('packOpenGrid');
+    const packOpenConfirmBtn = document.getElementById('packOpenConfirm');
+    const packOpenSkipBtn = document.getElementById('packOpenSkip');
 
     const state = {
+        runState: {},
         masterTileSet: [],
-        upgrades: {},
         bagTiles: [],
         currentBagSort: 'alpha',
+        shopItems: [],
+        shopUpgrades: [],
+        shopGrabBags: [],
     };
 
-    // Load money from localStorage
-    const savedMoney = localStorage.getItem('alphaBossMoney');
-    const money = savedMoney ? parseInt(savedMoney, 10) : 0;
-
-    // Load purchased upgrades
-    const savedUpgrades = localStorage.getItem('alphaBossUpgrades');
-    state.upgrades = savedUpgrades ? JSON.parse(savedUpgrades) : {};
-
-    // Load tile pool from localStorage
-    const savedMasterSet = localStorage.getItem('alphaBossMasterTileSet');
-    state.masterTileSet = savedMasterSet ? JSON.parse(savedMasterSet) : [];
-
-    // Display the money
-    if (moneyValueEl) {
-        moneyValueEl.textContent = `$${money}`;
+    function getRunState() {
+        const savedRun = localStorage.getItem('alphaBossRun');
+        if (savedRun) {
+            return JSON.parse(savedRun);
+        }
+        // Fallback for safety, though should be created on new run.
+        return { round: 1, stageIndex: 0, money: 4, upgrades: {}, glyphs: [], shopSeed: Date.now() };
     }
 
-    // --- SHOP ITEM LOGIC ---
-    function initializeShopItems() {
-        const boosterPackItem = document.getElementById('item-booster-pack');
-        const topRowUpgrade = document.getElementById('upgrade-top-row');
+    function saveRunState(runState) {
+        localStorage.setItem('alphaBossRun', JSON.stringify(runState));
+    }
 
-        boosterPackItem.addEventListener('click', () => purchaseBoosterPack(boosterPackItem));
+    function updateMoneyDisplay() {
+        moneyValueEl.textContent = `$${state.runState.money}`;
+    }
 
-        if (state.upgrades.topRow) {
-            topRowUpgrade.classList.add('purchased');
-            topRowUpgrade.querySelector('.item-price').textContent = 'OWNED';
-        } else {
-            topRowUpgrade.addEventListener('click', () => purchaseUpgrade('topRow', topRowUpgrade));
+    function updateRerollButton() {
+        const baseRerollCost = 5;
+        const rerollCost = Math.max(0, baseRerollCost - (state.runState.rerollCostModifier || 0));
+        rerollBtn.textContent = `REROLL $${rerollCost}`;
+        rerollBtn.disabled = state.runState.money < rerollCost;
+    }
+
+    function generateItemStock() {
+        const purchasedGlyphIds = new Set(state.runState.glyphs.map(g => g.id));
+        const itemPool = ALL_GLYPHS.filter(glyph => !purchasedGlyphIds.has(glyph.id));
+        shuffleArray(itemPool);
+        const itemSlots = state.runState.shopItemSlots || 2;
+        state.shopItems = itemPool.slice(0, itemSlots);
+    }
+
+    function generateUpgradeStock() {
+        const purchasedUpgradeIds = new Set(Object.keys(state.runState.upgrades));
+        const upgradePool = ALL_UPGRADES.filter(upgrade => {
+            if (purchasedUpgradeIds.has(upgrade.id)) return false;
+            return !upgrade.prerequisiteId || purchasedUpgradeIds.has(upgrade.prerequisiteId);
+        });
+        shuffleArray(upgradePool);
+        state.shopUpgrades = upgradePool.slice(0, 2);
+    }
+
+    function generateGrabBagStock() {
+        const grabBagPool = [...ALL_GRAB_BAGS];
+        shuffleArray(grabBagPool);
+        state.shopGrabBags = grabBagPool.slice(0, 2);
+    }
+
+    function generateShopStock(isReroll = false) {
+        // Generate items (always happens on initial load and reroll)
+        generateItemStock();
+
+        // Only generate upgrades and grab bags on the initial load, not on reroll
+        if (!isReroll) {
+            generateUpgradeStock();
+            generateGrabBagStock();
         }
 
+        renderShop();
     }
 
-    function purchaseUpgrade(upgradeId, element) {
-        const cost = parseInt(element.dataset.cost, 10);
-        const currentMoney = parseInt(localStorage.getItem('alphaBossMoney'), 10) || 0;
+    function renderGlyphs() {
+        const slotsContainer = document.getElementById('glyphSlots');
+        const counterEl = document.getElementById('glyphCounter');
+        const maxSlots = 5; // Default number of glyph slots
 
-        if (currentMoney >= cost) {
-            // Deduct cost and update state
-            const newMoney = currentMoney - cost;
-            localStorage.setItem('alphaBossMoney', newMoney);
-            moneyValueEl.textContent = `$${newMoney}`;
+        slotsContainer.innerHTML = ''; // Clear existing slots
 
-            // Mark as purchased
-            state.upgrades[upgradeId] = true;
-            localStorage.setItem('alphaBossUpgrades', JSON.stringify(state.upgrades));
+        for (let i = 0; i < maxSlots; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'glyph-slot';
 
-            // Update UI
+            const glyph = state.runState.glyphs[i];
+            if (glyph) {
+                slot.classList.add('filled');
+                slot.textContent = glyph.name.substring(0, 2).toUpperCase();
+                slot.dataset.glyphIndex = i; // Store index for selling
+            }
+            slotsContainer.appendChild(slot);
+        }
+        counterEl.textContent = `${state.runState.glyphs.length}/${maxSlots}`;
+    }
+
+    function renderShop() {
+        renderSection(itemsGridEl, state.shopItems, 'item');
+        renderSection(upgradesGridEl, state.shopUpgrades, 'upgrade');
+        renderSection(grabBagsGridEl, state.shopGrabBags, 'grab-bag');
+    }
+
+    function renderSection(gridEl, items, type) {
+        gridEl.innerHTML = '';
+        if (!items || items.length === 0) {
+            // Optionally, display a "Sold Out" message
+            return;
+        }
+
+        items.forEach(item => {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'shop-item';
+            itemEl.dataset.id = item.id;
+            itemEl.dataset.cost = item.purchaseCost;
+            itemEl.dataset.tooltipTitle = item.name;
+            itemEl.dataset.tooltipText = item.description;
+
+            // Check if this item has already been purchased
+            const isPurchased = state.runState.glyphs.some(g => g.id === item.id) || state.runState.upgrades[item.id];
+
+            itemEl.innerHTML = `
+                <div class="item-name">${item.name}</div>
+                <div class="item-graphic">${item.name.substring(0, 2).toUpperCase()}</div>
+                <div class="item-price">${isPurchased ? 'OWNED' : `$${item.purchaseCost}`}</div>
+            `;
+
+            if (isPurchased) {
+                itemEl.classList.add('purchased');
+            } else {
+                itemEl.addEventListener('click', () => purchaseItem(item, itemEl));
+            }
+
+            gridEl.appendChild(itemEl);
+        });
+    }
+
+    function purchaseItem(item, element) {
+        const cost = item.purchaseCost;
+        if (state.runState.money >= cost) {
+            // Check if the player has room for a new glyph
+            if (item instanceof Glyph && state.runState.glyphs.length >= 5) {
+                showError("NO ROOM");
+                shakeScreen();
+                return; // Stop the purchase
+            }
+
+            // 1. Deduct cost
+            state.runState.money -= cost;
+
+            // 2. Add item to player's state
+            if (item.type === 'Upgrade') {
+                const UpgradeClass = UPGRADE_MAP[item.id];
+                if (UpgradeClass) {
+                    const upgradeInstance = new UpgradeClass();
+                    upgradeInstance.onPurchase(state.runState); // Apply the effect
+                    state.runState.upgrades[item.id] = true; // Mark as purchased
+                }
+            } else if (item instanceof GrabBag) {
+                // Handle Grab Bag purchase by opening the pack modal
+                openGrabBag(item);
+            } else { // It's a Glyph
+                const plainGlyphObject = {
+                    id: item.id,
+                    name: item.name,
+                    description: item.description,
+                    rarity: item.rarity,
+                    tags: item.tags,
+                    purchaseCost: item.purchaseCost,
+                    sellValue: item.sellValue,
+                };
+                state.runState.glyphs.push(plainGlyphObject);
+            }
+
+            // 3. Save the updated state
+            saveRunState(state.runState);
+
+            // 4. Update UI
+            updateMoneyDisplay();
+            updateRerollButton(); // Update reroll cost in case an upgrade was bought
+            renderGlyphs(); // Update the glyph display
             element.classList.add('purchased');
             element.querySelector('.item-price').textContent = 'OWNED';
-            element.replaceWith(element.cloneNode(true)); // Remove event listener
-        } else {
-            console.log("Not enough money!"); // Later, show a UI error
-        }
-    }
-
-    function purchaseBoosterPack(element) {
-        const cost = parseInt(element.dataset.cost, 10);
-        const currentMoney = parseInt(localStorage.getItem('alphaBossMoney'), 10) || 0;
-
-        if (currentMoney >= cost) {
-            const newMoney = currentMoney - cost;
-            localStorage.setItem('alphaBossMoney', newMoney);
-            moneyValueEl.textContent = `$${newMoney}`;
-
-            // Temporarily disable the button after purchase
-            element.classList.add('purchased');
-            element.querySelector('.item-price').textContent = 'USED';
-            element.replaceWith(element.cloneNode(true));
-
-            showBoosterPackModal();
-        } else {
-            console.log("Not enough money for Booster Pack!");
-        }
-    }
-
-    // --- BOOSTER PACK MODAL LOGIC ---
-    function showBoosterPackModal() {
-        shopScreenEl.style.display = 'none'; // Hide shop
-        boosterPackOverlay.style.display = 'flex'; // Show modal
-
-        // Get 16 random tiles that are not already boosters or multipliers
-        const eligibleTiles = state.masterTileSet.filter(t => !t.modifier);
-        shuffleArray(eligibleTiles);
-        const tilesToDisplay = eligibleTiles.slice(0, 16);
-        
-        let selectedTileIds = new Set();
-
-        boosterPackGrid.innerHTML = '';
-        tilesToDisplay.forEach(tileObject => {
-            const tileEl = document.createElement('div');
-            tileEl.className = 'booster-pack-tile';
-            tileEl.dataset.tileId = tileObject.id;
             
-            const displayLetter = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter;
-            tileEl.innerHTML = `${displayLetter}<span class="val">${tileObject.value}</span>`;
+            // Clone and replace to remove the event listener
+            element.replaceWith(element.cloneNode(true));
+        } else {
+            showError("NOT ENOUGH MONEY");
+            shakeScreen();
+        }
+    }
 
-            tileEl.addEventListener('click', () => {
-                if (selectedTileIds.has(tileObject.id)) {
-                    selectedTileIds.delete(tileObject.id);
-                    tileEl.classList.remove('selected');
+    function rerollItems() {
+        const baseRerollCost = 5;
+        const rerollCost = Math.max(0, baseRerollCost - (state.runState.rerollCostModifier || 0));
+        if (state.runState.money >= rerollCost) {
+            state.runState.money -= rerollCost;
+            saveRunState(state.runState);
+            updateMoneyDisplay();
+            updateRerollButton(); // Re-check if the player can afford another reroll
+            generateShopStock(true); // Reroll only the items
+        } else {
+            showError("NOT ENOUGH MONEY");
+            shakeScreen();
+        }
+    }
+
+    function init() {
+        state.runState = getRunState();
+        
+        // Ensure glyphs array exists
+        if (!state.runState.glyphs) {
+            state.runState.glyphs = [];
+        }
+
+        // Load master tile set from the run state object
+        state.masterTileSet = state.runState.masterTileSet || [];
+
+        updateMoneyDisplay();
+        updateRerollButton();
+        renderGlyphs();
+        generateShopStock();
+
+        initializeGenericTooltips('.shop-main', '.shop-item');
+        initGlyphInteractions(); // For owned glyphs
+        // Add event listeners
+        rerollBtn.addEventListener('click', rerollItems);
+        bagBtn.addEventListener('click', openBagModal);
+        closeBagBtn.addEventListener('click', closeBagModal);
+        bagModalOverlay.addEventListener('click', (e) => {
+            if (e.target === bagModalOverlay) closeBagModal();
+        });
+        sortControls.addEventListener('click', (e) => {
+            const sortBtn = e.target.closest('.sort-btn');
+            if (sortBtn && sortBtn.dataset.sort) {
+                sortBagTiles(sortBtn.dataset.sort);
+            }
+        });
+    }
+
+
+    // --- GRAB BAG (PACK OPENING) MODAL LOGIC ---
+
+    function generateLoot(grabBag) {
+        const loot = [];
+        let sourcePool = [];
+
+        // Determine the source pool based on the loot table
+        if (grabBag.lootTable.itemType === 'Glyph') {
+            const purchasedGlyphIds = new Set(state.runState.glyphs.map(g => g.id));
+            sourcePool = ALL_GLYPHS.filter(glyph => !purchasedGlyphIds.has(glyph.id));
+        }
+        // TODO: Add cases for Tarot, Spectral, etc.
+        else if (grabBag.lootTable.itemType === 'PlayingTile') {
+            // For tile bags, we generate new random tiles
+            for (let i = 0; i < grabBag.packSize; i++) {
+                const letter = TILE_DISTRIBUTION[Math.floor(Math.random() * TILE_DISTRIBUTION.length)];
+                loot.push(new Tile(letter));
+            }
+            return loot;
+        }
+
+        shuffleArray(sourcePool);
+        return sourcePool.slice(0, grabBag.packSize);
+    }
+
+    function openGrabBag(grabBag) {
+        shopScreenEl.style.display = 'none'; // Hide shop
+        packOpenOverlay.style.display = 'flex'; // Show modal
+
+        // 1. Set modal titles
+        packOpenTitle.textContent = grabBag.name;
+        packOpenSubtitle.textContent = grabBag.description;
+
+        // 2. Generate and display loot
+        const lootItems = generateLoot(grabBag);
+        let selectedItems = [];
+
+        packOpenGrid.innerHTML = '';
+        lootItems.forEach(item => {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'pack-open-item';
+            itemEl.dataset.itemId = item.id;
+
+            // Customize display based on item type
+            if (item instanceof Tile) {
+                const displayLetter = item.letter === 'Q' ? 'Qu' : item.letter;
+                itemEl.innerHTML = `${displayLetter}<span class="val">${item.value}</span>`;
+                itemEl.style.fontFamily = 'm6x11plus';
+                itemEl.style.fontSize = '36px';
+            } else { // Glyphs, Upgrades, etc.
+                itemEl.innerHTML = `
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-graphic">${item.name.substring(0, 2).toUpperCase()}</div>
+                `;
+            }
+
+            itemEl.addEventListener('click', () => {
+                if (selectedItems.includes(item)) {
+                    selectedItems = selectedItems.filter(i => i !== item);
+                    itemEl.classList.remove('selected');
                 } else {
-                    if (selectedTileIds.size < 4) {
-                        selectedTileIds.add(tileObject.id);
-                        tileEl.classList.add('selected');
+                    if (selectedItems.length < grabBag.picks) {
+                        selectedItems.push(item);
+                        itemEl.classList.add('selected');
                     }
                 }
-                boosterPackConfirmBtn.textContent = `BOOST (${selectedTileIds.size}/4)`;
-                boosterPackConfirmBtn.disabled = selectedTileIds.size === 0;
+                packOpenConfirmBtn.textContent = `CONFIRM (${selectedItems.length}/${grabBag.picks})`;
+                packOpenConfirmBtn.disabled = selectedItems.length !== grabBag.picks;
             });
-
-            boosterPackGrid.appendChild(tileEl);
+            packOpenGrid.appendChild(itemEl);
         });
+        
+        // 3. Set up action buttons
+        packOpenConfirmBtn.textContent = `CONFIRM (0/${grabBag.picks})`;
+        packOpenConfirmBtn.disabled = true;
 
-        boosterPackConfirmBtn.onclick = () => {
-            // Find the selected tiles in the master set and upgrade them
-            selectedTileIds.forEach(id => {
-                const tileToUpgrade = state.masterTileSet.find(t => t.id === id);
-                if (tileToUpgrade) {
-                    tileToUpgrade.modifier = 'booster';
-                    tileToUpgrade.mult = 10;
+        packOpenConfirmBtn.onclick = () => {
+            // Add selected items to the player's state
+            selectedItems.forEach(item => {
+                if (item instanceof Tile) {
+                    state.runState.masterTileSet.push(item);
+                } else if (item instanceof Glyph) {
+                    const plainGlyphObject = {
+                        id: item.id,
+                        name: item.name,
+                        description: item.description,
+                        rarity: item.rarity,
+                        tags: item.tags,
+                        purchaseCost: item.purchaseCost,
+                        sellValue: item.sellValue,
+                    };
+                    state.runState.glyphs.push(plainGlyphObject);
                 }
             });
-
-            // Save the updated master set back to localStorage
-            localStorage.setItem('alphaBossMasterTileSet', JSON.stringify(state.masterTileSet));
-            closeBoosterPackModal();
+            saveRunState(state.runState);
+            closePackOpenModal();
+            renderGlyphs(); // Update glyph display after adding new ones
         };
 
-        boosterPackSkipBtn.onclick = () => {
-            closeBoosterPackModal();
+        packOpenSkipBtn.onclick = () => {
+            closePackOpenModal();
         };
     }
 
-    function closeBoosterPackModal() {
-        boosterPackOverlay.style.display = 'none';
+    function closePackOpenModal() {
+        packOpenOverlay.style.display = 'none';
         shopScreenEl.style.display = 'flex';
-    }
-
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
+        generateShopStock(); // Refresh shop to remove the purchased grab bag
     }
 
     // --- BAG MODAL FUNCTIONS ---
@@ -181,6 +382,28 @@ document.addEventListener('DOMContentLoaded', () => {
             ...tile,
             isAvailable: true
         }));
+
+        // Render purchased upgrades
+        const upgradesGrid = document.getElementById('bagUpgradesGrid');
+        upgradesGrid.innerHTML = '';
+        const purchasedUpgradeIds = Object.keys(state.runState.upgrades);
+        if (purchasedUpgradeIds.length > 0) {
+            purchasedUpgradeIds.forEach(upgradeId => {
+                const upgradeDef = ALL_UPGRADES.find(u => u.id === upgradeId);
+                if (upgradeDef) {
+                    const upgradeEl = document.createElement('div');
+                    upgradeEl.className = 'bag-upgrade-item';
+                    upgradeEl.textContent = upgradeDef.name;
+                    upgradesGrid.appendChild(upgradeEl);
+                }
+            });
+        } else {
+            const emptyText = document.createElement('p');
+            emptyText.className = 'bag-empty-text';
+            emptyText.textContent = 'No upgrades purchased';
+            upgradesGrid.appendChild(emptyText);
+        }
+
         sortBagTiles(state.currentBagSort, false); // Sort without re-rendering
         renderBagTiles();
         bagModalOverlay.style.display = 'flex';
@@ -200,14 +423,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sortBy === 'alpha') {
             state.bagTiles.sort((a, b) => a.letter.localeCompare(b.letter));
         } else if (sortBy === 'value') {
-            // Sort by value descending, then by letter ascending for ties
+            // Sort by value descending, then alphabetically for ties
             state.bagTiles.sort((a, b) => {
                 return (b.value + b.mult) - (a.value + a.mult) || a.letter.localeCompare(b.letter);
             });
         } else if (sortBy === 'type') {
-            // Sort by modifier type first, then alphabetically
+            // Define a sort order for modifiers
+            const MODIFIER_SORT_ORDER = {
+                'multiplier': 3,
+                'booster': 2,
+            };
             state.bagTiles.sort((a, b) => {
-                return (b.modifier ? 1 : 0) - (a.modifier ? 1 : 0) || a.letter.localeCompare(b.letter);
+                const aOrder = MODIFIER_SORT_ORDER[a.modifier] || 1;
+                const bOrder = MODIFIER_SORT_ORDER[b.modifier] || 1;
+                return bOrder - aOrder || a.letter.localeCompare(b.letter);
             });
         }
 
@@ -242,21 +471,98 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- EVENT LISTENERS ---
-    bagBtn.addEventListener('click', openBagModal);
-    closeBagBtn.addEventListener('click', closeBagModal);
-    bagModalOverlay.addEventListener('click', (e) => {
-        if (e.target === bagModalOverlay) {
-            closeBagModal();
-        }
-    });
-    sortControls.addEventListener('click', (e) => {
-        const sortBtn = e.target.closest('.sort-btn');
-        if (sortBtn && sortBtn.dataset.sort) {
-            sortBagTiles(sortBtn.dataset.sort);
-        }
-    });
+    function showError(message) {
+        const errorEl = document.createElement('div');
+        errorEl.className = 'error-message';
+        errorEl.textContent = message;
+        errorEl.style.animation = 'errorShake 0.5s ease-in-out';
+        document.body.appendChild(errorEl);
+        // Assuming sounds are loaded and available
+        // if (sounds.error) sounds.error.play();
+        setTimeout(() => { errorEl.remove(); }, 2000);
+    }
 
-    // Initialize shop state
-    initializeShopItems();
+    function shakeScreen() {
+        const screen = document.querySelector('.shop-screen');
+        if (screen) {
+            screen.style.animation = 'screenShake 0.5s ease-in-out';
+            setTimeout(() => { screen.style.animation = ''; }, 500);
+        }
+    }
+
+    // --- UTILITIES ---
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function initGlyphInteractions() {
+        const glyphsContainer = document.getElementById('glyphsSection');
+        const tooltip = document.getElementById('glyphActionTooltip');
+        const overlay = document.getElementById('glyphActionOverlay');
+        if (!glyphsContainer || !tooltip || !overlay) return;
+
+        // Tooltip elements
+        const sellBtn = document.getElementById('glyphSellBtn');
+        const sellValueEl = document.getElementById('glyphSellValue');
+        const graphicEl = document.getElementById('glyphActionGraphic');
+        const nameEl = document.getElementById('glyphActionName');
+        const descEl = document.getElementById('glyphActionDescription');
+        const rarityEl = document.getElementById('glyphActionRarity');
+
+        let currentSellHandler = null;
+
+        const closeTooltip = () => {
+            tooltip.classList.remove('visible');
+            overlay.style.display = 'none';
+            if (currentSellHandler) {
+                sellBtn.removeEventListener('click', currentSellHandler);
+                currentSellHandler = null;
+            }
+        };
+
+        glyphsContainer.addEventListener('click', (e) => {
+            const slot = e.target.closest('.glyph-slot');
+            if (!slot || !slot.classList.contains('filled')) return;
+
+            const glyphIndex = parseInt(slot.dataset.glyphIndex, 10);
+            const glyph = state.runState.glyphs[glyphIndex];
+            if (!glyph) return;
+
+            // Populate tooltip
+            graphicEl.textContent = glyph.name.substring(0, 2).toUpperCase();
+            nameEl.textContent = glyph.name;
+            descEl.innerHTML = colorizeTooltipText(glyph.description);
+            rarityEl.textContent = glyph.rarity;
+            sellValueEl.textContent = `$${glyph.sellValue}`;
+
+            // Position tooltip
+            const rect = slot.getBoundingClientRect();
+            tooltip.style.top = `${rect.bottom + 10}px`;
+            tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+
+            // Show tooltip and overlay
+            overlay.style.display = 'block';
+            tooltip.classList.add('visible');
+
+            // Define and attach the sell handler
+            currentSellHandler = () => {
+                state.runState.money += glyph.sellValue;
+                state.runState.glyphs.splice(glyphIndex, 1);
+                saveRunState(state.runState);
+                updateMoneyDisplay();
+                renderGlyphs();
+                closeTooltip();
+            };
+            sellBtn.addEventListener('click', currentSellHandler, { once: true });
+        });
+
+        overlay.addEventListener('click', closeTooltip);
+    }
+
+
+    // Initialize the shop
+    init();
 });

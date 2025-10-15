@@ -25,19 +25,6 @@ const musicVolumeSlider = document.getElementById('musicVolume');
 const sfxVolumeSlider = document.getElementById('sfxVolume');
 
 
-// Tile Distribution and Point Values
-const TILE_DISTRIBUTION = 'EEEEEEEEEEEEAAAAAAAAAIIIIIIIIIOOOOOOOONNNNNNRRRRRRTTTTTTDDDDLLLLSSSSUUUUGGGBBCCFFHHMMPPVVWWYYJKQXZ__'.split('');
-const TILE_VALUES = {
-    A: 1, E: 1, I: 1, L: 1, N: 1, O: 1, R: 1, S: 1, T: 1, U: 1,
-    D: 2, G: 2,
-    B: 3, C: 3, M: 3, P: 3,
-    F: 4, H: 4, V: 4, W: 4, Y: 4,
-    K: 5,
-    J: 8, X: 8,
-    Q: 10, Z: 10,
-    _: 0
-};
-
 // Centralized constants to avoid magic strings
 const CONSTANTS = {
     MODIFIER_TYPES: {
@@ -112,40 +99,12 @@ let dragStartIndex;
 
 // --- GAME STATE & LOGIC ---
 
-/**
- * Represents a single tile on the game grid.
- */
-class Tile {
-    constructor(letter, index = null) {
-        this.id = `tile-${index ?? 'pool'}-${Date.now()}-${Math.random()}`; // Unique ID for the tile instance
-        this.index = index;
-        this.letter = letter;
-        this.value = TILE_VALUES[letter] || 0; // Base point value
-        this.mult = 0;                         // Additive bonus (e.g., +5 from a booster)
-        this.mult_mult = 1;                    // Multiplicative bonus (not used yet, but available)
-        this.type = null;                      // 'enhancement', 'seal', etc.
-        this.modifier = null;                  // 'booster', 'steel', etc.
-
-        // --- MODIFIER ASSIGNMENT ---
-        // Placeholder for modifier logic. Here, we'll give a 15% chance for a tile to be Enhanced.
-        const rand = Math.random();
-        if (rand < 0.15) { // 15% chance for a Booster
-            this.type = CONSTANTS.MODIFIER_TYPES.ENHANCEMENT;
-            this.modifier = CONSTANTS.MODIFIERS.BOOSTER;
-            this.mult = 10; // Booster adds +10 to the tile's score contribution
-        } else if (rand < 0.25) { // Next 10% chance for a Multiplier
-            this.type = CONSTANTS.MODIFIER_TYPES.ENHANCEMENT;
-            this.modifier = CONSTANTS.MODIFIERS.MULTIPLIER;
-            this.mult_mult = 2; // Multiplies the tile's contribution by 2
-        }
-    }
-}
-
 const state = {
     grid: [], // This will hold the 16 Tile objects for the grid.
     masterTileSet: [], // All 84 tiles for the entire run.
     availableTiles: [], // Tiles available to be drawn in the current round.
     bagTiles: [],
+    glyphs: [],
     upgrades: {},
     currentBagSort: 'alpha',
     round: 1, // Start at round 1
@@ -584,6 +543,28 @@ function renderChips() {
             if (tile.mult_mult > 1) {
                 bonusMultEl.textContent = `x${tile.mult_mult}`;
             }
+
+            // --- Check for and display Glyph bonus ---
+            state.glyphs.forEach(glyphData => {
+                const GlyphClass = GLYPH_MAP[glyphData.id];
+                if (!GlyphClass) return;
+                const glyph = new GlyphClass();
+
+                if (glyph && typeof glyph.onScoring === 'function') {
+                    const result = glyph.onScoring(state, { playedTiles: [tile] }); // Check this tile
+                    if (result && result.bonusMult) {
+                        // Append the glyph bonus to the multiplier display
+                        const currentText = bonusMultEl.textContent;
+                        bonusMultEl.textContent = (currentText ? `${currentText} ` : '') + `+${result.bonusMult}`;
+                    }
+                    if (result && result.bonusScore) {
+                        // Add the point bonus to the value display
+                        const currentVal = parseInt(bonusValueEl.textContent.replace('+', '')) || 0;
+                        const newVal = currentVal + result.bonusScore;
+                        bonusValueEl.textContent = `+${newVal}`;
+                    }
+                }
+            });
             bonusDisplay.append(bonusMultEl, bonusValueEl);
 
             // --- Populate Tile Chip ---
@@ -604,12 +585,36 @@ function renderChips() {
     }
 }
 
-function updateScoreCalculation() {
-    const { baseScore, tileMultiplier, lengthMultiplier, finalScore } = calculateWordScore(state.selected);
+function renderGlyphs() {
+    const slotsContainer = document.getElementById('glyphSlots');
+    const counterEl = document.getElementById('glyphCounter');
+    const maxSlots = 5; // Default number of glyph slots
 
-    calcValueEl.textContent = baseScore; // Base score from tiles
-    document.getElementById('calcMult').textContent = `${tileMultiplier}x`; // Multiplier from tiles
-    calcMultMultEl.textContent = `${lengthMultiplier}x`;
+    slotsContainer.innerHTML = ''; // Clear existing slots
+
+    for (let i = 0; i < maxSlots; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'glyph-slot';
+
+        const glyph = state.glyphs[i];
+        if (glyph) {
+            slot.classList.add('filled');
+            // Use first two letters as a simple graphic
+            slot.textContent = glyph.name.substring(0, 2).toUpperCase();
+            slot.dataset.glyphIndex = i; // Store index for selling
+        }
+        slotsContainer.appendChild(slot);
+    }
+
+    counterEl.textContent = `${state.glyphs.length}/${maxSlots}`;
+}
+
+function updateScoreCalculation() {
+    const { baseScore, glyphBonusScore, tileMultiplier, glyphBonusMult, lengthMultiplier, finalScore } = calculateWordScore(state.selected);
+
+    calcValueEl.textContent = baseScore + (glyphBonusScore || 0);
+    document.getElementById('calcMult').textContent = `${tileMultiplier + glyphBonusMult}x`;
+    calcMultMultEl.textContent = `${lengthMultiplier}x`; // This seems to be the word length multiplier
     calcTotalEl.textContent = finalScore;
 }
 
@@ -692,6 +697,8 @@ function calculateWordScore(selectedTiles) {
     let baseScore = 0;
     let tileMultiplier = 1;
     let lengthMultiplier = 1; // For word length bonus
+    let glyphBonusMult = 0;
+    let glyphBonusScore = 0;
     const wordLength = selectedTiles.length;
 
     // 1. Calculate base score and tile-specific multipliers
@@ -700,16 +707,34 @@ function calculateWordScore(selectedTiles) {
         tileMultiplier *= tile.mult_mult;
     });
 
-    // 2. Get the word length multiplier. Default to 1 if not found.
+    // 2. Calculate Glyph bonuses
+    state.glyphs.forEach(glyphData => { // glyphData is a plain object from localStorage
+        const GlyphClass = GLYPH_MAP[glyphData.id];
+        if (!GlyphClass) return;
+        const glyph = new GlyphClass();
+        if (glyph && typeof glyph.onScoring === 'function') {
+            const result = glyph.onScoring(state, { playedTiles: selectedTiles });
+            if (result && result.bonusMult) {
+                glyphBonusMult += result.bonusMult;
+            }
+            if (result && result.bonusScore) {
+                glyphBonusScore += result.bonusScore;
+            }
+        }
+    });
+
+    // 3. Get the word length multiplier. Default to 1 if not found.
     lengthMultiplier = WORD_LENGTH_MULTIPLIERS[wordLength] || 1;
 
-    // 3. Calculate the final score. The length bonus is now multiplicative.
-    const finalScore = Math.round(baseScore * tileMultiplier * lengthMultiplier);
+    // 4. Calculate the final score.
+    const finalScore = Math.round((baseScore + glyphBonusScore) * (tileMultiplier + glyphBonusMult) * lengthMultiplier);
 
     // Return a detailed object for use in different UI components
     return {
         baseScore,
+        glyphBonusScore,
         tileMultiplier,
+        glyphBonusMult,
         lengthMultiplier,
         finalScore
     };
@@ -845,6 +870,28 @@ function openBagModal() {
         isAvailable: availableTileIds.has(tile.id)
     }));
     sortBagTiles(state.currentBagSort, false); // Apply current sort without re-rendering yet
+
+    // Render purchased upgrades
+    const upgradesGrid = document.getElementById('bagUpgradesGrid');
+    upgradesGrid.innerHTML = '';
+    const purchasedUpgradeIds = Object.keys(state.upgrades);
+    if (purchasedUpgradeIds.length > 0) {
+        purchasedUpgradeIds.forEach(upgradeId => {
+            const upgradeDef = ALL_UPGRADES.find(u => u.id === upgradeId);
+            if (upgradeDef) {
+                const upgradeEl = document.createElement('div');
+                upgradeEl.className = 'bag-upgrade-item';
+                upgradeEl.textContent = upgradeDef.name;
+                upgradesGrid.appendChild(upgradeEl);
+            }
+        });
+    } else {
+        const emptyText = document.createElement('p');
+        emptyText.className = 'bag-empty-text';
+        emptyText.textContent = 'No upgrades purchased';
+        upgradesGrid.appendChild(emptyText);
+    }
+
     renderBagTiles();
     bagModalOverlay.style.display = 'flex';
 }
@@ -871,9 +918,16 @@ function sortBagTiles(sortBy, shouldRender = true) {
         });
     } else if (sortBy === 'type') {
         // Sort by availability first, then modifier type
+        const MODIFIER_SORT_ORDER = {
+            [CONSTANTS.MODIFIERS.MULTIPLIER]: 3,
+            [CONSTANTS.MODIFIERS.BOOSTER]: 2,
+        };
         state.bagTiles.sort((a, b) => {
             if (a.isAvailable !== b.isAvailable) return b.isAvailable - a.isAvailable;
-            return (b.modifier ? 1 : 0) - (a.modifier ? 1 : 0) || a.letter.localeCompare(b.letter);
+            const aOrder = MODIFIER_SORT_ORDER[a.modifier] || 1;
+            const bOrder = MODIFIER_SORT_ORDER[b.modifier] || 1;
+            // Sort by modifier order descending, then alphabetically for ties
+            return bOrder - aOrder || a.letter.localeCompare(b.letter);
         });
     }
     
@@ -1027,6 +1081,26 @@ function updateDevScorePanel() {
         }
         breakdown += line + '\n';
     });
+
+    // Add Glyph breakdown
+    let glyphBonus = 0;
+    let glyphScoreBonus = 0;
+    state.glyphs.forEach(glyphData => { // glyphData is a plain object from localStorage
+        const GlyphClass = GLYPH_MAP[glyphData.id];
+        if (!GlyphClass) return;
+        const glyph = new GlyphClass();
+        if (glyph && typeof glyph.onScoring === 'function') {
+            const result = glyph.onScoring(state, { playedTiles: state.selected });
+            if (result && result.bonusScore) {
+                glyphScoreBonus += result.bonusScore;
+                breakdown += `${glyph.name}: +${result.bonusScore} Pts\n`;
+            }
+            if (result && result.bonusMult) {
+                breakdown += `${glyph.name}: +${result.bonusMult} Mult\n`;
+            }
+        }
+    });
+
 
     const wordLength = state.selected.length;
     const lengthMultiplier = WORD_LENGTH_MULTIPLIERS[wordLength] || 1;
@@ -1248,20 +1322,20 @@ function initTooltips() {
             const tileObject = state.grid[index];
 
             // 1. Populate tooltip content
-            tooltipLetterEl.textContent = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter;
-            tooltipValueEl.textContent = tileObject.value;
+            tooltipLetterEl.textContent = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter; // The main letter
+            tooltipValueEl.textContent = tileObject.value; // The base value in the corner
 
-            let infoText = `Base Value: ${tileObject.value}`;
+            let infoHTML = `Base Value: <span class="tooltip-value-color">${tileObject.value}</span>`;
             if (tileObject.mult > 0) {
-                infoText += `\n+${tileObject.mult} (Booster)`;
+                infoHTML += `\n<span class="tooltip-value-color">+${tileObject.mult}</span> (Booster)`;
             }
             if (tileObject.mult_mult > 1) {
-                infoText += `\n×${tileObject.mult_mult} Multiplier`;
+                infoHTML += `\n<span class="tooltip-mult-color">×${tileObject.mult_mult}</span> Multiplier`;
             }
             if (state.upgrades.topRow && tileObject.index < 4) {
-                infoText += `\n+1x Word Multiplier`;
+                infoHTML += `\n<span class="tooltip-mult-mult-color">+1x</span> Word Multiplier`;
             }
-            tooltipInfoEl.textContent = infoText;
+            tooltipInfoEl.innerHTML = infoHTML;
 
             // 2. Handle visual enhancements
             tooltipTileEl.className = 'tooltip-tile'; // Reset classes
@@ -1354,6 +1428,7 @@ async function init() {
     state.round = runState.round;
     state.money = runState.money;
     state.upgrades = runState.upgrades || {};
+    state.glyphs = runState.glyphs || [];
     state.target = runState.stageTarget || ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
 
     // Load and apply saved volume settings
@@ -1371,12 +1446,15 @@ async function init() {
         setSfxVolume(0.7); // Default
     }
 
+    const wordsPerRound = runState.wordsPerRound || 5;
+    const refreshesPerRound = runState.refreshesPerRound || 5;
+
     // Initialize game state object
     Object.assign(state, {
         selected: [],
         roundScore: 0,
-        wordsRemaining: 5, // This should be reset every round
-        discards: 5,
+        wordsRemaining: wordsPerRound,
+        discards: refreshesPerRound,
         bestWord: {
             word: '',
             score: 0,
@@ -1404,12 +1482,14 @@ async function init() {
     // Update the money display
     document.getElementById('money').textContent = `$${state.money}`;
     discardsEl.textContent = state.discards;
+    wordsRemainingEl.textContent = state.wordsRemaining;
     // 3. Generate the initial grid from the pool
     generateGrid();
 
     // 4. Initialize UI components
     document.getElementById('roundValue').textContent = state.round;
     renderChips();
+    renderGlyphs(); // This call was missing
     updateBossDialog('start');
     updateRoundUI();
     initGooglyEyes();
@@ -1417,6 +1497,7 @@ async function init() {
     initDevControls(); // Initialize the developer control panel
     initHowToPlayModal(); // Check if we need to show the tutorial
     initTooltips(); // Initialize the new tooltip functionality
+    initGlyphInteractions(); // New function for glyph selling
     initAudioUnlock(); // Set up the listener to unlock audio on first interaction
 
     // Attempt to play background music after user interaction
@@ -1425,6 +1506,73 @@ async function init() {
             sounds.background.play();
         }
     }, { once: true });
+}
+
+function initGlyphInteractions() {
+    const glyphsContainer = document.getElementById('glyphsSection');
+    const tooltip = document.getElementById('glyphActionTooltip');
+    const overlay = document.getElementById('glyphActionOverlay');
+    if (!glyphsContainer || !tooltip || !overlay) return;
+
+    // Tooltip elements
+    const sellBtn = document.getElementById('glyphSellBtn');
+    const sellValueEl = document.getElementById('glyphSellValue');
+    const graphicEl = document.getElementById('glyphActionGraphic');
+    const nameEl = document.getElementById('glyphActionName');
+    const descEl = document.getElementById('glyphActionDescription');
+    const rarityEl = document.getElementById('glyphActionRarity');
+
+    let currentSellHandler = null;
+
+    const closeTooltip = () => {
+        tooltip.classList.remove('visible');
+        overlay.style.display = 'none';
+        if (currentSellHandler) {
+            sellBtn.removeEventListener('click', currentSellHandler);
+            currentSellHandler = null;
+        }
+    };
+
+    glyphsContainer.addEventListener('click', (e) => {
+        const slot = e.target.closest('.glyph-slot');
+        if (!slot || !slot.classList.contains('filled')) return;
+
+        const glyphIndex = parseInt(slot.dataset.glyphIndex, 10);
+        const glyph = state.glyphs[glyphIndex];
+        if (!glyph) return;
+
+        // Populate tooltip
+        graphicEl.textContent = glyph.name.substring(0, 2).toUpperCase();
+        nameEl.textContent = glyph.name;
+        descEl.innerHTML = colorizeTooltipText(glyph.description);
+        rarityEl.textContent = glyph.rarity;
+        sellValueEl.textContent = `$${glyph.sellValue}`;
+
+        // Position tooltip
+        const rect = slot.getBoundingClientRect();
+        tooltip.style.top = `${rect.bottom + 10}px`;
+        tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+
+        // Show tooltip and overlay
+        overlay.style.display = 'block';
+        tooltip.classList.add('visible');
+
+        // Define and attach the sell handler
+        currentSellHandler = () => {
+            // 1. Add money
+            state.money += glyph.sellValue;
+            // 2. Remove glyph
+            state.glyphs.splice(glyphIndex, 1);
+            // 3. Save state and update UI
+            saveRunState({ ...getRunState(), money: state.money, glyphs: state.glyphs });
+            document.getElementById('money').textContent = `$${state.money}`;
+            renderGlyphs();
+            closeTooltip();
+        };
+        sellBtn.addEventListener('click', currentSellHandler, { once: true });
+    });
+
+    overlay.addEventListener('click', closeTooltip);
 }
 
 // Start the game
