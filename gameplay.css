@@ -26,6 +26,7 @@
     --accent-green: #56a67a;
     --accent-orange: #fd8c1f;
     --chip-bg: #fd8c1f;
+    --mult-mult-box: #7a73bb; /* Purple color from the design */
     --tile-bg: #ffffff;
     --tile-ink: #1e2f33;
     --tile-border: #b9c4d4;
@@ -151,10 +152,13 @@ body {
     background: #e8eaed; 
     color: #1e2f33; 
     border-radius: 10px; 
-    padding: 8px 16px; 
+    padding: 4px 16px; 
     font-family: m6x11plus; 
     font-size: 12px;
     line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .round-indicator { 
     text-align: center; 
@@ -296,20 +300,73 @@ button.pill:disabled {
     overflow: hidden;
 }
 .chips { 
-    display: flex; 
-    gap: 4px; 
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 2px;
     justify-content: center;
     align-items: center;
-    flex-wrap: nowrap; /* Keep chips in a single line */
-    max-width: 100%;
-    padding: 0 4px;
     z-index: 2;
-    min-height: 56px; /* Reserve space to prevent layout shift */
+    min-height: 120px; /* Reserve space for the new layout */
+    padding: 4px 8px 0;
 }
+
+.chip-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0; /* Reduced gap to bring elements closer */
+    min-width: 0;
+}
+
+.chip-bonus-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 36px;
+    width: 100%;
+    font-family: m5x7;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.chip-bonus-mult { color: var(--accent-red); }
+.chip-bonus-value { color: var(--accent-blue); }
+
+.chip-container {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 2px solid var(--mult-mult-box);
+    border-radius: 4px;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chip-position-display {
+    height: 20px; /* Adjusted height */
+    font-family: m5x7;
+    font-size: 18px;
+    color: var(--muted); /* Changed to muted color to de-emphasize */
+    text-align: center;
+    padding-top: 2px;
+}
+
+/* New style for the word length bonus placeholder */
+.chip-length-bonus-display {
+    height: 24px; /* Give it some space */
+    font-family: m5x7;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--mult-mult-box);
+    text-align: center;
+}
+
 .chip { 
     background: var(--chip-bg); 
     color: #111; 
-    border-radius: 8px; 
+    border-radius: 4px; 
     font-family: m6x11plus;
     font-size: 36px; /* Increased font size for the letter */
     display: flex; 
@@ -317,18 +374,10 @@ button.pill:disabled {
     align-items: center; 
     box-shadow: 0 4px 0 var(--shadow); 
     border: 1px solid var(--tile-border);
-    transition: all 0.2s ease;
-
-    /* ▼ NEW SIZING LOGIC ▼ */
-    flex-basis: 56px; /* This is the ideal size */
-    flex-grow: 0;     /* Prevents chips from growing larger than their ideal size */
-    flex-shrink: 1;   /* THIS IS THE KEY: Allows chips to shrink when space is limited */
-    min-width: 0;     /* Important for allowing flex items to shrink properly */
-    aspect-ratio: 1;  /* Maintains a perfect square shape as the width changes */
-    max-height: 56px; /* Ensures chips don't grow taller than their base size */
-    /* ▲ END NEW SIZING LOGIC ▲ */
-
-    /* ... other styles */
+    transition: all 0.2s ease;    
+    width: 100%;
+    height: 100%;
+    font-size: 2vw; /* Responsive font size */
 }
 .base-score { 
     display: flex; 
@@ -1373,6 +1422,113 @@ button.pill:disabled {
     transform: translateY(2px);
     box-shadow: 0 2px 0 black;
 }
+
+/* --- OPTIONS MODAL STYLES --- */
+.options-modal {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 24px;
+    width: 100%;
+    max-width: 328px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+    border: 2px solid #3b4b4f;
+    animation: successPopWord 0.5s ease-out;
+}
+
+.options-title {
+    font-family: m5x7;
+    font-size: 36px;
+    text-align: center;
+    margin: 0;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.options-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.option-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    align-items: center;
+    gap: 16px;
+}
+
+.option-label {
+    font-family: m6x11plus;
+    font-size: 24px;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 12px;
+    background: #152020;
+    outline: none;
+    border-radius: 6px;
+    border: 1px solid var(--tile-border);
+}
+
+/* --- Slider Thumb Styles --- */
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    background: var(--accent-orange);
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 0 var(--shadow);
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    background: var(--accent-orange);
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 0 var(--shadow);
+}
+
+/* --- Slider Track Styles --- */
+.volume-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 12px;
+    cursor: pointer;
+    background: #152020;
+    border-radius: 6px;
+    border: 1px solid var(--tile-border);
+}
+
+.volume-slider::-moz-range-track {
+    width: 100%;
+    height: 12px;
+    cursor: pointer;
+    background: #152020;
+    border-radius: 6px;
+    border: 1px solid var(--tile-border);
+}
+
+.options-footer {
+    text-align: center;
+    font-family: m5x7;
+    font-size: 16px;
+    color: var(--muted);
+    margin-top: 8px;
+}
+
 
 .how-to-play-content {
     padding: 0 16px;

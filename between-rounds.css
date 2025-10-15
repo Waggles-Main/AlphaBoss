@@ -1,0 +1,207 @@
+@font-face {
+    font-family: 'm5x7';
+    src: url('Fonts/m5x7.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'm6x11plus';
+    src: url('Fonts/m6x11plus.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --bg: #162222;
+    --panel-dark: #2e3a3c;
+    --shadow: rgba(0,0,0,.5);
+    --accent-red: #ff5f4f;
+    --accent-green: #56a67a;
+    --accent-orange: #fd8c1f;
+    --accent-purple: #7a73bb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background-color: var(--bg);
+    color: white;
+    font-family: m6x11plus, m5x7, system-ui, sans-serif;
+}
+
+.between-rounds-screen {
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.challenge-card, .event-card {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.challenge-card:hover, .event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--shadow);
+}
+
+.challenge-card:active, .event-card:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--shadow);
+}
+
+.round-header {
+    padding: 8px 0;
+    text-align: center;
+}
+
+.round-title {
+    font-family: 'm5x7';
+    font-size: 48px;
+    margin: 0;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.challenge-card.completed, .event-card.completed {
+    filter: grayscale(80%) brightness(0.7);
+    cursor: not-allowed;
+    box-shadow: 0 4px 0 var(--shadow);
+}
+
+.card-title {
+    font-family: m5x7;
+    font-size: 36px;
+    text-align: center;
+    margin: 0;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-label {
+    font-family: m6x11plus;
+    font-size: 18px;
+}
+
+.detail-value {
+    font-family: m5x7;
+    font-size: 36px;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.detail-value.money {
+    color: var(--accent-orange);
+}
+
+.card-divider {
+    border: none;
+    height: 1px;
+    background-color: white;
+    width: 75%;
+    margin: -8px auto;
+}
+
+.card-button {
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 4px 0 black;
+}
+
+.card-button span {
+    font-family: m6x11plus;
+    font-size: 32px;
+    color: white;
+}
+
+.btn-green {
+    background-color: var(--accent-green);
+}
+
+.event-card {
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-purple {
+    background-color: var(--accent-purple);
+}
+
+.boss-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.boss-portrait {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    background-color: var(--accent-red);
+    flex-shrink: 0;
+}
+
+.boss-modifier {
+    font-family: m6x11plus;
+    font-size: 32px;
+    flex-grow: 1;
+    text-align: left;
+}
+
+/* Font Styles from Figma - applied to specific elements */
+.card-title {
+    font-family: 'm5x7';
+    font-size: 36px;
+}
+.detail-label {
+    font-family: 'm6x11plus';
+    font-size: 18px;
+}
+.detail-value {
+    font-family: 'm5x7';
+    font-size: 36px;
+}
+.card-button span {
+    font-family: 'm6x11plus';
+    font-size: 32px;
+}
+.event-card .card-title {
+    font-family: 'm6x11plus';
+    font-size: 36px;
+}
+.boss-modifier {
+    font-family: 'm6x11plus';
+    font-size: 32px;
+}

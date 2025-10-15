@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaBoss - Between Rounds</title>
+    <link rel="stylesheet" href="between-rounds.css">
+</head>
+<body>
+    <main class="between-rounds-screen">
+        <header class="round-header">
+            <h1 class="round-title">ROUND <span id="roundNumber">1</span></h1>
+        </header>
+        <!-- QUIZ -->
+        <a href="gameplay.html" class="challenge-card quiz-card">
+            <h2 class="card-title">QUIZ</h2>
+            <div class="card-details">
+                <div class="detail-row">
+                    <span class="detail-label">SCORE AT LEAST</span>
+                    <span class="detail-value">{SCORE}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">REWARD</span>
+                    <span class="detail-value money">{$3}</span>
+                </div>
+            </div>
+            <hr class="card-divider hidden-button" style="display: none;">
+            <div class="card-button btn-green hidden-button" style="display: none;">
+                <span>CONTINUE</span>
+            </div>
+        </a>
+
+        <!-- EVENT 1 -->
+        <a href="event.html" class="event-card btn-purple event-card-1">
+            <span class="card-title">{EVENT}</span>
+            <div class="card-button btn-green hidden-button" style="display: none;">
+                <span>CONTINUE</span>
+            </div>
+        </a>
+
+        <!-- TEST -->
+        <a href="gameplay.html" class="challenge-card test-card">
+            <h2 class="card-title">TEST</h2>
+            <div class="card-details">
+                <div class="detail-row">
+                    <span class="detail-label">SCORE AT LEAST</span>
+                    <span class="detail-value">{SCORE}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">REWARD</span>
+                    <span class="detail-value money">{$4}</span>
+                </div>
+            </div>
+            <hr class="card-divider hidden-button" style="display: none;">
+            <div class="card-button btn-green hidden-button" style="display: none;">
+                <span>CONTINUE</span>
+            </div>
+        </a>
+
+        <!-- EVENT 2 -->
+        <a href="event.html" class="event-card btn-purple event-card-2">
+            <span class="card-title">{EVENT}</span>
+            <div class="card-button btn-green hidden-button" style="display: none;">
+                <span>CONTINUE</span>
+            </div>
+        </a>
+
+        <!-- EXAM -->
+        <a href="gameplay.html" class="challenge-card exam-card">
+            <h2 class="card-title">EXAM</h2>
+            <div class="boss-info">
+                <div class="boss-portrait"></div>
+                <span class="boss-modifier">{Boss MODIFIER}</span>
+            </div>
+            <div class="card-details">
+                <div class="detail-row">
+                    <span class="detail-label">SCORE AT LEAST</span>
+                    <span class="detail-value">{SCORE}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">REWARD</span>
+                    <span class="detail-value money">{$5}</span>
+                </div>
+            </div>
+            <hr class="card-divider hidden-button" style="display: none;">
+            <div class="card-button btn-green hidden-button" style="display: none;">
+                <span>CONTINUE</span>
+            </div>
+        </a>
+    </main>
+    <script src="between-rounds.js"></script>
+</body>
+</html>

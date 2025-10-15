@@ -41,11 +41,11 @@
             localStorage.removeItem('alphaBossMoney');
             localStorage.removeItem('alphaBossUpgrades');
             localStorage.removeItem('alphaBossMasterTileSet');
-            // We can also remove the 'played before' flag if we want the tutorial to show on every new run.
             localStorage.removeItem('alphaBossPlayedBefore');
+            localStorage.removeItem('alphaBossRun'); // Clear the new run state object
 
-            // Navigate to the gameplay screen.
-            window.location.href = 'gameplay.html';
+            // Navigate to the new between-rounds screen to start the run.
+            window.location.href = 'between-rounds.html';
         });
     </script>
 </body>

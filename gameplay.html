@@ -26,9 +26,7 @@
                     </div>
                 </div>
                 <div class="boss-dialog" aria-live="polite">
-                    <div class="dialog-multi">
-                        <span class="dialog-line">{Boss flavor text}</span>
-                    </div>
+                    <span class="dialog-line">{Boss flavor text}</span>
                 </div>
                 <div class="round-indicator">
                     <div class="round-label">ROUND</div>
@@ -73,9 +71,7 @@
 
         <!-- Scoring Area -->
         <section class="scoring">
-            <div class="chips" id="scoreChips">
-                <!-- Chips will be dynamically added here -->
-            </div>
+            <div class="chips" id="playedTilesArea"></div>
             <!-- New Score Calculation Breakdown -->
             <div class="score-calculation">
                 <div class="calc-box value-box">
@@ -87,7 +83,7 @@
                 </div>
                 <span class="calc-operator">×</span>
                 <div class="calc-box mult-mult-box">
-                    <span class="calc-value" id="calcMultMult">1.0x</span>
+                    <span class="calc-value" id="calcMultMult">1x</span>
                 </div>
                 <span class="calc-operator">=</span>
                 <div class="calc-total" id="calcTotal">0</div>
@@ -128,6 +124,27 @@
                 </div>
         </div>
       </div>
+    </div>
+
+    <!-- Options Modal -->
+    <div class="modal-overlay" id="optionsModalOverlay">
+        <div class="options-modal">
+            <button class="btn-close" id="btnCloseOptionsModal" aria-label="Close options">&times;</button>
+            <h2 class="options-title">OPTIONS</h2>
+            <div class="options-content">
+                <div class="option-row">
+                    <label for="musicVolume" class="option-label">MUSIC</label>
+                    <input type="range" id="musicVolume" class="volume-slider" min="0" max="1" step="0.05" value="0.3">
+                </div>
+                <div class="option-row">
+                    <label for="sfxVolume" class="option-label">SOUNDS</label>
+                    <input type="range" id="sfxVolume" class="volume-slider" min="0" max="1" step="0.05" value="0.7">
+                </div>
+            </div>
+            <div class="options-footer">
+                <span class="version-info">v1.0.0</span>
+            </div>
+        </div>
     </div>
 
     <div class="modal-overlay" id="victoryModalOverlay">

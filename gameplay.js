@@ -1,20 +1,29 @@
 // Minimal placeholder gameplay logic to render a 4x4 grid and basic interactions
 const gridEl = document.getElementById('tileGrid');
-const chipsEl = document.getElementById('scoreChips');
+const chipsEl = document.getElementById('playedTilesArea');
 const calcValueEl = document.getElementById('calcValue');
-const calcMultEl = document.getElementById('calcMult');
+const playedTilesArea = document.getElementById('playedTilesArea');
 const calcMultMultEl = document.getElementById('calcMultMult');
 const calcTotalEl = document.getElementById('calcTotal');
 const roundScoreEl = document.getElementById('roundScore');
 const targetScoreEl = document.getElementById('targetScore');
 const progressBarEl = document.getElementById('progressBar');
 const wordsRemainingEl = document.getElementById('wordsRemaining');
+const discardsEl = document.getElementById('discards');
+const bossDialogLineEl = document.querySelector('.dialog-line');
 
 // Bag Modal Element Selectors
 const bagModalOverlay = document.getElementById('bagModalOverlay');
 const closeBagBtn = document.getElementById('btnCloseBagModal');
 const bagGrid = document.getElementById('bagGrid');
 const sortControls = document.querySelector('.sort-controls');
+
+// Options Modal Element Selectors
+const optionsModalOverlay = document.getElementById('optionsModalOverlay');
+const closeOptionsBtn = document.getElementById('btnCloseOptionsModal');
+const musicVolumeSlider = document.getElementById('musicVolume');
+const sfxVolumeSlider = document.getElementById('sfxVolume');
+
 
 // Tile Distribution and Point Values
 const TILE_DISTRIBUTION = 'EEEEEEEEEEEEAAAAAAAAAIIIIIIIIIOOOOOOOONNNNNNRRRRRRTTTTTTDDDDLLLLSSSSUUUUGGGBBCCFFHHMMPPVVWWYYJKQXZ__'.split('');
@@ -45,10 +54,57 @@ const CONSTANTS = {
 const ROUND_TARGETS = [20, 50, 125, 300, 650, 1200, 2100, 3000];
 
 // New word length multipliers
+// This is now an additive bonus, not a multiplier.
 const WORD_LENGTH_MULTIPLIERS = {
-    6: 1.5,  7: 2,    8: 2.75, 9: 3.5,
-    10: 4.5, 11: 5.5,  12: 6.75, 13: 8,
-    14: 9.5, 15: 11,   16: 13,
+    5: 1,  6: 2,    7: 3,    8: 5,
+    9: 8,  10: 13,  11: 21,  12: 34,
+    13: 55, 14: 89, 15: 144, 16: 233,
+};
+
+const DIALOGUE = {
+    start: [
+        "Let's see what you've got.",
+        "Try to impress me.",
+        "Another challenger? Don't waste my time.",
+        "Show me your best words.",
+    ],
+    longWord: [
+        "Impressive! '{word}' is quite a find.",
+        "A long word! You might be a worthy opponent.",
+        "Not bad. '{word}'... I'll remember that.",
+    ],
+    highScore: [
+        "{score} points? You're getting stronger.",
+        "A powerful move! That's {score} points!",
+        "That one stung a little. Well played.",
+    ],
+    lowScore: [
+        "Only {score} points? Pathetic.",
+        "Is that all? My grandmother could do better.",
+        "You call that a word? Barely worth {score} points.",
+    ],
+    shortWord: [
+        "A short word. How quaint.",
+        "We're starting small, are we?",
+        "That's a word, I suppose.",
+    ],
+    invalid: [
+        "That's not a word!",
+        "Are you just making things up now?",
+        "Gibberish. Try again.",
+        "Consult a dictionary, perhaps?",
+    ],
+    idle: [
+        "Thinking, are we?",
+        "Don't take all day.",
+        "The clock is ticking...",
+        "I'm waiting.",
+    ],
+    refresh: [
+        "Don't like your letters?",
+        "Running away from a challenge?",
+        "A fresh start won't save you.",
+    ]
 };
 
 let dictionary = [];
@@ -103,6 +159,24 @@ function shuffleArray(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
 }
+
+function updateBossDialog(category, options = {}) {
+    if (!bossDialogLineEl || !DIALOGUE[category]) return;
+
+    const lines = DIALOGUE[category];
+    let line = lines[Math.floor(Math.random() * lines.length)];
+
+    // Replace placeholders like {word} or {score}
+    if (options.word) {
+        line = line.replace('{word}', options.word);
+    }
+    if (options.score) {
+        line = line.replace('{score}', options.score);
+    }
+
+    bossDialogLineEl.textContent = line;
+}
+
 
 async function loadDictionary() {
     try {
@@ -322,6 +396,19 @@ async function playWord() {
 
     // Now, proceed with the rest of the game logic
     const { finalScore: score } = calculateWordScore(state.selected);
+    const wordLength = validatedWord.length;
+
+    // --- Update Boss Dialogue based on performance ---
+    if (wordLength >= 8) {
+        updateBossDialog('longWord', { word: validatedWord });
+    } else if (score >= 50) {
+        updateBossDialog('highScore', { score });
+    } else if (score < 10) {
+        updateBossDialog('lowScore', { score });
+    } else {
+        updateBossDialog('shortWord');
+    }
+
     state.roundScore += score;
     state.wordsRemaining--;
 
@@ -347,6 +434,7 @@ async function playWord() {
 
 function clearSelection() {
     state.selected = [];
+    updateBossDialog('idle');
     document.querySelectorAll('.tile.selected').forEach(t => {
         t.classList.remove('selected');
         t.setAttribute('aria-pressed', 'false');
@@ -406,18 +494,27 @@ function showVictoryScreen() {
     const wordsValueEl = document.getElementById('victoryWordsValue');
     const bossValueEl = document.getElementById('victoryBossValue');
     const cashOutBtn = document.getElementById('victoryCashOutBtn');
+    const runState = getRunState();
 
     // --- Calculate Bonuses ---
     // For now, boss bonus is a flat rate. This can be made dynamic later.
     const bossBonus = 3; 
     const wordsBonus = state.wordsRemaining * 2;
     const totalWinnings = bossBonus + wordsBonus;
+    
+    // --- Update and Save Run State ---
+    runState.money += totalWinnings;
+    runState.stageIndex++; // Move to the next stage (e.g., from Quiz to Event)
 
-    // Update player's total money
-    // Save the new money total and the next round number to localStorage
-    localStorage.setItem('alphaBossMoney', state.money + totalWinnings);
-    localStorage.setItem('alphaBossRound', state.round + 1);
-    // No longer need to save the tile pool, as the master set is already saved.
+    // Check if the round is over
+    if (runState.stageIndex >= 5) { // 5 stages: 0, 1, 2, 3, 4
+        runState.round++;
+        runState.stageIndex = 0; // Reset to the first stage (Quiz) for the new round
+    }
+
+    // Save the entire updated state
+    saveRunState(runState);
+    state.money = runState.money; // Update local state for display
 
     state.money += totalWinnings; 
 
@@ -432,7 +529,7 @@ function showVictoryScreen() {
     // Add a one-time listener to the cash out button
     cashOutBtn.onclick = () => {
         overlay.style.display = 'none';
-        // Navigate to the shop screen
+        // Navigate to the shop, then the shop will navigate to the between-rounds screen
         window.location.href = 'shop.html';
     };
 }
@@ -440,41 +537,79 @@ function showVictoryScreen() {
 // --- UI, DRAGGING, & VALIDATION ---
 
 function renderChips() {
-    chipsEl.innerHTML = '';
-    let base = 0;
+    playedTilesArea.innerHTML = '';
 
-    state.selected.forEach((s, index) => {
-        const chip = document.createElement('div');
-        chip.className = 'chip';
-        chip.setAttribute('draggable', true);
-        chip.dataset.selectedIndex = index;
+    // Determine the maximum number of slots to show (min 8, or number of selected tiles)
+    const numSlots = Math.max(8, state.selected.length);
+    playedTilesArea.style.gridTemplateColumns = `repeat(${numSlots}, 1fr)`;
 
-        const displayLetter = s.letter === 'Q' ? 'Qu' : s.letter === '_' ? '' : s.letter;
-        chip.innerHTML = `${displayLetter}`;
+    for (let i = 0; i < numSlots; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'chip-slot';
 
-        // Add event listener to deselect by clicking the chip
-        chip.addEventListener('click', () => deselectChip(index));
+        const bonusDisplay = document.createElement('div');
+        bonusDisplay.className = 'chip-bonus-display';
 
-        // Add drag and drop event listeners
-        chip.addEventListener('dragstart', dragStart);
-        chip.addEventListener('dragend', dragEnd);
-        chip.addEventListener('dragover', dragOver);
-        chip.addEventListener('drop', dragDrop);
+        const chipContainer = document.createElement('div');
+        chipContainer.className = 'chip-container';
 
-        chipsEl.appendChild(chip);
-        base += TILE_VALUES[s.letter];
-    });
+        const positionDisplay = document.createElement('div');
+        positionDisplay.className = 'chip-position-display';
+        positionDisplay.textContent = i + 1; // Always show the 1-based position
 
-    // This function is now obsolete as the new calculation UI replaces it.
-    // baseScoreEl.textContent = String(base);
+        // Create a new element for the word length bonus
+        const lengthBonusDisplay = document.createElement('div');
+        lengthBonusDisplay.className = 'chip-length-bonus-display';
+        const potentialBonus = WORD_LENGTH_MULTIPLIERS[i + 1]; // Check for bonus at this position
+        if (potentialBonus) {
+            lengthBonusDisplay.textContent = `${potentialBonus}x`;
+        }
+
+        const tile = state.selected[i];
+        if (tile) {
+            // --- Populate Bonus Display (Above) ---
+            const bonusValueEl = document.createElement('div');
+            bonusValueEl.className = 'chip-bonus-value';
+            // Show the tile's score contribution.
+            if (tile.mult > 0) {
+                // If it has an additive bonus (e.g., Booster), show the boosted total
+                bonusValueEl.textContent = `+${tile.value + tile.mult}`;
+            } else {
+                // For basic tiles or multiplier-only tiles, show the base value.
+                bonusValueEl.textContent = `+${tile.value}`;
+            }
+
+            const bonusMultEl = document.createElement('div');
+            bonusMultEl.className = 'chip-bonus-mult';
+            if (tile.mult_mult > 1) {
+                bonusMultEl.textContent = `x${tile.mult_mult}`;
+            }
+            bonusDisplay.append(bonusMultEl, bonusValueEl);
+
+            // --- Populate Tile Chip ---
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.setAttribute('draggable', true);
+            chip.dataset.selectedIndex = i;
+            chip.textContent = tile.letter === 'Q' ? 'Qu' : tile.letter;
+            chip.addEventListener('click', () => deselectChip(i));
+            chip.addEventListener('dragstart', dragStart);
+            chip.addEventListener('dragend', dragEnd);
+            chip.addEventListener('dragover', dragOver);
+            chip.addEventListener('drop', dragDrop);
+            chipContainer.appendChild(chip);
+        }
+        slot.append(bonusDisplay, chipContainer, positionDisplay, lengthBonusDisplay);
+        playedTilesArea.appendChild(slot);
+    }
 }
 
 function updateScoreCalculation() {
     const { baseScore, tileMultiplier, lengthMultiplier, finalScore } = calculateWordScore(state.selected);
 
-    calcValueEl.textContent = baseScore;
-    calcMultEl.textContent = `${tileMultiplier.toFixed(1)}x`;
-    calcMultMultEl.textContent = `${lengthMultiplier.toFixed(1)}x`;
+    calcValueEl.textContent = baseScore; // Base score from tiles
+    document.getElementById('calcMult').textContent = `${tileMultiplier}x`; // Multiplier from tiles
+    calcMultMultEl.textContent = `${lengthMultiplier}x`;
     calcTotalEl.textContent = finalScore;
 }
 
@@ -511,7 +646,7 @@ function dragOver(e) {
 }
 
 function dragDrop(e) {
-    const dragEndIndex = +e.target.closest('.chip').dataset.selectedIndex;
+    const dragEndIndex = +e.target.closest('.chip-slot').querySelector('.chip-container .chip').dataset.selectedIndex;
     swapItems(dragStartIndex, dragEndIndex);
     // Remove dragging class from all elements to be safe
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('dragging'));
@@ -556,24 +691,19 @@ function validateWord(word) {
 function calculateWordScore(selectedTiles) {
     let baseScore = 0;
     let tileMultiplier = 1;
-    let bonusMultiplier = 0; // For grid modifiers like Top Row
+    let lengthMultiplier = 1; // For word length bonus
     const wordLength = selectedTiles.length;
 
     // 1. Calculate base score and tile-specific multipliers
     selectedTiles.forEach(tile => {
         baseScore += tile.value + tile.mult;
         tileMultiplier *= tile.mult_mult;
-
-        // Check for Top Row bonus
-        if (state.upgrades.topRow && tile.index < 4) {
-            bonusMultiplier += 1;
-        }
     });
 
-    // 2. Get the word length multiplier
-    const lengthMultiplier = (WORD_LENGTH_MULTIPLIERS[wordLength] || 1) + bonusMultiplier;
+    // 2. Get the word length multiplier. Default to 1 if not found.
+    lengthMultiplier = WORD_LENGTH_MULTIPLIERS[wordLength] || 1;
 
-    // 3. Calculate the final score
+    // 3. Calculate the final score. The length bonus is now multiplicative.
     const finalScore = Math.round(baseScore * tileMultiplier * lengthMultiplier);
 
     // Return a detailed object for use in different UI components
@@ -592,6 +722,7 @@ function showError(message) {
     errorEl.style.cssText = `
         animation: errorShake 0.5s ease-in-out;`;
     document.body.appendChild(errorEl);
+    updateBossDialog('invalid');
     if (sounds.error) sounds.error.play(); // Play error sound
     setTimeout(() => { errorEl.remove(); }, 2000);
 }
@@ -778,11 +909,75 @@ function renderBagTiles() {
     });
 }
 
+function refreshBoard() {
+    if (state.discards <= 0) {
+        return; // No discards left, do nothing.
+    }
+
+    // 1. Decrement discards and update UI
+    state.discards--;
+    updateBossDialog('refresh');
+    discardsEl.textContent = state.discards;
+
+    // 2. Clear any currently selected tiles
+    clearSelection();
+
+    // 3. Generate a new grid of tiles
+    generateGrid();
+
+    // 4. If no discards are left, disable the button
+    if (state.discards === 0) {
+        const refreshBtn = document.getElementById('btnRefreshBoard');
+        if (refreshBtn) {
+            refreshBtn.disabled = true;
+        }
+    }
+}
+
+// --- OPTIONS MODAL FUNCTIONS ---
+function openOptionsModal() {
+    // Set slider values to current volumes
+    musicVolumeSlider.value = sounds.background ? sounds.background.volume() : 0.3;
+    sfxVolumeSlider.value = sounds.tileClick ? sounds.tileClick.volume() : 0.7; // Use one SFX as reference
+
+    optionsModalOverlay.style.display = 'flex';
+}
+
+function closeOptionsModal() {
+    optionsModalOverlay.style.display = 'none';
+}
+
+function setMusicVolume(volume) {
+    if (sounds.background) {
+        sounds.background.volume(volume);
+    }
+    localStorage.setItem('alphaBossMusicVolume', volume);
+}
+
+function setSfxVolume(volume) {
+    // Apply volume to all sound effects, but not the background music
+    for (const key in sounds) {
+        if (key !== 'background') {
+            sounds[key].volume(volume);
+        }
+    }
+    localStorage.setItem('alphaBossSfxVolume', volume);
+}
+
 
 // --- EVENT LISTENERS & INITIALIZATION ---
 document.getElementById('btnClear').addEventListener('click', clearSelection);
-document.getElementById('btnOptions').addEventListener('click', () => alert('Options placeholder'));
+document.getElementById('btnOptions').addEventListener('click', openOptionsModal);
+document.getElementById('btnRefreshBoard').addEventListener('click', refreshBoard);
 document.getElementById('btnPlay').addEventListener('click', playWord);
+
+// Options Modal Listeners
+closeOptionsBtn.addEventListener('click', closeOptionsModal);
+optionsModalOverlay.addEventListener('click', (e) => {
+    if (e.target === optionsModalOverlay) closeOptionsModal();
+});
+musicVolumeSlider.addEventListener('input', (e) => setMusicVolume(parseFloat(e.target.value)));
+sfxVolumeSlider.addEventListener('input', (e) => setSfxVolume(parseFloat(e.target.value)));
 
 // Bag Modal Listeners
 document.getElementById('btnBag').addEventListener('click', openBagModal);
@@ -836,7 +1031,7 @@ function updateDevScorePanel() {
     const wordLength = state.selected.length;
     const lengthMultiplier = WORD_LENGTH_MULTIPLIERS[wordLength] || 1;
     if (lengthMultiplier > 1) {
-        breakdown += `Length Bonus (x${lengthMultiplier})\n`;
+        breakdown += `Length Multiplier (x${lengthMultiplier})\n`;
     }
 
     const { finalScore } = calculateWordScore(state.selected);
@@ -1133,49 +1328,71 @@ function initHowToPlayModal() {
     }, { once: true }); // Ensure the listener only fires once
 }
 
+function getRunState() {
+    const savedRun = localStorage.getItem('alphaBossRun');
+    if (savedRun) {
+        return JSON.parse(savedRun);
+    }
+    // This should ideally not be hit if starting from the menu, but is a safe fallback.
+    return {
+        round: 1,
+        stageIndex: 0,
+        money: 4,
+        upgrades: {},
+        masterTileSet: null,
+        stageTarget: 20,
+    };
+}
+
+function saveRunState(runState) {
+    localStorage.setItem('alphaBossRun', JSON.stringify(runState));
+}
+
 async function init() {
-    // Load persistent data from localStorage
-    const savedRound = localStorage.getItem('alphaBossRound');
-    state.round = savedRound ? parseInt(savedRound, 10) : 1;
+    // --- New State Management ---
+    const runState = getRunState();
+    state.round = runState.round;
+    state.money = runState.money;
+    state.upgrades = runState.upgrades || {};
+    state.target = runState.stageTarget || ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
 
-    const savedMoney = localStorage.getItem('alphaBossMoney');
-    const savedUpgrades = localStorage.getItem('alphaBossUpgrades');
+    // Load and apply saved volume settings
+    const savedMusicVolume = localStorage.getItem('alphaBossMusicVolume');
+    const savedSfxVolume = localStorage.getItem('alphaBossSfxVolume');
 
-    state.upgrades = savedUpgrades ? JSON.parse(savedUpgrades) : {};
+    if (savedMusicVolume !== null) {
+        setMusicVolume(parseFloat(savedMusicVolume));
+    } else {
+        setMusicVolume(0.3); // Default
+    }
+    if (savedSfxVolume !== null) {
+        setSfxVolume(parseFloat(savedSfxVolume));
+    } else {
+        setSfxVolume(0.7); // Default
+    }
 
     // Initialize game state object
     Object.assign(state, {
         selected: [],
-        // round: savedRound ? parseInt(savedRound, 10) : 1, // This is now set before Object.assign
         roundScore: 0,
-        // Set target score based on the current round.
-        // If we go past the defined rounds, it keeps the last target.
-        target: ROUND_TARGETS[Math.min(state.round - 1, ROUND_TARGETS.length - 1)],
         wordsRemaining: 5, // This should be reset every round
         discards: 5,
-        // Load money from storage, or default to 4 for a new game.
-        money: savedMoney ? parseInt(savedMoney, 10) : 4,
         bestWord: {
             word: '',
             score: 0,
         }
     });
-    // 1. Create and shuffle the tile pool for the game session
-    // Only reset money if it's the first round of a new game.
-    // The tile pool is now only created at the start of a run (round 1).
-    if (state.round === 1) {
-        // This is a new run, reset money and save it.
-        state.money = 4; 
-        localStorage.setItem('alphaBossMoney', state.money);
-        // Create and save the master set of tiles for the run.
-        localStorage.removeItem('alphaBossUpgrades'); // Clear upgrades on a new run
-        state.masterTileSet = TILE_DISTRIBUTION.map(letter => new Tile(letter));
-        localStorage.setItem('alphaBossMasterTileSet', JSON.stringify(state.masterTileSet));
+
+    // 1. Create or load the master tile set for the run.
+    if (runState.masterTileSet) {
+        state.masterTileSet = runState.masterTileSet;
     } else {
-        // On subsequent rounds, load the master set.
-        const savedMasterSet = localStorage.getItem('alphaBossMasterTileSet');
-        state.masterTileSet = savedMasterSet ? JSON.parse(savedMasterSet) : TILE_DISTRIBUTION.map(letter => new Tile(letter));
+        // First time loading for this run, create the set.
+        state.masterTileSet = TILE_DISTRIBUTION.map(letter => new Tile(letter));
+        runState.masterTileSet = state.masterTileSet;
+        saveRunState(runState);
     }
+
 
     // For every round, create a fresh, shuffled pool of available tiles from the master set.
     state.availableTiles = [...state.masterTileSet];
@@ -1186,12 +1403,14 @@ async function init() {
 
     // Update the money display
     document.getElementById('money').textContent = `$${state.money}`;
+    discardsEl.textContent = state.discards;
     // 3. Generate the initial grid from the pool
     generateGrid();
 
     // 4. Initialize UI components
     document.getElementById('roundValue').textContent = state.round;
     renderChips();
+    updateBossDialog('start');
     updateRoundUI();
     initGooglyEyes();
     initBlobEffect(); // Initialize the new background effect
@@ -1199,6 +1418,13 @@ async function init() {
     initHowToPlayModal(); // Check if we need to show the tutorial
     initTooltips(); // Initialize the new tooltip functionality
     initAudioUnlock(); // Set up the listener to unlock audio on first interaction
+
+    // Attempt to play background music after user interaction
+    document.body.addEventListener('click', () => {
+        if (sounds.background && !sounds.background.playing()) {
+            sounds.background.play();
+        }
+    }, { once: true });
 }
 
 // Start the game
