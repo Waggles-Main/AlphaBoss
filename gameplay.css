@@ -247,6 +247,23 @@ body {
     color: white;
     text-shadow: 0 2px 0 var(--shadow);
 }
+.pill.money { 
+    color: var(--accent-orange); 
+}
+
+/* Make the pill a button */
+button.pill {
+    appearance: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s, filter 0.2s;
+}
+button.pill:hover { filter: brightness(1.15); }
+button.pill:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--shadow); }
+button.pill:disabled {
+    cursor: not-allowed;
+    filter: brightness(0.6);
+}
 .pill .money { 
     color: var(--accent-orange); 
 }

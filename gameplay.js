@@ -1092,7 +1092,7 @@ function initTooltips() {
             tooltipEl.style.top = `${rect.top - tooltipEl.offsetHeight - 10}px`; // 10px above the tile
             tooltipEl.classList.add('visible');
 
-        }, 1000); // 1 second delay
+        }, 1500); // 1.5 second delay
     });
 
     gridEl.addEventListener('mouseout', () => {
