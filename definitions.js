@@ -497,18 +497,6 @@ const UPGRADE_MAP = {
 
 // --- BOSS DEFINITIONS ---
 
-class TheSnag extends Boss {
-    constructor() {
-        super({
-            id: 'boss_the_snag',
-            name: 'The Snag',
-            description: 'Discard 2 random tiles from hand after playing a word.',
-            ante: 2,
-            effect: { type: 'ForceDiscardHand', details: { count: 2 } }
-        });
-    }
-}
-
 class TheHook extends Boss {
     constructor() {
         super({
@@ -571,18 +559,16 @@ class TheElbow extends Boss {
 
 // --- GLOBAL BOSS POOL ---
 const ALL_BOSSES = [
-    new TheSnag(),
+    new TheElbow(),
     new TheHook(),
     new TheWall(),
     new TheWheel(),
     new TheWater(),
-    new TheElbow(),
 ];
 
 // --- BOSS FACTORY MAP ---
 const BOSS_MAP = {
     'boss_the_wall': TheWall,
-    'boss_the_snag': TheSnag,
     'boss_the_hook': TheHook,
     'boss_the_wheel': TheWheel,
     'boss_the_water': TheWater,

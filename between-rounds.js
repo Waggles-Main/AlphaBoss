@@ -24,24 +24,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const testScoreEl = stageCards.test.querySelector('.detail-value');
         const examScoreEl = stageCards.exam.querySelector('.detail-value');
         const examTitleEl = stageCards.exam.querySelector('.card-title');
+        const examBossNameEl = stageCards.exam.querySelector('.boss-name');
         const examModifierEl = stageCards.exam.querySelector('.boss-modifier');
         let examScoreMultiplier = 2; // Default exam score multiplier
 
         // --- Select and display the boss for the exam ---
-        if (examModifierEl) {
-            const currentAnte = Math.ceil(runState.round / 3); // e.g., Rounds 1-3 are Ante 1
-            const availableBosses = ALL_BOSSES.filter(boss => boss.ante <= currentAnte);
-            const currentBoss = availableBosses[Math.floor(Math.random() * availableBosses.length)];
-            
-            if (currentBoss) {
-                runState.currentBossId = currentBoss.id; // Save the boss for the gameplay screen
-                examModifierEl.textContent = currentBoss.description;
+        const currentAnte = Math.ceil(runState.round / 3); // e.g., Rounds 1-3 are Ante 1
+        const availableBosses = ALL_BOSSES.filter(boss => boss.ante <= currentAnte);
+        const currentBoss = availableBosses[Math.floor(Math.random() * availableBosses.length)];
+        
+        if (currentBoss) {
+            runState.currentBossId = currentBoss.id; // Save the boss for the gameplay screen
+            examBossNameEl.textContent = currentBoss.name;
+            examModifierEl.textContent = currentBoss.description;
 
-                // Special handling for The Wall boss
-                if (currentBoss.id === 'boss_the_wall') {
-                    examScoreMultiplier = currentBoss.effect.details.multiplier;
-                }
+            // Special handling for The Wall boss
+            if (currentBoss.id === 'boss_the_wall') {
+                examScoreMultiplier = currentBoss.effect.details.multiplier;
             }
+        } else {
+            // Handle case where no boss is selected for the round
+            runState.currentBossId = null;
+            examBossNameEl.textContent = "Standard Exam";
+            examModifierEl.textContent = "No special modifiers.";
         }
 
         const target = ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];

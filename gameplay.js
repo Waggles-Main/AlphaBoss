@@ -108,12 +108,18 @@ const state = {
     upgrades: {},
     currentBagSort: 'alpha',
     round: 1, // Start at round 1
-    round: 1,
-    stageIndex: 0,
+    currentBossId: null,
     audioUnlocked: false,
 };
 
 // --- UTILITY FUNCTIONS ---
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
 function updateBossDialog(category, options = {}) {
     if (!bossDialogLineEl || !DIALOGUE[category]) return;
 
@@ -454,12 +460,10 @@ function showDefeatScreen() {
     const mainMenuBtn = document.getElementById('defeatMainMenu');
 
     newRunBtn.onclick = () => {
-        // Clear all run-specific data from localStorage to ensure a fresh start.
-        localStorage.removeItem('alphaBossRound');
-        localStorage.removeItem('alphaBossMoney');
-        localStorage.removeItem('alphaBossMasterTileSet');
-        // Reload the page to re-initialize the game state from scratch.
-        window.location.reload();
+        // Clear the main run state object to ensure a fresh start.
+        localStorage.removeItem('alphaBossRun');
+        // Navigate to the between-rounds screen to start a new run.
+        window.location.href = 'between-rounds.html';
     };
     mainMenuBtn.onclick = () => {
         // Navigate to the main menu
@@ -693,6 +697,8 @@ function updateRoundUI() {
     targetScoreEl.textContent = String(state.target);
     const pct = Math.max(0, Math.min(1, state.roundScore / state.target));
     progressBarEl.style.width = `${Math.round(pct*100)}%`;
+    wordsRemainingEl.textContent = state.wordsRemaining;
+    discardsEl.textContent = state.discards;
 }
 
 function validateWord(word) {
@@ -1263,21 +1269,20 @@ function initDevControls() {
         });
 
         // Set the initial checked state
-        const currentBossId = state.activeBossEffect ? BOSS_MAP[state.activeBossEffect.id]?.id : 'none';
+        const currentBossId = state.currentBossId || 'none';
         const currentRadio = devBossSelect.querySelector(`input[value="${currentBossId || 'none'}"]`);
         if (currentRadio) {
             currentRadio.checked = true;
         }
 
-        // Add event listener for the apply button
-        devApplyBossBtn.addEventListener('click', () => {
-            const selectedRadio = devBossSelect.querySelector('input[name="boss"]:checked');
-            if (!selectedRadio) return;
-            const selectedBossId = selectedRadio.value;
+        // Add event listener for changes
+        devBossSelect.addEventListener('change', (e) => {
+            const selectedBossId = e.target.value;
 
             // Remove any existing boss effect
             if (state.activeBossEffect) {
-                const oldBossId = Object.keys(BOSS_MAP).find(id => BOSS_MAP[id].prototype.constructor.name === state.activeBossEffect.constructorName);
+                // Find the boss class from the constructor name we stored
+                const oldBossId = Object.keys(BOSS_MAP).find(id => BOSS_MAP[id].name === state.activeBossEffect.constructorName);
                 if (oldBossId) new (BOSS_MAP[oldBossId])().removeEffect(state);
             }
 
@@ -1293,6 +1298,54 @@ function initDevControls() {
             resetForNewBoss();
             updateRoundUI();
             console.log('Switched to boss:', selectedBossId);
+        });
+
+        // Disable boss controls if it's not an Exam stage
+        if (state.stageIndex !== 4) {
+            const collapsibleTitle = devBossSelect.previousElementSibling;
+            collapsibleTitle.style.color = '#666';
+            collapsibleTitle.style.cursor = 'not-allowed';
+            devApplyBossBtn.disabled = true;
+        }
+    }
+
+    // --- Stage Navigation Logic ---
+    const devStageNav = document.getElementById('devStageNav');
+    if (devStageNav) {
+        const stages = [
+            { name: 'Quiz', index: 0, page: 'gameplay.html' },
+            { name: 'Event 1', index: 1, page: 'event.html' },
+            { name: 'Test', index: 2, page: 'gameplay.html' },
+            { name: 'Event 2', index: 3, page: 'event.html' },
+            { name: 'Exam', index: 4, page: 'gameplay.html' },
+        ];
+
+        stages.forEach(stage => {
+            const btn = document.createElement('button');
+            btn.textContent = stage.name;
+            btn.addEventListener('click', () => {
+                const runState = getRunState();
+                runState.stageIndex = stage.index;
+
+                // Set the correct target score, similar to between-rounds.js
+                const baseTarget = ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
+                let stageTarget = baseTarget;
+                if (stage.name === 'Test') {
+                    stageTarget = Math.round(baseTarget * 1.5);
+                } else if (stage.name === 'Exam') {
+                    let multiplier = 2;
+                    const boss = runState.currentBossId ? ALL_BOSSES.find(b => b.id === runState.currentBossId) : null;
+                    if (boss && boss.id === 'boss_the_wall') {
+                        multiplier = boss.effect.details.multiplier;
+                    }
+                    stageTarget = Math.round(baseTarget * multiplier);
+                }
+                runState.stageTarget = stageTarget;
+
+                saveRunState(runState);
+                window.location.href = stage.page;
+            });
+            devStageNav.appendChild(btn);
         });
     }
 }
@@ -1531,6 +1584,7 @@ async function init() {
     state.upgrades = runState.upgrades || {};
     state.glyphs = runState.glyphs || [];
     state.stageIndex = runState.stageIndex;
+    state.currentBossId = runState.currentBossId;
     state.target = runState.stageTarget || ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
 
     // --- Apply Boss Effect if it's an Exam round ---
@@ -1539,6 +1593,7 @@ async function init() {
         if (BossClass) {
             const boss = new BossClass();
             boss.applyEffect(state); // The 'state' object is the gameplay state.
+            state.activeBossEffect.constructorName = BossClass.name; // Store constructor name
         }
     }
 
@@ -1546,15 +1601,13 @@ async function init() {
     const stageIndicatorEl = document.getElementById('stageIndicator');
     if (stageIndicatorEl) {
         const stageNames = {
-            0: 'Quiz', // from between-rounds.js STAGES array
+            0: 'Quiz',
             1: 'Event',
             2: 'Test',
             3: 'Event',
             4: 'Exam'
         };
-        // Use a fallback just in case, but the map should cover all valid stages.
-        const stageName = stageNames[runState.stageIndex] ?? 'Unknown';
-        stageIndicatorEl.textContent = stageName;
+        stageIndicatorEl.textContent = stageNames[runState.stageIndex] ?? 'Unknown';
     }
 
     // Load and apply saved volume settings
@@ -1576,16 +1629,14 @@ async function init() {
     const refreshesPerRound = runState.refreshesPerRound || 5;
 
     // Initialize game state object
-    Object.assign(state, {
-        selected: [],
-        roundScore: 0,
-        wordsRemaining: wordsPerRound,
-        discards: refreshesPerRound,
-        bestWord: {
-            word: '',
-            score: 0,
-        }
-    });
+    state.selected = [];
+    state.roundScore = 0;
+    state.wordsRemaining = wordsPerRound;
+    state.discards = refreshesPerRound;
+    state.bestWord = {
+        word: '',
+        score: 0,
+    };
 
     // Apply boss effects that modify starting state
     if (state.activeBossEffect?.type === 'SetRefreshes') {
@@ -1633,11 +1684,8 @@ async function init() {
     initBlobEffect(); // Initialize the new background effect
     initDevControls(); // Initialize the developer control panel
     initHowToPlayModal(); // Check if we need to show the tutorial
-    initTooltips(); // Initialize hover tooltips for grid tiles
-    initGlyphInteractions(state, saveRunState, () => {
-        renderGlyphs();
-        document.getElementById('money').textContent = `$${state.money}`;
-    });
+    initTooltips(); // Initialize the new tooltip functionality
+    initGlyphInteractions(); // New function for glyph selling
     initAudioUnlock(); // Set up the listener to unlock audio on first interaction
 
     // Attempt to play background music after user interaction
@@ -1646,6 +1694,73 @@ async function init() {
             sounds.background.play();
         }
     }, { once: true });
+}
+
+function initGlyphInteractions() {
+    const glyphsContainer = document.getElementById('glyphsSection');
+    const tooltip = document.getElementById('glyphActionTooltip');
+    const overlay = document.getElementById('glyphActionOverlay');
+    if (!glyphsContainer || !tooltip || !overlay) return;
+
+    // Tooltip elements
+    const sellBtn = document.getElementById('glyphSellBtn');
+    const sellValueEl = document.getElementById('glyphSellValue');
+    const graphicEl = document.getElementById('glyphActionGraphic');
+    const nameEl = document.getElementById('glyphActionName');
+    const descEl = document.getElementById('glyphActionDescription');
+    const rarityEl = document.getElementById('glyphActionRarity');
+
+    let currentSellHandler = null;
+
+    const closeTooltip = () => {
+        tooltip.classList.remove('visible');
+        overlay.style.display = 'none';
+        if (currentSellHandler) {
+            sellBtn.removeEventListener('click', currentSellHandler);
+            currentSellHandler = null;
+        }
+    };
+
+    glyphsContainer.addEventListener('click', (e) => {
+        const slot = e.target.closest('.glyph-slot');
+        if (!slot || !slot.classList.contains('filled')) return;
+
+        const glyphIndex = parseInt(slot.dataset.glyphIndex, 10);
+        const glyph = state.glyphs[glyphIndex];
+        if (!glyph) return;
+
+        // Populate tooltip
+        graphicEl.textContent = glyph.name.substring(0, 2).toUpperCase();
+        nameEl.textContent = glyph.name;
+        descEl.innerHTML = colorizeTooltipText(glyph.description);
+        rarityEl.textContent = glyph.rarity;
+        sellValueEl.textContent = `$${glyph.sellValue}`;
+
+        // Position tooltip
+        const rect = slot.getBoundingClientRect();
+        tooltip.style.top = `${rect.bottom + 10}px`;
+        tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+
+        // Show tooltip and overlay
+        overlay.style.display = 'block';
+        tooltip.classList.add('visible');
+
+        // Define and attach the sell handler
+        currentSellHandler = () => {
+            // 1. Add money
+            state.money += glyph.sellValue;
+            // 2. Remove glyph
+            state.glyphs.splice(glyphIndex, 1);
+            // 3. Save state and update UI
+            saveRunState({ ...getRunState(), money: state.money, glyphs: state.glyphs });
+            document.getElementById('money').textContent = `$${state.money}`;
+            renderGlyphs();
+            closeTooltip();
+        };
+        sellBtn.addEventListener('click', currentSellHandler, { once: true });
+    });
+
+    overlay.addEventListener('click', closeTooltip);
 }
 
 // Start the game
