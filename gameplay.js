@@ -108,17 +108,12 @@ const state = {
     upgrades: {},
     currentBagSort: 'alpha',
     round: 1, // Start at round 1
+    round: 1,
+    stageIndex: 0,
     audioUnlocked: false,
 };
 
 // --- UTILITY FUNCTIONS ---
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
 function updateBossDialog(category, options = {}) {
     if (!bossDialogLineEl || !DIALOGUE[category]) return;
 
@@ -1535,6 +1530,7 @@ async function init() {
     state.money = runState.money;
     state.upgrades = runState.upgrades || {};
     state.glyphs = runState.glyphs || [];
+    state.stageIndex = runState.stageIndex;
     state.target = runState.stageTarget || ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
 
     // --- Apply Boss Effect if it's an Exam round ---
@@ -1637,8 +1633,11 @@ async function init() {
     initBlobEffect(); // Initialize the new background effect
     initDevControls(); // Initialize the developer control panel
     initHowToPlayModal(); // Check if we need to show the tutorial
-    initTooltips(); // Initialize the new tooltip functionality
-    initGlyphInteractions(); // New function for glyph selling
+    initTooltips(); // Initialize hover tooltips for grid tiles
+    initGlyphInteractions(state, saveRunState, () => {
+        renderGlyphs();
+        document.getElementById('money').textContent = `$${state.money}`;
+    });
     initAudioUnlock(); // Set up the listener to unlock audio on first interaction
 
     // Attempt to play background music after user interaction
@@ -1647,73 +1646,6 @@ async function init() {
             sounds.background.play();
         }
     }, { once: true });
-}
-
-function initGlyphInteractions() {
-    const glyphsContainer = document.getElementById('glyphsSection');
-    const tooltip = document.getElementById('glyphActionTooltip');
-    const overlay = document.getElementById('glyphActionOverlay');
-    if (!glyphsContainer || !tooltip || !overlay) return;
-
-    // Tooltip elements
-    const sellBtn = document.getElementById('glyphSellBtn');
-    const sellValueEl = document.getElementById('glyphSellValue');
-    const graphicEl = document.getElementById('glyphActionGraphic');
-    const nameEl = document.getElementById('glyphActionName');
-    const descEl = document.getElementById('glyphActionDescription');
-    const rarityEl = document.getElementById('glyphActionRarity');
-
-    let currentSellHandler = null;
-
-    const closeTooltip = () => {
-        tooltip.classList.remove('visible');
-        overlay.style.display = 'none';
-        if (currentSellHandler) {
-            sellBtn.removeEventListener('click', currentSellHandler);
-            currentSellHandler = null;
-        }
-    };
-
-    glyphsContainer.addEventListener('click', (e) => {
-        const slot = e.target.closest('.glyph-slot');
-        if (!slot || !slot.classList.contains('filled')) return;
-
-        const glyphIndex = parseInt(slot.dataset.glyphIndex, 10);
-        const glyph = state.glyphs[glyphIndex];
-        if (!glyph) return;
-
-        // Populate tooltip
-        graphicEl.textContent = glyph.name.substring(0, 2).toUpperCase();
-        nameEl.textContent = glyph.name;
-        descEl.innerHTML = colorizeTooltipText(glyph.description);
-        rarityEl.textContent = glyph.rarity;
-        sellValueEl.textContent = `$${glyph.sellValue}`;
-
-        // Position tooltip
-        const rect = slot.getBoundingClientRect();
-        tooltip.style.top = `${rect.bottom + 10}px`;
-        tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
-
-        // Show tooltip and overlay
-        overlay.style.display = 'block';
-        tooltip.classList.add('visible');
-
-        // Define and attach the sell handler
-        currentSellHandler = () => {
-            // 1. Add money
-            state.money += glyph.sellValue;
-            // 2. Remove glyph
-            state.glyphs.splice(glyphIndex, 1);
-            // 3. Save state and update UI
-            saveRunState({ ...getRunState(), money: state.money, glyphs: state.glyphs });
-            document.getElementById('money').textContent = `$${state.money}`;
-            renderGlyphs();
-            closeTooltip();
-        };
-        sellBtn.addEventListener('click', currentSellHandler, { once: true });
-    });
-
-    overlay.addEventListener('click', closeTooltip);
 }
 
 // Start the game

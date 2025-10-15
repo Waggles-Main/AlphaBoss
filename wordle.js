@@ -251,15 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDevPanel();
     }
 
-    // Helper functions to manage run state
-    function getRunState() {
-        const savedRun = localStorage.getItem('alphaBossRun');
-        return savedRun ? JSON.parse(savedRun) : null;
-    }
-    function saveRunState(runState) {
-        localStorage.setItem('alphaBossRun', JSON.stringify(runState));
-    }
-
     // Event Listeners
     keyboard.addEventListener('click', (e) => {
         if (e.target.matches('button')) {

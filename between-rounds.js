@@ -2,25 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const STAGES = ['quiz', 'event1', 'test', 'event2', 'exam'];
     const ROUND_TARGETS = [20, 50, 125, 300, 650, 1200, 2100, 3000]; // From gameplay.js
 
-    function getRunState() {
-        const savedRun = localStorage.getItem('alphaBossRun');
-        if (savedRun) {
-            return JSON.parse(savedRun);
-        }
-        // Default state for a brand new run
-        return {
-            round: 1,
-            stageIndex: 0, // 0:quiz, 1:event1, 2:test, 3:event2, 4:exam
-            money: 4,
-            upgrades: {},
-            masterTileSet: null, // Will be created in gameplay.js on first load
-        };
-    }
-
-    function saveRunState(runState) {
-        localStorage.setItem('alphaBossRun', JSON.stringify(runState));
-    }
-
     function init() {
         const runState = getRunState();
 

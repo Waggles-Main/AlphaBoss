@@ -373,12 +373,12 @@ document.addEventListener('DOMContentLoaded', () => {
         renderInputTiles();
     }
 
-    // --- UTILITIES ---
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
+    function showSuccessToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'error-toast success-toast'; // Reuse styles, add success class
+        toast.textContent = message;
+        document.getElementById('error-container').appendChild(toast);
+        setTimeout(() => toast.remove(), 1500); // Shorter duration for success
     }
 
     function showErrorToast(message) {
@@ -387,14 +387,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toast.textContent = message;
         document.getElementById('error-container').appendChild(toast);
         setTimeout(() => toast.remove(), 2000);
-    }
-
-    function showSuccessToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'error-toast success-toast'; // Reuse styles, add success class
-        toast.textContent = message;
-        document.getElementById('error-container').appendChild(toast);
-        setTimeout(() => toast.remove(), 1500); // Shorter duration for success
     }
 
     function unlockAudio() {
@@ -495,13 +487,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INITIALIZE ---
     init();
     initDevControls();
-
-    // Helper functions to manage run state
-    function getRunState() {
-        const savedRun = localStorage.getItem('alphaBossRun');
-        return savedRun ? JSON.parse(savedRun) : null;
-    }
-    function saveRunState(runState) {
-        localStorage.setItem('alphaBossRun', JSON.stringify(runState));
-    }
 });

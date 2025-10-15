@@ -33,19 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         shopGrabBags: [],
     };
 
-    function getRunState() {
-        const savedRun = localStorage.getItem('alphaBossRun');
-        if (savedRun) {
-            return JSON.parse(savedRun);
-        }
-        // Fallback for safety, though should be created on new run.
-        return { round: 1, stageIndex: 0, money: 4, upgrades: {}, glyphs: [], shopSeed: Date.now() };
-    }
-
-    function saveRunState(runState) {
-        localStorage.setItem('alphaBossRun', JSON.stringify(runState));
-    }
-
     function updateMoneyDisplay() {
         moneyValueEl.textContent = `$${state.runState.money}`;
     }
@@ -242,8 +229,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderGlyphs();
         generateShopStock();
 
-        initializeGenericTooltips('.shop-main', '.shop-item');
-        initGlyphInteractions(); // For owned glyphs
+        initializeGenericTooltips('.shop-main', '.shop-item'); // For hover tooltips on shop items
+        initGlyphInteractions(state.runState, saveRunState, () => {
+            renderGlyphs();
+            updateMoneyDisplay();
+        });
         // Add event listeners
         rerollBtn.addEventListener('click', rerollItems);
         bagBtn.addEventListener('click', openBagModal);
@@ -497,71 +487,6 @@ document.addEventListener('DOMContentLoaded', () => {
             [array[i], array[j]] = [array[j], array[i]];
         }
     }
-
-    function initGlyphInteractions() {
-        const glyphsContainer = document.getElementById('glyphsSection');
-        const tooltip = document.getElementById('glyphActionTooltip');
-        const overlay = document.getElementById('glyphActionOverlay');
-        if (!glyphsContainer || !tooltip || !overlay) return;
-
-        // Tooltip elements
-        const sellBtn = document.getElementById('glyphSellBtn');
-        const sellValueEl = document.getElementById('glyphSellValue');
-        const graphicEl = document.getElementById('glyphActionGraphic');
-        const nameEl = document.getElementById('glyphActionName');
-        const descEl = document.getElementById('glyphActionDescription');
-        const rarityEl = document.getElementById('glyphActionRarity');
-
-        let currentSellHandler = null;
-
-        const closeTooltip = () => {
-            tooltip.classList.remove('visible');
-            overlay.style.display = 'none';
-            if (currentSellHandler) {
-                sellBtn.removeEventListener('click', currentSellHandler);
-                currentSellHandler = null;
-            }
-        };
-
-        glyphsContainer.addEventListener('click', (e) => {
-            const slot = e.target.closest('.glyph-slot');
-            if (!slot || !slot.classList.contains('filled')) return;
-
-            const glyphIndex = parseInt(slot.dataset.glyphIndex, 10);
-            const glyph = state.runState.glyphs[glyphIndex];
-            if (!glyph) return;
-
-            // Populate tooltip
-            graphicEl.textContent = glyph.name.substring(0, 2).toUpperCase();
-            nameEl.textContent = glyph.name;
-            descEl.innerHTML = colorizeTooltipText(glyph.description);
-            rarityEl.textContent = glyph.rarity;
-            sellValueEl.textContent = `$${glyph.sellValue}`;
-
-            // Position tooltip
-            const rect = slot.getBoundingClientRect();
-            tooltip.style.top = `${rect.bottom + 10}px`;
-            tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
-
-            // Show tooltip and overlay
-            overlay.style.display = 'block';
-            tooltip.classList.add('visible');
-
-            // Define and attach the sell handler
-            currentSellHandler = () => {
-                state.runState.money += glyph.sellValue;
-                state.runState.glyphs.splice(glyphIndex, 1);
-                saveRunState(state.runState);
-                updateMoneyDisplay();
-                renderGlyphs();
-                closeTooltip();
-            };
-            sellBtn.addEventListener('click', currentSellHandler, { once: true });
-        });
-
-        overlay.addEventListener('click', closeTooltip);
-    }
-
 
     // Initialize the shop
     init();
