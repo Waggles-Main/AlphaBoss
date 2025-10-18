@@ -568,27 +568,6 @@ function renderChips() {
                 bonusMultEl.textContent = `x${tile.mult_mult}`;
             }
 
-            // --- Check for and display Glyph bonus ---
-            state.glyphs.forEach(glyphData => {
-                const GlyphClass = GLYPH_MAP[glyphData.id];
-                if (!GlyphClass) return;
-                const glyph = new GlyphClass();
-
-                if (glyph && typeof glyph.onScoring === 'function') {
-                    const result = glyph.onScoring(state, { playedTiles: [tile] }); // Check this tile
-                    if (result && result.bonusMult) {
-                        // Append the glyph bonus to the multiplier display
-                        const currentText = bonusMultEl.textContent;
-                        bonusMultEl.textContent = (currentText ? `${currentText} ` : '') + `+${result.bonusMult}`;
-                    }
-                    if (result && result.bonusScore) {
-                        // Add the point bonus to the value display
-                        const currentVal = parseInt(bonusValueEl.textContent.replace('+', '')) || 0;
-                        const newVal = currentVal + result.bonusScore;
-                        bonusValueEl.textContent = `+${newVal}`;
-                    }
-                }
-            });
             bonusDisplay.append(bonusMultEl, bonusValueEl);
 
             // --- Populate Tile Chip ---
@@ -1380,10 +1359,9 @@ function initGooglyEyes() {
     const pupils = document.querySelectorAll('.pupil');
     if (!bossPortrait || pupils.length === 0) return;
 
-    document.addEventListener('mousemove', (e) => {
-        const rect = bossPortrait.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
+    let centerX, centerY;
+
+    const moveEyes = (e) => {
         const deltaX = e.clientX - centerX;
         const deltaY = e.clientY - centerY;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -1398,6 +1376,18 @@ function initGooglyEyes() {
                 pupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
             });
         }
+    };
+
+    bossPortrait.addEventListener('mouseenter', (e) => {
+        const rect = bossPortrait.getBoundingClientRect();
+        centerX = rect.left + rect.width / 2;
+        centerY = rect.top + rect.height / 2;
+        document.addEventListener('mousemove', moveEyes);
+    });
+
+    bossPortrait.addEventListener('mouseleave', () => {
+        document.removeEventListener('mousemove', moveEyes);
+        pupils.forEach(pupil => { pupil.style.transform = 'translate(-50%, -50%)'; });
     });
 
     document.addEventListener('mouseleave', () => {
@@ -1515,7 +1505,7 @@ function initTooltips() {
             tooltipEl.style.top = `${rect.top - tooltipEl.offsetHeight - 10}px`; // 10px above the tile
             tooltipEl.classList.add('visible');
 
-        }, 1500); // 1.5 second delay
+        }, 300); // 300ms delay
     });
 
     gridEl.addEventListener('mouseout', () => {
@@ -1685,7 +1675,11 @@ async function init() {
     initDevControls(); // Initialize the developer control panel
     initHowToPlayModal(); // Check if we need to show the tutorial
     initTooltips(); // Initialize the new tooltip functionality
-    initGlyphInteractions(); // New function for glyph selling
+    // Use the shared implementation for glyph interactions
+    initGlyphInteractions(state, saveRunState, () => {
+        document.getElementById('money').textContent = `$${state.money}`;
+        renderGlyphs();
+    });
     initAudioUnlock(); // Set up the listener to unlock audio on first interaction
 
     // Attempt to play background music after user interaction
@@ -1694,73 +1688,6 @@ async function init() {
             sounds.background.play();
         }
     }, { once: true });
-}
-
-function initGlyphInteractions() {
-    const glyphsContainer = document.getElementById('glyphsSection');
-    const tooltip = document.getElementById('glyphActionTooltip');
-    const overlay = document.getElementById('glyphActionOverlay');
-    if (!glyphsContainer || !tooltip || !overlay) return;
-
-    // Tooltip elements
-    const sellBtn = document.getElementById('glyphSellBtn');
-    const sellValueEl = document.getElementById('glyphSellValue');
-    const graphicEl = document.getElementById('glyphActionGraphic');
-    const nameEl = document.getElementById('glyphActionName');
-    const descEl = document.getElementById('glyphActionDescription');
-    const rarityEl = document.getElementById('glyphActionRarity');
-
-    let currentSellHandler = null;
-
-    const closeTooltip = () => {
-        tooltip.classList.remove('visible');
-        overlay.style.display = 'none';
-        if (currentSellHandler) {
-            sellBtn.removeEventListener('click', currentSellHandler);
-            currentSellHandler = null;
-        }
-    };
-
-    glyphsContainer.addEventListener('click', (e) => {
-        const slot = e.target.closest('.glyph-slot');
-        if (!slot || !slot.classList.contains('filled')) return;
-
-        const glyphIndex = parseInt(slot.dataset.glyphIndex, 10);
-        const glyph = state.glyphs[glyphIndex];
-        if (!glyph) return;
-
-        // Populate tooltip
-        graphicEl.textContent = glyph.name.substring(0, 2).toUpperCase();
-        nameEl.textContent = glyph.name;
-        descEl.innerHTML = colorizeTooltipText(glyph.description);
-        rarityEl.textContent = glyph.rarity;
-        sellValueEl.textContent = `$${glyph.sellValue}`;
-
-        // Position tooltip
-        const rect = slot.getBoundingClientRect();
-        tooltip.style.top = `${rect.bottom + 10}px`;
-        tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
-
-        // Show tooltip and overlay
-        overlay.style.display = 'block';
-        tooltip.classList.add('visible');
-
-        // Define and attach the sell handler
-        currentSellHandler = () => {
-            // 1. Add money
-            state.money += glyph.sellValue;
-            // 2. Remove glyph
-            state.glyphs.splice(glyphIndex, 1);
-            // 3. Save state and update UI
-            saveRunState({ ...getRunState(), money: state.money, glyphs: state.glyphs });
-            document.getElementById('money').textContent = `$${state.money}`;
-            renderGlyphs();
-            closeTooltip();
-        };
-        sellBtn.addEventListener('click', currentSellHandler, { once: true });
-    });
-
-    overlay.addEventListener('click', closeTooltip);
 }
 
 // Start the game

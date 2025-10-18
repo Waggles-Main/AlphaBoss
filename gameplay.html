@@ -276,18 +276,18 @@
 
     <!-- New Glyph Action Tooltip -->
     <div class="modal-overlay" id="glyphActionOverlay" style="display: none; background: transparent;">
-        <div class="glyph-action-tooltip" id="glyphActionTooltip">
-            <div class="sell-info">
-                <button class="btn-sell" id="glyphSellBtn">Sell?</button>
-                <span class="sell-value" id="glyphSellValue">$0</span>
+        <div class="glyph-action-tooltip visible" id="glyphActionTooltip">
+            <div class="glyph-tooltip-header">
+                <div class="glyph-tooltip-graphic" id="glyphActionGraphic"></div>
+                <h3 class="glyph-tooltip-name" id="glyphActionName">Glyph Name</h3>
             </div>
-            <div class="glyph-display">
-                <div class="glyph-graphic" id="glyphActionGraphic"></div>
-            </div>
-            <div class="glyph-description-box">
-                <h3 class="glyph-name" id="glyphActionName">Glyph Name</h3>
-                <p class="glyph-description" id="glyphActionDescription">Description...</p>
-                <div class="glyph-rarity" id="glyphActionRarity">Common</div>
+            <p class="glyph-tooltip-description" id="glyphActionDescription">Description...</p>
+            <div class="glyph-tooltip-footer">
+                <div class="glyph-tooltip-rarity" id="glyphActionRarity">Common</div>
+                <div class="glyph-tooltip-sell-info" id="glyphSellInfo">
+                    <span class="glyph-tooltip-sell-value" id="glyphSellValue">$0</span>
+                    <button class="btn-sell" id="glyphSellBtn">Sell</button>
+                </div>
             </div>
         </div>
     </div>

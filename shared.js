@@ -45,6 +45,7 @@ function initGlyphInteractions(stateObject, saveStateCallback, updateUICallback)
     if (!glyphsContainer || !tooltip || !overlay) return;
 
     // Tooltip elements
+    const sellInfo = document.getElementById('glyphSellInfo');
     const sellBtn = document.getElementById('glyphSellBtn');
     const sellValueEl = document.getElementById('glyphSellValue');
     const graphicEl = document.getElementById('glyphActionGraphic');
@@ -52,15 +53,25 @@ function initGlyphInteractions(stateObject, saveStateCallback, updateUICallback)
     const descEl = document.getElementById('glyphActionDescription');
     const rarityEl = document.getElementById('glyphActionRarity');
 
+    let tooltipHoverTimer = null;
     let currentSellHandler = null;
 
     const closeTooltip = () => {
         tooltip.classList.remove('visible');
         overlay.style.display = 'none';
+        tooltip.classList.remove('interactive');
         if (currentSellHandler) {
             sellBtn.removeEventListener('click', currentSellHandler);
             currentSellHandler = null;
         }
+    };
+
+    const populateTooltip = (glyph) => {
+        graphicEl.textContent = glyph.name.substring(0, 2).toUpperCase();
+        nameEl.textContent = glyph.name;
+        descEl.innerHTML = colorizeTooltipText(glyph.description);
+        rarityEl.textContent = glyph.rarity;
+        sellValueEl.textContent = `$${glyph.sellValue}`;
     };
 
     glyphsContainer.addEventListener('click', (e) => {
@@ -72,20 +83,18 @@ function initGlyphInteractions(stateObject, saveStateCallback, updateUICallback)
         if (!glyph) return;
 
         // Populate tooltip
-        graphicEl.textContent = glyph.name.substring(0, 2).toUpperCase();
-        nameEl.textContent = glyph.name;
-        descEl.innerHTML = colorizeTooltipText(glyph.description);
-        rarityEl.textContent = glyph.rarity;
-        sellValueEl.textContent = `$${glyph.sellValue}`;
+        populateTooltip(glyph);
+        sellInfo.style.display = 'flex'; // Ensure sell info is visible on click
 
         // Position tooltip
         const rect = slot.getBoundingClientRect();
-        tooltip.style.top = `${rect.bottom + 10}px`;
+        tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`; // Position above
         tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
 
         // Show tooltip and overlay
         overlay.style.display = 'block';
         tooltip.classList.add('visible');
+        tooltip.classList.add('interactive'); // Make it clickable
 
         // Define and attach the sell handler
         currentSellHandler = () => {
@@ -102,4 +111,39 @@ function initGlyphInteractions(stateObject, saveStateCallback, updateUICallback)
     });
 
     overlay.addEventListener('click', closeTooltip);
+
+    // --- New Hover Logic ---
+    glyphsContainer.addEventListener('mouseover', (e) => {
+        const slot = e.target.closest('.glyph-slot');
+        if (!slot || !slot.classList.contains('filled')) return;
+
+        // Don't show hover tooltip if the click-to-sell tooltip is already active
+        if (overlay.style.display === 'block') return;
+
+        clearTimeout(tooltipHoverTimer);
+
+        tooltipHoverTimer = setTimeout(() => {
+            const glyphIndex = parseInt(slot.dataset.glyphIndex, 10);
+            const glyph = stateObject.glyphs[glyphIndex];
+            if (!glyph) return;
+
+            populateTooltip(glyph);
+            sellInfo.style.display = 'none'; // Hide sell info for hover preview
+
+            tooltip.classList.add('visible'); // Make it visible to calculate its height
+
+            const rect = slot.getBoundingClientRect();
+            // Position tooltip ABOVE the slot for hover
+            tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`;
+            tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+        }, 300); // 300ms delay
+    });
+
+    glyphsContainer.addEventListener('mouseout', () => {
+        clearTimeout(tooltipHoverTimer);
+        if (overlay.style.display !== 'block') { // Only hide if it's a hover tooltip
+            tooltip.classList.remove('visible');
+            tooltip.classList.remove('interactive');
+        }
+    });
 }

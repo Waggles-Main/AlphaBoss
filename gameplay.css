@@ -1823,108 +1823,105 @@ button.pill:disabled {
     position: fixed; /* Position relative to the viewport */
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    width: 200px;
+    gap: 12px;
+    width: 220px;
     z-index: 10001;
     pointer-events: auto; /* Allow interaction with the tooltip */
     opacity: 0;
     transform: scale(0.95);
     transition: opacity 0.2s, transform 0.2s;
+    background: var(--panel-dark);
+    border: 2px solid var(--accent-blue);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
 .glyph-action-tooltip.visible {
     opacity: 1;
     transform: scale(1);
+    pointer-events: none; /* Hide from mouse events by default */
 }
 
-.sell-info {
-    background: var(--panel-dark);
-    border-radius: 16px;
-    box-shadow: 0 4px 0 var(--shadow);
-    padding: 4px;
+.glyph-action-tooltip.visible.interactive {
+    pointer-events: auto; /* Allow interaction only when clicked */
+}
+
+.glyph-tooltip-header {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 4px;
-    width: 94px;
+    gap: 12px;
+}
+
+.glyph-tooltip-graphic {
+    width: 50px;
+    height: 50px;
+    background: var(--accent-blue);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: m6x11plus;
+    font-size: 24px;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+    flex-shrink: 0;
+}
+
+.glyph-tooltip-name {
+    font-family: m5x7;
+    font-size: 32px;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+    margin: 0;
+    line-height: 1;
+}
+
+.glyph-tooltip-description {
+    font-family: m6x11plus;
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.glyph-tooltip-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    border-top: 1px solid #4f6367;
+    padding-top: 12px;
+}
+
+.glyph-tooltip-rarity {
+    font-family: m6x11plus;
+    font-size: 18px;
+    color: var(--muted);
 }
 
 .btn-sell {
-    appearance: none;
-    border: none;
     background: var(--accent-green);
     color: white;
     border-radius: 16px;
     box-shadow: 0 4px 0 black;
     font-family: m6x11plus;
     font-size: 20px;
-    padding: 4px 16px;
+    padding: 4px 12px;
+    border: none;
     cursor: pointer;
-    width: 100%;
 }
 
-.sell-value {
-    font-family: m5x7;
-    font-size: 36px;
-    color: #fd9f00;
-    text-shadow: 0 2px 0 var(--shadow);
-}
-
-.glyph-display {
-    width: 76px;
-    height: 76px;
-    background: white;
-    border: 1px solid var(--tile-border);
-    border-radius: 8px;
-    box-shadow: 0 4px 0 var(--shadow);
-    display: flex;
-    justify-content: center;
+.glyph-tooltip-sell-info {
+    display: none; /* Hidden by default */
     align-items: center;
+    gap: 8px;
 }
 
-.glyph-graphic {
-    font-family: m6x11plus;
-    font-size: 48px;
-    color: var(--tile-ink);
-    text-shadow: 0 2px 0 var(--shadow);
-}
-
-.glyph-description-box {
-    background: var(--panel-dark);
-    border-radius: 16px;
-    box-shadow: 0 4px 0 var(--shadow);
-    padding: 16px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-}
-
-.glyph-name {
+.glyph-tooltip-sell-value {
     font-family: m5x7;
-    font-size: 32px;
-    color: white;
+    font-size: 28px;
+    color: var(--accent-orange);
     text-shadow: 0 2px 0 var(--shadow);
-    margin: 0;
-}
-
-.glyph-description {
-    font-family: m6x11plus;
-    font-size: 18px;
-    color: white;
-    text-align: center;
-    margin: 0;
-}
-
-.glyph-rarity {
-    background: var(--accent-blue);
-    color: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 0 black;
-    font-family: m6x11plus;
-    font-size: 20px;
-    padding: 4px 16px;
-    margin-top: 8px;
 }

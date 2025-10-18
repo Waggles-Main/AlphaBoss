@@ -304,7 +304,7 @@ class TileModifier {
      * A trigger for effects that happen when a tile is discarded.
      * @param {object} tile - The tile being discarded.
      * @param {object} gameState - The current state of the game.
-     s*/
+     */
     onDiscard(tile, gameState) {
         console.log(`${this.name} onDiscard triggered for tile ${tile.id}.`);
     }
