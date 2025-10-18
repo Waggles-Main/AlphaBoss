@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
         newRunBtn.addEventListener('click', (e) => {
             e.preventDefault(); // Prevent default link behavior if it's an <a> tag
 
-            // Clear all run-specific data from localStorage to ensure a fresh start.
+            // Clear the entire run state object from localStorage to ensure a fresh start.
+            localStorage.removeItem('alphaBossRun');
+            // Remove old individual keys for backward compatibility
             localStorage.removeItem('alphaBossRound');
             localStorage.removeItem('alphaBossMoney');
             localStorage.removeItem('alphaBossMasterTileSet');
