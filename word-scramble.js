@@ -403,7 +403,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!devScoreDetailsEl) return;
         const found = state.foundWords.size;
         const total = state.hiddenWords.length;
-        devScoreDetailsEl.textContent = `Main Word: ${state.mainWord}\nFound: ${found}/${total}\nBonus: ${state.bonusWordsCount}`;
+        const hiddenWordsList = state.hiddenWords.join(', ');
+        devScoreDetailsEl.textContent = `Main Word: ${state.mainWord}\nFound: ${found}/${total}\nBonus: ${state.bonusWordsCount}\n\nWords: ${hiddenWordsList}`;
     }
 
     function initDevControls() {

@@ -1,22 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- CONFIG & STATE ---
     const DICTIONARY_URL = 'https://raw.githubusercontent.com/scrabblewords/scrabblewords/main/words/North-American/NWL2020.txt';
     const WORD_LENGTH = 5;
     const MAX_GUESSES = 6;
+    const REWARDS = { 1: 100, 2: 50, 3: 20, 4: 10, 5: 0, 6: -5 };
 
     const state = {
         dictionary: new Set(),
         solution: '',
         guesses: [],
-        currentRow: 0,
-        currentCol: 0,
-        isGameOver: false,
+        currentGuess: '',
+        gameActive: false,
+        runState: {},
     };
 
-    const grid = document.getElementById('wordleGrid');
-    const keyboard = document.getElementById('keyboard');
+    // --- DOM ELEMENTS ---
+    const gridContainer = document.getElementById('grid-container');
+    const keyboardContainer = document.getElementById('keyboard-container');
+    const moneyDisplayEl = document.getElementById('moneyDisplay');
+    const resultModal = document.getElementById('resultModalOverlay');
+    const resultTitleEl = document.getElementById('resultTitle');
+    const resultMessageEl = document.getElementById('resultMessage');
+    const statGuessesEl = document.getElementById('statGuesses');
+    const statMoneyEl = document.getElementById('statMoney');
+    const continueBtn = document.getElementById('continueBtn');
     const devScoreDetailsEl = document.getElementById('devScoreDetails');
 
+    // --- GAME SETUP ---
     async function init() {
+        state.runState = getRunState();
+        moneyDisplayEl.textContent = `$${state.runState.money || 0}`;
+
         await loadDictionary();
         setupGame();
         initDevControls();
@@ -35,176 +49,204 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setupGame() {
-        // Reset state
-        state.guesses = Array(MAX_GUESSES).fill(null).map(() => Array(WORD_LENGTH).fill(''));
-        state.currentRow = 0;
-        state.currentCol = 0;
-        state.isGameOver = false;
-
-        // Select a new word
+        // 1. Select a solution
         const fiveLetterWords = [...state.dictionary].filter(w => w.length === WORD_LENGTH);
         state.solution = fiveLetterWords[Math.floor(Math.random() * fiveLetterWords.length)];
-        console.log(`Wordle solution: ${state.solution}`);
 
-        // Build UI
-        buildGrid();
+        // 2. Reset state
+        state.guesses = [];
+        state.currentGuess = '';
+        state.gameActive = true;
+
+        // 3. Render UI
+        renderGrid();
+        renderKeyboard();
         updateDevPanel();
-        document.querySelectorAll('.keyboard button').forEach(btn => {
-            btn.className = '';
-            if (btn.dataset.key === 'ENTER' || btn.dataset.key === 'BACKSPACE') {
-                btn.classList.add('key-large');
-            }
-        });
+        resultModal.style.display = 'none';
+
+        // 4. Listen for input
+        window.addEventListener('keydown', handleKeyPress);
     }
 
-    function buildGrid() {
-        grid.innerHTML = '';
-        for (let r = 0; r < MAX_GUESSES; r++) {
+    // --- RENDERING ---
+    function renderGrid() {
+        gridContainer.innerHTML = '';
+        for (let i = 0; i < MAX_GUESSES; i++) {
+            const rowContainer = document.createElement('div');
+            rowContainer.className = 'wordle-row-container';
+
             const row = document.createElement('div');
             row.className = 'wordle-row';
-            for (let c = 0; c < WORD_LENGTH; c++) {
+            for (let j = 0; j < WORD_LENGTH; j++) {
                 const tile = document.createElement('div');
                 tile.className = 'wordle-tile';
                 row.appendChild(tile);
             }
-            grid.appendChild(row);
+
+            const rewardLabel = document.createElement('div');
+            rewardLabel.className = 'wordle-reward-label';
+            const rewardValue = REWARDS[i + 1];
+            rewardLabel.textContent = `${rewardValue >= 0 ? '+' : ''}$${rewardValue}`;
+            if (rewardValue < 0) rewardLabel.classList.add('negative');
+
+            rowContainer.appendChild(row);
+            rowContainer.appendChild(rewardLabel);
+            gridContainer.appendChild(rowContainer);
         }
+    }
+
+    function renderKeyboard() {
+        keyboardContainer.innerHTML = '';
+        const keys = [
+            'QWERTYUIOP',
+            'ASDFGHJKL',
+            'ZXCVBNM'
+        ];
+        keys.forEach((row, rowIndex) => {
+            const keyRow = document.createElement('div');
+            keyRow.className = 'keyboard-row';
+            if (rowIndex === 2) {
+                const enterKey = createKey('ENTER');
+                keyRow.appendChild(enterKey);
+            }
+            for (const letter of row) {
+                keyRow.appendChild(createKey(letter));
+            }
+            if (rowIndex === 2) {
+                const backspaceKey = createKey('⌫', 'backspace');
+                keyRow.appendChild(backspaceKey);
+            }
+            keyboardContainer.appendChild(keyRow);
+        });
+    }
+
+    function createKey(key, id = key.toLowerCase()) {
+        const button = document.createElement('button');
+        button.className = 'key';
+        button.textContent = key;
+        button.dataset.key = id;
+        button.addEventListener('click', () => handleKeyPress({ key: id }));
+        return button;
     }
 
     function updateGrid() {
-        for (let r = 0; r < MAX_GUESSES; r++) {
-            for (let c = 0; c < WORD_LENGTH; c++) {
-                const tile = grid.children[r].children[c];
-                tile.textContent = state.guesses[r][c];
-                tile.classList.toggle('filled', !!state.guesses[r][c]);
-            }
-        }
-    }
+        const rows = gridContainer.querySelectorAll('.wordle-row-container .wordle-row');
+        for (let i = 0; i < MAX_GUESSES; i++) {
+            const tiles = rows[i].querySelectorAll('.wordle-tile');
+            if (i < state.guesses.length) { // Submitted guess
+                const guess = state.guesses[i];
+                const solutionLetters = state.solution.split('');
+                const guessLetters = guess.split('');
+                const statuses = Array(WORD_LENGTH).fill('absent');
 
-    function handleKeyPress(key) {
-        if (state.isGameOver) return;
+                // First pass for correct letters
+                for (let j = 0; j < WORD_LENGTH; j++) {
+                    if (guessLetters[j] === solutionLetters[j]) {
+                        statuses[j] = 'correct';
+                        solutionLetters[j] = null; // Mark as used
+                    }
+                }
+                // Second pass for present letters
+                for (let j = 0; j < WORD_LENGTH; j++) {
+                    if (statuses[j] !== 'correct' && solutionLetters.includes(guessLetters[j])) {
+                        statuses[j] = 'present';
+                        solutionLetters[solutionLetters.indexOf(guessLetters[j])] = null; // Mark as used
+                    }
+                }
 
-        if (key === 'ENTER') {
-            if (state.currentCol === WORD_LENGTH) {
-                submitGuess();
-            }
-        } else if (key === 'BACKSPACE') {
-            if (state.currentCol > 0) {
-                state.currentCol--;
-                state.guesses[state.currentRow][state.currentCol] = '';
-                updateGrid();
-            }
-        } else if (state.currentCol < WORD_LENGTH && /^[A-Z]$/.test(key)) {
-            state.guesses[state.currentRow][state.currentCol] = key;
-            state.currentCol++;
-            updateGrid();
-        }
-    }
-
-    function submitGuess() {
-        const guess = state.guesses[state.currentRow].join('');
-        if (!state.dictionary.has(guess)) {
-            showToast('Not in word list');
-            return;
-        }
-
-        const rowEl = grid.children[state.currentRow];
-        const solutionLetters = state.solution.split('');
-
-        // First pass for correct letters
-        for (let i = 0; i < WORD_LENGTH; i++) {
-            if (guess[i] === solutionLetters[i]) {
-                rowEl.children[i].classList.add('correct');
-                updateKeyboard(guess[i], 'correct');
-                solutionLetters[i] = null; // Mark as used
-            }
-        }
-
-        // Second pass for present letters
-        for (let i = 0; i < WORD_LENGTH; i++) {
-            if (!rowEl.children[i].classList.contains('correct')) {
-                if (solutionLetters.includes(guess[i])) {
-                    rowEl.children[i].classList.add('present');
-                    updateKeyboard(guess[i], 'present');
-                    solutionLetters[solutionLetters.indexOf(guess[i])] = null; // Mark as used
-                } else {
-                    rowEl.children[i].classList.add('absent');
-                    updateKeyboard(guess[i], 'absent');
+                for (let j = 0; j < WORD_LENGTH; j++) {
+                    tiles[j].textContent = guess[j];
+                    tiles[j].classList.add(statuses[j], 'filled');
+                }
+            } else if (i === state.guesses.length) { // Current guess
+                for (let j = 0; j < WORD_LENGTH; j++) {
+                    tiles[j].textContent = state.currentGuess[j] || '';
+                    tiles[j].classList.toggle('filled', !!state.currentGuess[j]);
                 }
             }
         }
-
-        if (guess === state.solution) {
-            endGame(true);
-        } else if (state.currentRow === MAX_GUESSES - 1) {
-            endGame(false);
-        } else {
-            state.currentRow++;
-            state.currentCol = 0;
-        }
     }
 
-    function updateKeyboard(key, status) {
-        const keyEl = keyboard.querySelector(`[data-key="${key}"]`);
-        if (keyEl.classList.contains('correct')) return;
-        if (keyEl.classList.contains('present') && status === 'absent') return;
-        keyEl.classList.remove('present', 'absent');
-        keyEl.classList.add(status);
-    }
+    // --- GAMEPLAY HANDLERS ---
+    function handleKeyPress(e) {
+        if (!state.gameActive) return;
 
-    function endGame(didWin) {
-        const EVENT_REWARD = 8;
-        state.isGameOver = true;
-        const runState = getRunState();
-
-        // Increment the stage index to move past the event
-        if (runState) {
-            runState.stageIndex++;
-        }
-
-        if (didWin) {
-            if (runState) {
-                runState.money = (runState.money || 0) + EVENT_REWARD;
+        const key = e.key.toUpperCase();
+        if (key === 'ENTER') {
+            submitGuess();
+        } else if (key === 'BACKSPACE' || e.key === '⌫') {
+            state.currentGuess = state.currentGuess.slice(0, -1);
+        } else if (key.length === 1 && key >= 'A' && key <= 'Z') {
+            if (state.currentGuess.length < WORD_LENGTH) {
+                state.currentGuess += key;
             }
         }
+        updateGrid();
+    }
 
-        // Save the final state after all modifications
-        if (runState) {
-            saveRunState(runState);
+    function submitGuess() {
+        if (state.currentGuess.length !== WORD_LENGTH) {
+            showErrorToast('Not enough letters');
+            return;
+        }
+        if (!state.dictionary.has(state.currentGuess)) {
+            showErrorToast('Not in word list');
+            return;
         }
 
+        state.guesses.push(state.currentGuess);
+        const isWin = state.currentGuess === state.solution;
+        state.currentGuess = '';
+        updateGrid();
+
+        if (isWin) {
+            endGame(true);
+        } else if (state.guesses.length === MAX_GUESSES) {
+            endGame(false);
+        }
+    }
+
+    // --- END GAME ---
+    function endGame(didWin) {
+        state.gameActive = false;
+        window.removeEventListener('keydown', handleKeyPress);
+
+        const guessCount = state.guesses.length;
+        const moneyEarned = didWin ? REWARDS[guessCount] : REWARDS[MAX_GUESSES];
+
+        // Update run state
+        state.runState.money = (state.runState.money || 0) + moneyEarned;
+        state.runState.stageIndex++;
+        saveRunState(state.runState);
+
+        // Populate and show modal
+        resultTitleEl.textContent = didWin ? 'SUCCESS!' : 'FAILED';
+        resultTitleEl.className = didWin ? 'success' : 'fail';
+        resultMessageEl.textContent = `The word was: ${state.solution}`;
+        statGuessesEl.textContent = guessCount;
+        statMoneyEl.textContent = `${moneyEarned >= 0 ? '+' : ''}$${moneyEarned}`;
+        statMoneyEl.style.color = moneyEarned >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+
         setTimeout(() => {
-            const overlay = document.createElement('div');
-            overlay.className = 'modal-overlay';
-            const modal = document.createElement('div');
-            modal.className = 'result-modal';
-            modal.innerHTML = `
-                <h2 class="${didWin ? 'success' : 'fail'}">${didWin ? 'SUCCESS!' : 'NICE TRY!'}</h2>
-                <p>The word was: <strong>${state.solution}</strong></p>
-                ${didWin ? `<p class="reward-text">You earned +$${EVENT_REWARD}!</p>` : ''}
-                <div class="result-actions">
-                    <button class="btn-continue">CONTINUE</button>
-                </div>
-            `;
-            overlay.appendChild(modal);
-            document.body.appendChild(overlay);
-            overlay.style.display = 'flex';
-            modal.querySelector('.btn-continue').addEventListener('click', () => {
-                // Always return to the between-rounds screen to continue the run
-                window.location.href = 'between-rounds.html';
-            });
-        }, 1000);
+            resultModal.style.display = 'flex';
+        }, 500);
     }
 
-    function showToast(message) {
+    continueBtn.addEventListener('click', () => {
+        window.location.href = 'between-rounds.html';
+    });
+
+    // --- UTILITIES ---
+    function showErrorToast(message) {
+        const container = document.getElementById('error-container');
         const toast = document.createElement('div');
-        toast.className = 'toast';
+        toast.className = 'error-toast';
         toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
     }
 
-    // --- DEV PANEL LOGIC ---
+    // --- DEV CONTROLS ---
     function updateDevPanel() {
         if (!devScoreDetailsEl) return;
         devScoreDetailsEl.textContent = `Solution: ${state.solution}`;
@@ -228,19 +270,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         devWinBtn.addEventListener('click', () => {
-            if (state.isGameOver) return;
-            // Fill current row with the solution
-            for (let i = 0; i < WORD_LENGTH; i++) {
-                state.guesses[state.currentRow][i] = state.solution[i];
-            }
-            state.currentCol = WORD_LENGTH;
-            updateGrid();
+            if (!state.gameActive) return;
+            state.currentGuess = state.solution;
             submitGuess();
         });
 
         devLoseBtn.addEventListener('click', () => {
-            if (state.isGameOver) return;
-            endGame(false);
+            if (!state.gameActive) return;
+            state.guesses = Array(MAX_GUESSES - 1).fill("WRONG");
+            state.currentGuess = "GUESS";
+            submitGuess();
         });
 
         devNavMenuBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
@@ -251,19 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDevPanel();
     }
 
-    // Event Listeners
-    keyboard.addEventListener('click', (e) => {
-        if (e.target.matches('button')) {
-            handleKeyPress(e.target.dataset.key);
-        }
-    });
-
-    document.addEventListener('keydown', (e) => {
-        let key = e.key.toUpperCase();
-        if (key === 'BACKSPACE' || key === 'ENTER' || /^[A-Z]$/.test(key)) {
-            handleKeyPress(key);
-        }
-    });
-
+    // --- INITIALIZE ---
     init();
 });

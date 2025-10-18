@@ -5,6 +5,65 @@
  * =============================================================================
  */
 
+// --- SHARED STATE & CONSTANTS ---
+const sounds = {}; // This will be populated by initSounds() in sound.js
+
+// --- OPTIONS MODAL FUNCTIONS ---
+function openOptionsModal() {
+    const optionsModalOverlay = document.getElementById('optionsModalOverlay');
+    const musicVolumeSlider = document.getElementById('musicVolume');
+    const sfxVolumeSlider = document.getElementById('sfxVolume');
+
+    // Set slider values to current volumes
+    musicVolumeSlider.value = sounds.background ? sounds.background.volume() : 0.3;
+    // Use a common sound effect as a reference for the SFX volume
+    sfxVolumeSlider.value = sounds.tileClick ? sounds.tileClick.volume() : 0.7;
+
+    if (optionsModalOverlay) {
+        optionsModalOverlay.style.display = 'flex';
+    }
+}
+
+function closeOptionsModal() {
+    const optionsModalOverlay = document.getElementById('optionsModalOverlay');
+    if (optionsModalOverlay) {
+        optionsModalOverlay.style.display = 'none';
+    }
+}
+
+function setMusicVolume(volume) {
+    if (sounds.background) {
+        sounds.background.volume(volume);
+    }
+    localStorage.setItem('alphaBossMusicVolume', volume);
+}
+
+function setSfxVolume(volume) {
+    // Apply volume to all sound effects, but not the background music
+    for (const key in sounds) {
+        if (key !== 'background' && sounds[key]) {
+            sounds[key].volume(volume);
+        }
+    }
+    localStorage.setItem('alphaBossSfxVolume', volume);
+}
+
+function initOptionsModal() {
+    const optionsBtn = document.getElementById('btnOptions');
+    const closeOptionsBtn = document.getElementById('btnCloseOptionsModal');
+    const optionsModalOverlay = document.getElementById('optionsModalOverlay');
+    const musicVolumeSlider = document.getElementById('musicVolume');
+    const sfxVolumeSlider = document.getElementById('sfxVolume');
+
+    if (optionsBtn) optionsBtn.addEventListener('click', openOptionsModal);
+    if (closeOptionsBtn) closeOptionsBtn.addEventListener('click', closeOptionsModal);
+    if (optionsModalOverlay) optionsModalOverlay.addEventListener('click', (e) => {
+        if (e.target === optionsModalOverlay) closeOptionsModal();
+    });
+    if (musicVolumeSlider) musicVolumeSlider.addEventListener('input', (e) => setMusicVolume(parseFloat(e.target.value)));
+    if (sfxVolumeSlider) sfxVolumeSlider.addEventListener('input', (e) => setSfxVolume(parseFloat(e.target.value)));
+}
+
 // --- STATE MANAGEMENT ---
 
 function getRunState() {
