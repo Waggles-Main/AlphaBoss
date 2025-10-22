@@ -1,0 +1,22 @@
+{
+  "name": "AlphaBoss",
+  "short_name": "AlphaBoss",
+  "description": "A web-based rogue-like word game that combines classic Boggle mechanics with RPG progression elements.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#162222",
+  "theme_color": "#2e3a3c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
