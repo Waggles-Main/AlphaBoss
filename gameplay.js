@@ -109,6 +109,7 @@ const state = {
     currentBagSort: 'alpha',
     round: 1, // Start at round 1
     currentBossId: null,
+    devControlsEnabled: false, // Dev controls are always disabled by default on page load
     audioUnlocked: false,
 };
 
@@ -1004,10 +1005,25 @@ function openOptionsModal() {
     sfxVolumeSlider.value = sounds.tileClick ? sounds.tileClick.volume() : 0.7; // Use one SFX as reference
 
     optionsModalOverlay.style.display = 'flex';
+
+    // Set the dev controls toggle state based on localStorage, but don't immediately show the panel
+    const devControlsToggle = document.getElementById('devControlsToggle');
+    if (devControlsToggle) devControlsToggle.checked = localStorage.getItem('alphaBossDevControlsEnabled') === 'true';
 }
 
 function closeOptionsModal() {
     optionsModalOverlay.style.display = 'none';
+}
+
+function updateDevPanelVisibility() {
+    const devPanel = document.getElementById('devPanel');
+    if (devPanel) {
+        if (state.devControlsEnabled) {
+            devPanel.classList.add('enabled');
+        } else {
+            devPanel.classList.remove('enabled');
+        }
+    }
 }
 
 function setMusicVolume(volume) {
@@ -1016,6 +1032,12 @@ function setMusicVolume(volume) {
     }
     localStorage.setItem('alphaBossMusicVolume', volume);
 }
+
+// --- EVENT LISTENERS & INITIALIZATION ---
+document.getElementById('btnClear').addEventListener('click', clearSelection);
+document.getElementById('btnOptions').addEventListener('click', openOptionsModal);
+document.getElementById('btnRefreshBoard').addEventListener('click', refreshBoard);
+document.getElementById('btnPlay').addEventListener('click', playWord);
 
 function setSfxVolume(volume) {
     // Apply volume to all sound effects, but not the background music
@@ -1027,13 +1049,6 @@ function setSfxVolume(volume) {
     localStorage.setItem('alphaBossSfxVolume', volume);
 }
 
-
-// --- EVENT LISTENERS & INITIALIZATION ---
-document.getElementById('btnClear').addEventListener('click', clearSelection);
-document.getElementById('btnOptions').addEventListener('click', openOptionsModal);
-document.getElementById('btnRefreshBoard').addEventListener('click', refreshBoard);
-document.getElementById('btnPlay').addEventListener('click', playWord);
-
 // Options Modal Listeners
 closeOptionsBtn.addEventListener('click', closeOptionsModal);
 optionsModalOverlay.addEventListener('click', (e) => {
@@ -1041,6 +1056,16 @@ optionsModalOverlay.addEventListener('click', (e) => {
 });
 musicVolumeSlider.addEventListener('input', (e) => setMusicVolume(parseFloat(e.target.value)));
 sfxVolumeSlider.addEventListener('input', (e) => setSfxVolume(parseFloat(e.target.value)));
+
+// New Dev Controls Toggle Listener
+const devControlsToggle = document.getElementById('devControlsToggle');
+if (devControlsToggle) {
+    devControlsToggle.addEventListener('change', (e) => {
+        state.devControlsEnabled = e.target.checked; // Update state
+        localStorage.setItem('alphaBossDevControlsEnabled', state.devControlsEnabled);
+        updateDevPanelVisibility();
+    });
+}
 
 // Bag Modal Listeners
 document.getElementById('btnBag').addEventListener('click', openBagModal);
@@ -1573,7 +1598,7 @@ async function init() {
     state.money = runState.money;
     state.upgrades = runState.upgrades || {};
     state.glyphs = runState.glyphs || [];
-    state.stageIndex = runState.stageIndex;
+    state.stageIndex = runState.stageIndex; // state.devControlsEnabled is now always false by default
     state.currentBossId = runState.currentBossId;
     state.target = runState.stageTarget || ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
 
@@ -1610,8 +1635,6 @@ async function init() {
         setMusicVolume(0.3); // Default
     }
     if (savedSfxVolume !== null) {
-        setSfxVolume(parseFloat(savedSfxVolume));
-    } else {
         setSfxVolume(0.7); // Default
     }
 
@@ -1669,6 +1692,7 @@ async function init() {
     renderChips();
     renderGlyphs();
     updateBossDialog('start');
+    updateDevPanelVisibility(); // Set initial visibility of dev panel
     updateRoundUI();
     initGooglyEyes();
     initBlobEffect(); // Initialize the new background effect
