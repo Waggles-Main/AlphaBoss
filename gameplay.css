@@ -44,7 +44,7 @@ body {
     background-color: #0c1010; /* Darker background for the effect */
     color: var(--ink);
     font-family: m6x11plus, m5x7, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    overflow: hidden; /* Prevents scrollbars from the blob */
+    /* overflow: hidden; was preventing scrolling */
 }
 
 /* New styles for the background effect */
@@ -87,7 +87,7 @@ body {
     grid-template-rows: auto auto auto auto auto auto;
     gap: 8px;
     align-content: start; /* Prevent rows from stretching to fill height */
-    padding: 8px 16px 8px;
+    padding: 8px 16px 50px; /* Added 50px bottom padding for scroll room */
 }
 
 .round-info { 
