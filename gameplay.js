@@ -1478,6 +1478,28 @@ function initTooltips() {
 
     let tooltipTimer;
 
+    // --- Touch Event Handling for Mobile Tooltips ---
+    gridEl.addEventListener('touchstart', (e) => {
+        const tile = e.target.closest('.tile');
+        if (!tile) return;
+
+        // Start a timer for the long press
+        tooltipTimer = setTimeout(() => {
+            showTooltipForTile(tile);
+        }, 500); // 500ms for a long press
+    }, { passive: true });
+
+    gridEl.addEventListener('touchend', () => {
+        clearTimeout(tooltipTimer);
+        hideTooltip();
+    });
+
+    gridEl.addEventListener('touchmove', () => {
+        // If the user starts dragging their finger, cancel the tooltip
+        clearTimeout(tooltipTimer);
+        hideTooltip();
+    });
+
     gridEl.addEventListener('mouseover', (e) => {
         const tile = e.target.closest('.tile');
         if (!tile) return;
@@ -1487,56 +1509,63 @@ function initTooltips() {
 
         // Start a new timer to show the tooltip
         tooltipTimer = setTimeout(() => {
-            const index = parseInt(tile.dataset.index, 10);
-            const tileObject = state.grid[index];
-
-            // 1. Populate tooltip content
-            tooltipLetterEl.textContent = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter; // The main letter
-            tooltipValueEl.textContent = tileObject.value; // The base value in the corner
-
-            let infoHTML = `Base Value: <span class="tooltip-value-color">${tileObject.value}</span>`;
-            if (tileObject.mult > 0) {
-                infoHTML += `\n<span class="tooltip-value-color">+${tileObject.mult}</span> (Booster)`;
-            }
-            if (tileObject.mult_mult > 1) {
-                infoHTML += `\n<span class="tooltip-mult-color">×${tileObject.mult_mult}</span> Multiplier`;
-            }
-            if (state.upgrades.topRow && tileObject.index < 4) {
-                infoHTML += `\n<span class="tooltip-mult-mult-color">+1x</span> Word Multiplier`;
-            }
-            tooltipInfoEl.innerHTML = infoHTML;
-
-            // 2. Handle visual enhancements
-            tooltipTileEl.className = 'tooltip-tile'; // Reset classes
-            if (tileObject.modifier === CONSTANTS.MODIFIERS.BOOSTER) {
-                tooltipTileEl.classList.add('enhanced-booster');
-            }
-            if (state.upgrades.topRow && tileObject.index < 4) {
-                tooltipTileEl.classList.add('top-row-enhanced');
-            }
-            // Clear old mult-icon if it exists
-            const oldIcon = tooltipTileEl.querySelector('.mult-icon');
-            if (oldIcon) oldIcon.remove();
-            if (tileObject.modifier === CONSTANTS.MODIFIERS.MULTIPLIER) {
-                const multIcon = document.createElement('div');
-                multIcon.className = 'mult-icon';
-                multIcon.textContent = '×';
-                tooltipTileEl.appendChild(multIcon);
-            }
-
-            // 3. Position and show the tooltip
-            const rect = tile.getBoundingClientRect();
-            tooltipEl.style.left = `${rect.left + rect.width / 2 - tooltipEl.offsetWidth / 2}px`;
-            tooltipEl.style.top = `${rect.top - tooltipEl.offsetHeight - 10}px`; // 10px above the tile
-            tooltipEl.classList.add('visible');
-
+            showTooltipForTile(tile);
         }, 300); // 300ms delay
     });
 
     gridEl.addEventListener('mouseout', () => {
         clearTimeout(tooltipTimer);
-        tooltipEl.classList.remove('visible');
+        hideTooltip();
     });
+
+    function showTooltipForTile(tile) {
+        const index = parseInt(tile.dataset.index, 10);
+        const tileObject = state.grid[index];
+
+        // 1. Populate tooltip content
+        tooltipLetterEl.textContent = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter;
+        tooltipValueEl.textContent = tileObject.value;
+
+        let infoHTML = `Base Value: <span class="tooltip-value-color">${tileObject.value}</span>`;
+        if (tileObject.mult > 0) {
+            infoHTML += `\n<span class="tooltip-value-color">+${tileObject.mult}</span> (Booster)`;
+        }
+        if (tileObject.mult_mult > 1) {
+            infoHTML += `\n<span class="tooltip-mult-color">×${tileObject.mult_mult}</span> Multiplier`;
+        }
+        if (state.upgrades.topRow && tileObject.index < 4) {
+            infoHTML += `\n<span class="tooltip-mult-mult-color">+1x</span> Word Multiplier`;
+        }
+        tooltipInfoEl.innerHTML = infoHTML;
+
+        // 2. Handle visual enhancements
+        tooltipTileEl.className = 'tooltip-tile'; // Reset classes
+        if (tileObject.modifier === CONSTANTS.MODIFIERS.BOOSTER) {
+            tooltipTileEl.classList.add('enhanced-booster');
+        }
+        if (state.upgrades.topRow && tileObject.index < 4) {
+            tooltipTileEl.classList.add('top-row-enhanced');
+        }
+        const oldIcon = tooltipTileEl.querySelector('.mult-icon');
+        if (oldIcon) oldIcon.remove();
+        if (tileObject.modifier === CONSTANTS.MODIFIERS.MULTIPLIER) {
+            const multIcon = document.createElement('div');
+            multIcon.className = 'mult-icon';
+            multIcon.textContent = '×';
+            tooltipTileEl.appendChild(multIcon);
+        }
+
+        // 3. Position and show the tooltip
+        const rect = tile.getBoundingClientRect();
+        tooltipEl.style.left = `${rect.left + rect.width / 2 - tooltipEl.offsetWidth / 2}px`;
+        tooltipEl.style.top = `${rect.top - tooltipEl.offsetHeight - 10}px`;
+        tooltipEl.classList.add('visible');
+    }
+
+    function hideTooltip() {
+        clearTimeout(tooltipTimer);
+        tooltipEl.classList.remove('visible');
+    }
 }
 
 function initBlobEffect() {

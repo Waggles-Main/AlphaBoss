@@ -1583,6 +1583,25 @@ button.pill:disabled {
     box-shadow: 0 2px 0 black;
 }
 
+/* --- WORDLE KEYBOARD STATES --- */
+.key.correct {
+    background-color: var(--accent-green);
+    color: white;
+    border-color: var(--accent-green);
+}
+
+.key.present {
+    background-color: var(--accent-orange);
+    color: white;
+    border-color: var(--accent-orange);
+}
+
+.key.absent {
+    background-color: #444748; /* A dark gray */
+    color: #aaa;
+    border-color: #444748;
+}
+
 /* --- OPTIONS MODAL STYLES --- */
 .options-modal {
     background: var(--panel-dark);

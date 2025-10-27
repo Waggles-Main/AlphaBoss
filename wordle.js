@@ -157,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 for (let j = 0; j < WORD_LENGTH; j++) {
                     tiles[j].textContent = guess[j];
                     tiles[j].classList.add(statuses[j], 'filled');
+                    updateKeyboard(guess[j], statuses[j]);
                 }
             } else if (i === state.guesses.length) { // Current guess
                 for (let j = 0; j < WORD_LENGTH; j++) {
@@ -167,6 +168,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updateKeyboard(letter, status) {
+        const key = keyboardContainer.querySelector(`[data-key="${letter.toLowerCase()}"]`);
+        if (!key) return;
+
+        // Prioritize the best status for a letter. Green > Yellow > Gray.
+        const currentStatus = key.classList.contains('correct') ? 'correct'
+                            : key.classList.contains('present') ? 'present'
+                            : 'absent';
+
+        if (status === 'correct' || (status === 'present' && currentStatus !== 'correct')) {
+            key.classList.remove('present', 'absent');
+            key.classList.add(status);
+        } else if (status === 'absent' && !key.classList.contains('correct') && !key.classList.contains('present')) {
+            key.classList.add('absent');
+        }
+    }
     // --- GAMEPLAY HANDLERS ---
     function handleKeyPress(e) {
         if (!state.gameActive) return;
