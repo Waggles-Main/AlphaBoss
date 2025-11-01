@@ -18,6 +18,8 @@ class GlyphA extends Glyph {
             purchaseCost: 6,
             sellValue: 3,
             imageName: 'big-a.png', // Use the web-safe artwork name
+            hasAction: true,
+
         });
     }
 

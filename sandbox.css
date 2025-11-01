@@ -296,3 +296,79 @@ body {
 .attribute-line.mult { color: var(--accent-red); }
 .attribute-line.mult-mult { color: var(--mult-mult-box); }
 .attribute-line.money { color: var(--accent-orange); }
+
+/* --- Sandbox Tile Styles --- */
+.sandbox-tile-item {
+    width: 64px;
+    height: 64px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4px;
+    color: #1e2f33; /* Dark ink color */
+}
+
+.tile-letter {
+    font-family: 'Roboto Slab', sans-serif;
+    font-weight: 600;
+    font-size: 36px;
+}
+
+.tile-value {
+    position: absolute;
+    bottom: 4px;
+    right: 6px;
+    font-family: m5x7;
+    font-size: 16px;
+    color: var(--accent-blue);
+    font-weight: bold;
+}
+
+.tile-stamp {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+/* Stamp Colors */
+.tile-stamp.red { background-color: var(--accent-red); }
+.tile-stamp.yellow { background-color: var(--accent-orange); }
+.tile-stamp.blue { background-color: var(--accent-blue); }
+.tile-stamp.purple { background-color: var(--mult-mult-box); }
+.tile-stamp.black { background-color: #333; }
+
+/* Enhancement Styles */
+.tile-enhancement-boosted {
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25), inset 0 0 0 3px var(--accent-blue);
+}
+.tile-enhancement-italics .tile-letter { font-style: italic; }
+.tile-enhancement-bold .tile-letter { font-weight: 900; }
+.tile-enhancement-underline .tile-letter { text-decoration: underline; }
+
+/* Edition Overlay/Effect */
+.tile-edition-foil::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.5) 50%, transparent 80%);
+    border-radius: 4px;
+    opacity: 0.6;
+}
+
+.tile-edition-holographic {
+    animation: holo-shine 4s ease-in-out infinite;
+}
+
+@keyframes holo-shine {
+    0%, 100% { box-shadow: inset 0 0 10px #ff5f4f; }
+    25% { box-shadow: inset 0 0 10px #56a67a; }
+    50% { box-shadow: inset 0 0 10px #1f8df2; }
+    75% { box-shadow: inset 0 0 10px #7a73bb; }
+}

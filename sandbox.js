@@ -117,4 +117,60 @@ document.addEventListener('DOMContentLoaded', () => {
             glyphShowcase.appendChild(itemContainer);
         });
     }
+
+    const tileShowcase = document.getElementById('tile-showcase');
+    if (tileShowcase) {
+        tileShowcase.innerHTML = ''; // Clear existing content
+
+        // Helper function to create a tile element from data
+        const createTileElement = (tileData) => {
+            const tileItem = document.createElement('div');
+            tileItem.className = 'sandbox-tile-item';
+
+            // Add Letter
+            const letterEl = document.createElement('span');
+            letterEl.className = 'tile-letter';
+            letterEl.textContent = tileData.letter;
+            tileItem.appendChild(letterEl);
+
+            // Add Value
+            const valueEl = document.createElement('span');
+            valueEl.className = 'tile-value';
+            valueEl.textContent = tileData.value;
+            tileItem.appendChild(valueEl);
+
+            // Add Stamp (if it exists)
+            if (tileData.stamp) {
+                const stampEl = document.createElement('div');
+                stampEl.className = `tile-stamp ${tileData.stamp.type}`;
+                tileItem.appendChild(stampEl);
+            }
+
+            // Apply Enhancement class
+            if (tileData.enhancement) {
+                tileItem.classList.add(`tile-enhancement-${tileData.enhancement.type}`);
+            }
+
+            // Apply Edition class
+            if (tileData.edition) {
+                tileItem.classList.add(`tile-edition-${tileData.edition.type}`);
+            }
+
+            return tileItem;
+        };
+
+        // --- Define the tiles you want to create ---
+        const tilesToCreate = [
+            { letter: 'F', value: 4 },
+            { letter: 'A', value: 1 },
+            { letter: 'R', value: 1 },
+            { letter: 'T', value: 1, stamp: { type: 'red' }, enhancement: { type: 'boosted' } } // Example with attributes
+        ];
+
+        // Create and append each tile to the showcase
+        tilesToCreate.forEach(tileData => {
+            const tileElement = createTileElement(tileData);
+            tileShowcase.appendChild(tileElement);
+        });
+    }
 });
