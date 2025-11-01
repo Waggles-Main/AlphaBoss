@@ -28,7 +28,7 @@ class GlyphA extends Glyph {
                 bonusMult += 3;
             }
         });
-        return { bonusMult }; // Return the modification
+        return { bonusMult };
     }
 }
 
@@ -253,6 +253,7 @@ class GlyphPilcrow extends Glyph {
             purchaseCost: 8,
             sellValue: 4,
             imageName: 'Pilcrow.png',
+            hasAction: true, // This glyph has a usable action
         });
     }
 }
@@ -283,7 +284,7 @@ class GlyphCedille extends Glyph {
         super({
             id: 'glyph_cedille',
             name: 'Cedille',
-            description: "Words containing 'C' score a bonus +40 points.",
+            description: "Words starting with 'LE' or 'LA' score a bonus +40 points.",
             rarity: 'Uncommon',
             tags: ['scoring', 'chips'],
             purchaseCost: 8,
@@ -294,8 +295,42 @@ class GlyphCedille extends Glyph {
 
     onScoring(gameState, handInfo) {
         const word = handInfo.playedTiles.map(t => t.letter).join('');
-        if (word.includes('C')) return { bonusScore: 40 };
+        if (word.startsWith('LE') || word.startsWith('LA')) {
+            return { bonusScore: 40 };
+        }
         return {};
+    }
+}
+
+class GlyphStar extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_star',
+            name: 'Star Glyph',
+            description: 'A placeholder glyph for testing in the sandbox.',
+            rarity: 'Rare',
+            tags: ['sandbox', 'test'],
+            purchaseCost: 10,
+            sellValue: 5,
+            imageName: 'star.png', // You would create a star.png image for this
+            hasAction: true,       // Let's give it an action button for testing
+        });
+    }
+}
+
+class GlyphExclamation extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_exclamation',
+            name: 'Exclamation',
+            description: 'A placeholder glyph for testing.',
+            rarity: 'Common',
+            tags: ['sandbox', 'test'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'exclamation.png', // You would create an exclamation.png image for this
+            hasAction: false,
+        });
     }
 }
 
@@ -314,6 +349,8 @@ const ALL_GLYPHS = [
     new GlyphPilcrow(),
     new GlyphAmpersand(),
     new GlyphCedille(),
+    new GlyphStar(),
+    new GlyphExclamation(),
 ];
 
 // --- UPGRADE DEFINITIONS ---
@@ -555,6 +592,8 @@ const GLYPH_MAP = {
     'glyph_pilcrow': GlyphPilcrow,
     'glyph_ampersand': GlyphAmpersand,
     'glyph_cedille': GlyphCedille,
+    'glyph_star': GlyphStar,
+    'glyph_exclamation': GlyphExclamation,
 };
 
 const UPGRADE_MAP = {

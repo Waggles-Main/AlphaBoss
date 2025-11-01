@@ -95,6 +95,19 @@ function shuffleArray(array) {
     }
 }
 
+function showErrorToast(message) {
+    const container = document.getElementById('error-container');
+    if (!container) {
+        console.warn('No error-container found in the DOM for the toast message.');
+        return;
+    }
+    const toast = document.createElement('div');
+    toast.className = 'error-toast';
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+}
+
 function initDevControls(gameState = {}) {
     const devPanel = document.getElementById('devPanel');
     if (!devPanel) return;

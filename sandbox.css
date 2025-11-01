@@ -60,9 +60,9 @@ body {
     align-items: center;
     gap: 8px;
     background: var(--panel-soft);
-    padding: 8px;
     border-radius: 8px;
-    width: 100px; /* Fixed width for consistency */
+    width: 100px;
+    height: 130px;
     transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
     position: relative; /* Needed for positioning the info panel */
     z-index: 1; /* Default stacking context */
@@ -70,14 +70,12 @@ body {
 }
 
 .sandbox-glyph-image {
-    width: 64px;
-    height: 64px;
-    background-size: contain;
+    width: 100%;
+    height: 100%;
+    background-size: cover; /* Fill the container without distorting the image */
     background-position: center;
     background-repeat: no-repeat;
-    border: 1px solid var(--tile-border);
     background-color: var(--bg);
-    border-radius: 4px;
 }
 
 .sandbox-glyph-item:hover {
@@ -92,7 +90,17 @@ body {
     bottom: 100%; /* Start at the top edge of the card */
     left: 0;
     right: 0;
-    height: 8px; /* This height should match the margin-bottom of the sell button */
+    height: 52px; /* Increased height to bridge the gap to both buttons */
+    background: transparent; /* Make it invisible */
+}
+
+.sandbox-glyph-item::after {
+    content: '';
+    position: absolute;
+    top: 100%; /* Start at the bottom edge of the card */
+    left: 0;
+    right: 0;
+    height: 8px; /* This height should match the margin-top of the use button */
     background: transparent; /* Make it invisible */
 }
 
@@ -140,7 +148,15 @@ body {
 .overlay-power {
     font-family: m5x7;
     font-size: 18px;
-    color: var(--accent-red); /* Using existing color for consistency */
+    /* Color is now set dynamically via classes */
+}
+
+.overlay-power.score {
+    color: var(--accent-blue); /* Blue for points */
+}
+
+.overlay-power.mult {
+    color: var(--accent-red); /* Red for multipliers */
 }
 
 .overlay-description {
@@ -202,46 +218,42 @@ body {
     box-shadow: 0 1px 0 rgba(0,0,0,0.4);
 }
 
-/* --- Glyph Attributes Panel (Below Card) --- */
-.sandbox-glyph-attributes {
+/* --- New Use Button for Pressed State --- */
+.btn-sandbox-use {
     position: absolute;
-    top: 100%; /* Position below the glyph item */
+    bottom: 100%; /* Position it above the card */
     left: 50%;
-    transform: translateX(-50%); /* Center horizontally */
-    margin-top: 4px; /* Add 4px spacing */
-    width: 100px;
-    padding: 8px;
-    background: rgba(30, 30, 30, 0.8);
-    border: 2px solid rgba(0, 0, 0, 0.5);
+    transform: translateX(-50%);
+    margin-bottom: 52px; /* (sell button height + sell button margin + gap) */
+
+    /* Style the button */
+    appearance: none;
+    border: none;
+    background-color: var(--accent-green);
+    color: white;
+    font-family: 'Roboto Slab', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 8px 16px;
     border-radius: 8px;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
-    
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+    cursor: pointer;
+    white-space: nowrap;
 
     /* Hidden by default */
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease-out;
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
 
-.sandbox-glyph-item:hover .sandbox-glyph-attributes {
+.sandbox-glyph-item.active .btn-sandbox-use {
     opacity: 1;
+    pointer-events: auto;
 }
 
-.attribute-line {
-    font-family: m5x7;
-    font-size: 18px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-    text-align: center;
-}
-
-/* Color coding for attributes */
-.attribute-line.score { color: var(--accent-blue); }
-.attribute-line.mult { color: var(--accent-red); }
-.attribute-line.mult-mult { color: var(--mult-mult-box); }
-.attribute-line.money { color: var(--accent-orange); }
+.btn-sandbox-use:active {
+    transform: translateX(-50%) translateY(1px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.4);
 }
 
 /* --- Glyph Attributes Panel (Below Card) --- */

@@ -43,9 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Dynamically get the "power" text
             const glyphInstance = new (GLYPH_MAP[glyph.id])();
             if (glyphInstance.onScoring) {
-                const scoringEffect = glyphInstance.onScoring({}, { playedTiles: [{ letter: 'A' }] });
+                // Simulate playing the correct letter to see the effect.
+                // Extracts the letter from the glyph's ID (e.g., 'glyph_e' -> 'E').
+                const letterToTest = glyph.id.split('_')[1]?.toUpperCase() || 'A';
+                const scoringEffect = glyphInstance.onScoring({}, { playedTiles: [{ letter: letterToTest }] });
+
                 if (scoringEffect.bonusScore) {
                     powerEl.textContent = `+${scoringEffect.bonusScore} PTS`;
+                    powerEl.classList.add('score'); // Add score class for blue color
                     const attr = document.createElement('div');
                     attr.className = 'attribute-line score';
                     attr.textContent = `+${scoringEffect.bonusScore} PTS`;
@@ -53,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (scoringEffect.bonusMult) {
                     powerEl.textContent = `+${scoringEffect.bonusMult} MULT`;
+                    powerEl.classList.add('mult'); // Add mult class for red color
                     const attr = document.createElement('div');
                     attr.className = 'attribute-line mult';
                     attr.textContent = `+${scoringEffect.bonusMult} MULT`;
@@ -72,6 +78,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemContainer.classList.remove('active');
             });
 
+            let useBtn = null;
+            // --- Conditionally create the USE button ---
+            if (glyph.hasAction) {
+                useBtn = document.createElement('button');
+                useBtn.className = 'btn-sandbox-use';
+                useBtn.textContent = 'USE';
+                useBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent the card from de-selecting
+                    console.log(`Use action for ${glyph.name}`);
+                    itemContainer.classList.remove('active');
+                });
+            }
+
             // Append all parts to the overlay
             overlay.append(nameEl, powerEl, descEl, rarityEl);
 
@@ -90,7 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Append the image and the new overlay to the main container
-            itemContainer.append(glyphImage, overlay, sellBtn, attributesPanel);
+            const elementsToAppend = [glyphImage, overlay, sellBtn, attributesPanel];
+            if (useBtn) {
+                elementsToAppend.push(useBtn);
+            }
+            itemContainer.append(...elementsToAppend);
             glyphShowcase.appendChild(itemContainer);
         });
     }

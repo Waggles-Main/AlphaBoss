@@ -352,34 +352,6 @@ body {
     10%, 90% { opacity: 1; transform: translate(-50%, 0); }
 }
 
-.btn-skip {
-    appearance: none;
-    border: none;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-family: 'Roboto Slab', sans-serif;
-    font-weight: 600;
-    font-size: 16px;
-    text-align: center;
-    text-decoration: none;
-    box-shadow: 0 4px 0 black;
-    cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s;
-    background-color: var(--accent-red);
-}
-
-.btn-skip:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 black;
-}
-
-.btn-skip:disabled {
-    background-color: #555;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
 /* --- DEV PANEL STYLES --- */
 .dev-panel {
     position: fixed;

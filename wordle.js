@@ -271,16 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'between-rounds.html';
     });
 
-    // --- UTILITIES ---
-    function showErrorToast(message) {
-        const container = document.getElementById('error-container');
-        const toast = document.createElement('div');
-        toast.className = 'error-toast';
-        toast.textContent = message;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 2000);
-    }
-
     // --- DEV CONTROLS ---
     function updateDevPanel() {
         if (!devScoreDetailsEl) return;
