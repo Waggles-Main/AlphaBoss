@@ -110,6 +110,7 @@ const state = {
     round: 1, // Start at round 1
     currentBossId: null,
     devControlsEnabled: false, // Dev controls are always disabled by default on page load
+    showGlyphInfo: false, // New state for glyph info toggle
     audioUnlocked: false,
 };
 
@@ -603,9 +604,8 @@ function renderGlyphs() {
         const glyph = state.glyphs[i];
         if (glyph) {
             slot.classList.add('filled');
-            // Use first two letters as a simple graphic
-            slot.textContent = glyph.name.substring(0, 2).toUpperCase();
             slot.dataset.glyphIndex = i; // Store index for selling
+            slot.style.backgroundImage = `url('images/glyphs/${glyph.imageName}')`;
         }
         slotsContainer.appendChild(slot);
     }
@@ -1009,6 +1009,10 @@ function openOptionsModal() {
     // Set the dev controls toggle state based on localStorage, but don't immediately show the panel
     const devControlsToggle = document.getElementById('devControlsToggle');
     if (devControlsToggle) devControlsToggle.checked = localStorage.getItem('alphaBossDevControlsEnabled') === 'true';
+
+    // Set the glyph info toggle state
+    const glyphInfoToggle = document.getElementById('glyphInfoToggle');
+    if (glyphInfoToggle) glyphInfoToggle.checked = state.showGlyphInfo;
 }
 
 function closeOptionsModal() {
@@ -1064,6 +1068,17 @@ if (devControlsToggle) {
         state.devControlsEnabled = e.target.checked; // Update state
         localStorage.setItem('alphaBossDevControlsEnabled', state.devControlsEnabled);
         updateDevPanelVisibility();
+    });
+}
+
+// New Glyph Info Toggle Listener
+const glyphInfoToggle = document.getElementById('glyphInfoToggle');
+if (glyphInfoToggle) {
+    glyphInfoToggle.addEventListener('change', (e) => {
+        state.showGlyphInfo = e.target.checked;
+        const runState = getRunState();
+        runState.showGlyphInfo = state.showGlyphInfo;
+        saveRunState(runState);
     });
 }
 
@@ -1167,191 +1182,22 @@ function resetForNewBoss() {
     }
 }
 
-function initDevControls() {
-    const devRefreshBtn = document.getElementById('devRefresh');
-    const devWinBtn = document.getElementById('devWin');
-    const devLoseBtn = document.getElementById('devLose');
-    const devNavMenuBtn = document.getElementById('devNavMenu');
-    const devNavGameBtn = document.getElementById('devNavGame');
-    const devNavShopBtn = document.getElementById('devNavShop');
-    const devNavEventBtn = document.getElementById('devNavEvent');
-    const devNavWordleBtn = document.createElement('button');
-    const devNavScrambleBtn = document.createElement('button');
-    const devBossSelect = document.getElementById('devBossSelect');
-    const devApplyBossBtn = document.getElementById('devApplyBoss');
-
-    if (!devRefreshBtn) return; // Assume panel doesn't exist if one button is missing
-
-    const devMinimizeBtn = document.getElementById('devMinimizeBtn');
-
-    // Minimize/Maximize toggle
-    devMinimizeBtn.addEventListener('click', () => {
-        const panel = document.getElementById('devPanel');
-        if (!panel) return;
-        panel.classList.toggle('minimized');
-        if (panel.classList.contains('minimized')) {
-            devMinimizeBtn.textContent = '+';
-        } else {
-            devMinimizeBtn.textContent = '-';
-        }
-    });
-
-    // Refresh Board: Simply call generateGrid to create a new set of tiles.
-    devRefreshBtn.addEventListener('click', () => {
-        clearSelection();
-        generateGrid();
-    });
-
-    // Auto Win: Set the score to the target and call gameOver.
-    devWinBtn.addEventListener('click', () => {
+function initializePageDevControls() {
+    // Define the win/lose conditions specific to this page
+    const gameState = {
+      winCondition: () => {
         state.roundScore = state.target;
         updateRoundUI();
         gameOver();
-    });
-
-    // Auto Lose: Set words remaining to 0 and call gameOver.
-    devLoseBtn.addEventListener('click', () => {
+      },
+      loseCondition: () => {
         state.wordsRemaining = 0;
         updateRoundUI();
         gameOver();
-    });
-
-    // Navigate to the main menu
-    devNavMenuBtn.addEventListener('click', () => {
-        window.location.href = 'index.html';
-    });
-
-    // Reload the gameplay screen
-    devNavGameBtn.addEventListener('click', () => {
-        window.location.reload();
-    });
-
-    // Navigate to the shop screen
-    devNavShopBtn.addEventListener('click', () => {
-        window.location.href = 'shop.html';
-    });
-
-    // Navigate to the event screen
-    devNavEventBtn.addEventListener('click', () => {
-        window.location.href = 'event.html';
-    });
-
-    // Add a new button for the Wordle event specifically
-    devNavWordleBtn.id = 'devNavWordle';
-    devNavWordleBtn.textContent = 'Wordle Event';
-    devNavEventBtn.after(devNavWordleBtn); // Place it after the generic event button
-    devNavWordleBtn.addEventListener('click', () => {
-        window.location.href = 'wordle.html';
-    });
-
-    // Add a new button for the Word Scramble event
-    devNavScrambleBtn.id = 'devNavScramble';
-    devNavScrambleBtn.textContent = 'Word Scramble';
-    devNavWordleBtn.after(devNavScrambleBtn); // Place it after the wordle button
-    devNavScrambleBtn.addEventListener('click', () => {
-        window.location.href = 'word-scramble.html';
-    });
-
-    // --- Boss Selection Logic ---
-    if (devBossSelect && devApplyBossBtn) {
-        const collapsibleTitle = devBossSelect.previousElementSibling;
-        collapsibleTitle.addEventListener('click', () => {
-            collapsibleTitle.classList.toggle('collapsed');
-            devBossSelect.classList.toggle('collapsed');
-        });
-
-        // Add a "None" option
-        const noneLabel = document.createElement('label');
-        noneLabel.innerHTML = `<input type="radio" name="boss" value="none"> None`;
-        devBossSelect.appendChild(noneLabel);
-
-        // Populate with bosses
-        ALL_BOSSES.forEach(boss => {
-            const label = document.createElement('label');
-            label.innerHTML = `<input type="radio" name="boss" value="${boss.id}"> ${boss.name} <span class="dev-boss-desc">- ${boss.description}</span>`;
-            devBossSelect.appendChild(label);
-        });
-
-        // Set the initial checked state
-        const currentBossId = state.currentBossId || 'none';
-        const currentRadio = devBossSelect.querySelector(`input[value="${currentBossId || 'none'}"]`);
-        if (currentRadio) {
-            currentRadio.checked = true;
-        }
-
-        // Add event listener for changes
-        devBossSelect.addEventListener('change', (e) => {
-            const selectedBossId = e.target.value;
-
-            // Remove any existing boss effect
-            if (state.activeBossEffect) {
-                // Find the boss class from the constructor name we stored
-                const oldBossId = Object.keys(BOSS_MAP).find(id => BOSS_MAP[id].name === state.activeBossEffect.constructorName);
-                if (oldBossId) new (BOSS_MAP[oldBossId])().removeEffect(state);
-            }
-
-            // Apply the new boss effect
-            if (selectedBossId !== 'none') {
-                const NewBossClass = BOSS_MAP[selectedBossId];
-                if (NewBossClass) {
-                    const boss = new NewBossClass();
-                    boss.applyEffect(state);
-                    state.activeBossEffect.constructorName = NewBossClass.name; // Store constructor name
-                }
-            }
-            resetForNewBoss();
-            updateRoundUI();
-            console.log('Switched to boss:', selectedBossId);
-        });
-
-        // Disable boss controls if it's not an Exam stage
-        if (state.stageIndex !== 4) {
-            const collapsibleTitle = devBossSelect.previousElementSibling;
-            collapsibleTitle.style.color = '#666';
-            collapsibleTitle.style.cursor = 'not-allowed';
-            devApplyBossBtn.disabled = true;
-        }
-    }
-
-    // --- Stage Navigation Logic ---
-    const devStageNav = document.getElementById('devStageNav');
-    if (devStageNav) {
-        const stages = [
-            { name: 'Quiz', index: 0, page: 'gameplay.html' },
-            { name: 'Event 1', index: 1, page: 'event.html' },
-            { name: 'Test', index: 2, page: 'gameplay.html' },
-            { name: 'Event 2', index: 3, page: 'event.html' },
-            { name: 'Exam', index: 4, page: 'gameplay.html' },
-        ];
-
-        stages.forEach(stage => {
-            const btn = document.createElement('button');
-            btn.textContent = stage.name;
-            btn.addEventListener('click', () => {
-                const runState = getRunState();
-                runState.stageIndex = stage.index;
-
-                // Set the correct target score, similar to between-rounds.js
-                const baseTarget = ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
-                let stageTarget = baseTarget;
-                if (stage.name === 'Test') {
-                    stageTarget = Math.round(baseTarget * 1.5);
-                } else if (stage.name === 'Exam') {
-                    let multiplier = 2;
-                    const boss = runState.currentBossId ? ALL_BOSSES.find(b => b.id === runState.currentBossId) : null;
-                    if (boss && boss.id === 'boss_the_wall') {
-                        multiplier = boss.effect.details.multiplier;
-                    }
-                    stageTarget = Math.round(baseTarget * multiplier);
-                }
-                runState.stageTarget = stageTarget;
-
-                saveRunState(runState);
-                window.location.href = stage.page;
-            });
-            devStageNav.appendChild(btn);
-        });
-    }
+      },
+      updateDevPanel: updateDevScorePanel,
+    };
+    initDevControls(gameState);
 }
 
 function initAudioUnlock() {
@@ -1628,6 +1474,7 @@ async function init() {
     state.upgrades = runState.upgrades || {};
     state.glyphs = runState.glyphs || [];
     state.stageIndex = runState.stageIndex; // state.devControlsEnabled is now always false by default
+    state.showGlyphInfo = runState.showGlyphInfo || false; // Load glyph info state
     state.currentBossId = runState.currentBossId;
     state.target = runState.stageTarget || ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
 
@@ -1725,7 +1572,7 @@ async function init() {
     updateRoundUI();
     initGooglyEyes();
     initBlobEffect(); // Initialize the new background effect
-    initDevControls(); // Initialize the developer control panel
+    initializePageDevControls(); // Initialize the developer control panel
     initHowToPlayModal(); // Check if we need to show the tutorial
     initTooltips(); // Initialize the new tooltip functionality
     // Use the shared implementation for glyph interactions

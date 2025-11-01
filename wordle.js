@@ -24,16 +24,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const statGuessesEl = document.getElementById('statGuesses');
     const statMoneyEl = document.getElementById('statMoney');
     const continueBtn = document.getElementById('continueBtn');
+    const skipBtn = document.getElementById('skipBtn');
     const devScoreDetailsEl = document.getElementById('devScoreDetails');
 
     // --- GAME SETUP ---
     async function init() {
         state.runState = getRunState();
         moneyDisplayEl.textContent = `$${state.runState.money || 0}`;
+        skipBtn.disabled = (state.runState.money || 0) < 10;
 
         await loadDictionary();
         setupGame();
-        initDevControls();
+        initializePageDevControls();
     }
 
     async function loadDictionary() {
@@ -66,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 4. Listen for input
         window.addEventListener('keydown', handleKeyPress);
+        skipBtn.addEventListener('click', handleSkip);
     }
 
     // --- RENDERING ---
@@ -223,6 +226,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function handleSkip() {
+        const skipCost = 10;
+        if (state.runState.money < skipCost) {
+            showErrorToast("Not enough money to skip!");
+            return;
+        }
+
+        // Deduct cost, advance stage, save, and navigate
+        state.runState.money -= skipCost;
+        state.runState.stageIndex++;
+        saveRunState(state.runState);
+
+        window.location.href = 'between-rounds.html';
+    }
+
     // --- END GAME ---
     function endGame(didWin) {
         state.gameActive = false;
@@ -269,42 +287,22 @@ document.addEventListener('DOMContentLoaded', () => {
         devScoreDetailsEl.textContent = `Solution: ${state.solution}`;
     }
 
-    function initDevControls() {
-        const devWinBtn = document.getElementById('devWin');
-        const devLoseBtn = document.getElementById('devLose');
-        const devNavMenuBtn = document.getElementById('devNavMenu');
-        const devNavGameBtn = document.getElementById('devNavGame');
-        const devMinimizeBtn = document.getElementById('devMinimizeBtn');
-        const devNavShopBtn = document.getElementById('devNavShop');
-        const devNavEventBtn = document.getElementById('devNavEvent');
-
-        if (!devWinBtn) return;
-
-        devMinimizeBtn.addEventListener('click', () => {
-            const panel = document.getElementById('devPanel');
-            panel.classList.toggle('minimized');
-            devMinimizeBtn.textContent = panel.classList.contains('minimized') ? '+' : '-';
-        });
-
-        devWinBtn.addEventListener('click', () => {
-            if (!state.gameActive) return;
-            state.currentGuess = state.solution;
-            submitGuess();
-        });
-
-        devLoseBtn.addEventListener('click', () => {
-            if (!state.gameActive) return;
-            state.guesses = Array(MAX_GUESSES - 1).fill("WRONG");
-            state.currentGuess = "GUESS";
-            submitGuess();
-        });
-
-        devNavMenuBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
-        devNavGameBtn.addEventListener('click', () => { window.location.href = 'gameplay.html'; });
-        devNavShopBtn.addEventListener('click', () => { window.location.href = 'shop.html'; });
-        devNavEventBtn.addEventListener('click', () => { window.location.href = 'event.html'; });
-
-        updateDevPanel();
+    function initializePageDevControls() {
+        const gameState = {
+            winCondition: () => {
+                if (!state.gameActive) return;
+                state.currentGuess = state.solution;
+                submitGuess();
+            },
+            loseCondition: () => {
+                if (!state.gameActive) return;
+                state.guesses = Array(MAX_GUESSES - 1).fill("WRONG");
+                state.currentGuess = "GUESS";
+                submitGuess();
+            },
+            updateDevPanel: updateDevPanel,
+        };
+        initDevControls(gameState); // This now correctly calls the shared function
     }
 
     // --- INITIALIZE ---

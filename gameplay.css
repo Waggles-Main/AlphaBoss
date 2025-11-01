@@ -681,15 +681,14 @@ button.pill:disabled {
 .glyph-slot {
     width: 50px;
     height: 50px;
-    background-color: transparent;
-    border: 1px solid black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: m6x11plus;
-    font-size: 24px;
-    color: white;
-    text-shadow: 0 2px 0 var(--shadow);
+    background-color: var(--panel-soft); /* Default empty slot color */
+    border: 1px solid #4f6367;
+    border-radius: 4px;
+    box-shadow: 0 2px 0 var(--shadow);
+    /* New styles for image display */
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .glyph-slot.filled {
@@ -1857,13 +1856,14 @@ button.pill:disabled {
     transform: scale(0.95);
     transition: opacity 0.2s, transform 0.2s;
     background: var(--panel-dark);
-    border: 2px solid var(--accent-blue);
+    border: 2px solid #4f6367; /* Darker border for hover state */
     border-radius: 16px;
     padding: 16px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
 .glyph-action-tooltip.visible {
+    /* Base visibility for hover */
     opacity: 1;
     transform: scale(1);
     pointer-events: none; /* Hide from mouse events by default */
@@ -1871,6 +1871,7 @@ button.pill:disabled {
 
 .glyph-action-tooltip.visible.interactive {
     pointer-events: auto; /* Allow interaction only when clicked */
+    border-color: var(--accent-orange); /* Highlight border for interactive state */
 }
 
 .glyph-tooltip-header {
@@ -1878,20 +1879,31 @@ button.pill:disabled {
     align-items: center;
     gap: 12px;
 }
+.glyph-tooltip-info-panel {
+    display: none; /* Hidden by default, shown for INFO state */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    background: #4f6367;
+    padding: 4px;
+    border-radius: 8px;
+    text-align: center;
+    font-family: m5x7;
+    font-size: 18px;
+}
+.glyph-tooltip-info-panel.visible {
+    display: grid;
+}
 
 .glyph-tooltip-graphic {
     width: 50px;
     height: 50px;
-    background: var(--accent-blue);
+    background-color: var(--panel-soft);
     border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: m6x11plus;
-    font-size: 24px;
-    color: white;
-    text-shadow: 0 2px 0 var(--shadow);
     flex-shrink: 0;
+    /* New styles for image display */
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .glyph-tooltip-name {
@@ -1927,27 +1939,35 @@ button.pill:disabled {
     color: var(--muted);
 }
 
-.btn-sell {
-    background: var(--accent-green);
-    color: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 0 black;
-    font-family: m6x11plus;
-    font-size: 20px;
-    padding: 4px 12px;
-    border: none;
-    cursor: pointer;
-}
-
 .glyph-tooltip-sell-info {
-    display: none; /* Hidden by default */
+    display: none; /* Hidden by default, shown for PRESSED/HOLD state */
     align-items: center;
     gap: 8px;
 }
 
-.glyph-tooltip-sell-value {
-    font-family: m5x7;
-    font-size: 28px;
-    color: var(--accent-orange);
-    text-shadow: 0 2px 0 var(--shadow);
+.btn-glyph-action {
+    appearance: none;
+    border: none;
+    color: white;
+    font-family: 'Roboto Slab', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 16px;
+    box-shadow: 0 4px 0 black;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.btn-glyph-action:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 black;
+}
+
+.btn-use {
+    background-color: var(--accent-green);
+}
+
+.btn-sell {
+    background-color: var(--accent-orange); /* Changed to yellow/orange */
 }

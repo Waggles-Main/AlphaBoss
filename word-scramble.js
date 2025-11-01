@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameActive: false,
         audioUnlocked: false,
     };
+    let runState = {};
 
     // --- DOM ELEMENTS ---
     const timerEl = document.getElementById('timer');
@@ -39,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const shuffleBtn = document.getElementById('shuffleBtn');
     const clearBtn = document.getElementById('clearBtn');
     const submitBtn = document.getElementById('submitBtn');
+    const skipBtn = document.getElementById('skipBtn');
     const resultModal = document.getElementById('resultModalOverlay');
     const resultTitleEl = document.getElementById('resultTitle');
     const resultMessageEl = document.getElementById('resultMessage');
@@ -79,6 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- GAME SETUP ---
     async function init() {
+        runState = getRunState();
+        skipBtn.disabled = (runState.money || 0) < 10;
+
         await loadDictionary();
         setupGame();
     }
@@ -312,7 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function endGame(didWin) {
         const EVENT_REWARD = 8;
-        const runState = getRunState();
         clearInterval(state.timer);
         state.gameActive = false;
         resultModal.style.display = 'flex';
@@ -363,7 +367,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function dragDrop(e) {
         const dragEndIndex = +e.target.closest('.input-tile').dataset.index;
         swapItems(dragStartIndex, dragEndIndex);
-        document.querySelectorAll('.input-tile').forEach(c => c.classList.remove('dragging'));
     }
 
     function swapItems(fromIndex, toIndex) {
@@ -407,59 +410,28 @@ document.addEventListener('DOMContentLoaded', () => {
         devScoreDetailsEl.textContent = `Main Word: ${state.mainWord}\nFound: ${found}/${total}\nBonus: ${state.bonusWordsCount}\n\nWords: ${hiddenWordsList}`;
     }
 
-    function initDevControls() {
-        const devWinBtn = document.getElementById('devWin');
-        const devLoseBtn = document.getElementById('devLose');
-        const devNavMenuBtn = document.getElementById('devNavMenu');
-        const devNavGameBtn = document.getElementById('devNavGame');
-        const devMinimizeBtn = document.getElementById('devMinimizeBtn');
-        const devNavShopBtn = document.getElementById('devNavShop');
-        const devNavEventBtn = document.getElementById('devNavEvent');
+    function initializePageDevControls() {
+        const gameState = {
+            winCondition: () => endGame(true),
+            loseCondition: () => endGame(false),
+            updateDevPanel: updateDevPanel,
+        };
+        initDevControls(gameState); // This now correctly calls the shared function
+    }
 
-        if (!devWinBtn) return; // Assume panel doesn't exist if one button is missing
+    function handleSkip() {
+        const skipCost = 10;
+        if (runState.money < skipCost) {
+            showErrorToast("Not enough money to skip!");
+            return;
+        }
 
-        // Minimize/Maximize toggle
-        devMinimizeBtn.addEventListener('click', () => {
-            const panel = document.getElementById('devPanel');
-            panel.classList.toggle('minimized');
-            if (panel.classList.contains('minimized')) {
-                devMinimizeBtn.textContent = '+';
-            } else {
-                devMinimizeBtn.textContent = '-';
-            }
-        });
+        // Deduct cost, advance stage, save, and navigate
+        runState.money -= skipCost;
+        runState.stageIndex++;
+        saveRunState(runState);
 
-        // Auto Win:
-        devWinBtn.addEventListener('click', () => {
-            endGame(true);
-        });
-
-        // Auto Lose:
-        devLoseBtn.addEventListener('click', () => {
-            endGame(false);
-        });
-
-        // Navigate to the main menu
-        devNavMenuBtn.addEventListener('click', () => {
-            window.location.href = 'index.html';
-        });
-
-        // Reload the gameplay screen
-        devNavGameBtn.addEventListener('click', () => {
-            window.location.href = 'gameplay.html';
-        });
-
-        // Navigate to the shop screen
-        devNavShopBtn.addEventListener('click', () => {
-            window.location.href = 'shop.html';
-        });
-
-        // Navigate to the event screen
-        devNavEventBtn.addEventListener('click', () => {
-            window.location.href = 'event.html';
-        });
-
-        updateDevPanel();
+        window.location.href = 'between-rounds.html';
     }
 
     // --- EVENT LISTENERS ---
@@ -478,6 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.addEventListener('click', () => {
         if (state.gameActive) handleSubmit();
     });
+    skipBtn.addEventListener('click', handleSkip);
 
     playAgainBtn.addEventListener('click', setupGame);
     continueBtn.addEventListener('click', () => {
@@ -487,5 +460,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INITIALIZE ---
     init();
-    initDevControls();
+    initializePageDevControls();
 });

@@ -17,6 +17,7 @@ class GlyphA extends Glyph {
             tags: ['scoring', 'mult', 'rank_based'],
             purchaseCost: 6,
             sellValue: 3,
+            imageName: 'big-a.png', // Use the web-safe artwork name
         });
     }
 
@@ -41,6 +42,7 @@ class GlyphE extends Glyph {
             tags: ['scoring', 'mult', 'rank_based'],
             purchaseCost: 6,
             sellValue: 3,
+            imageName: 'big-e.png',
         });
     }
 
@@ -65,6 +67,7 @@ class GlyphI extends Glyph {
             tags: ['scoring', 'mult', 'rank_based'],
             purchaseCost: 6,
             sellValue: 3,
+            imageName: 'big-i.png',
         });
     }
 
@@ -89,6 +92,7 @@ class GlyphO extends Glyph {
             tags: ['scoring', 'mult', 'rank_based'],
             purchaseCost: 6,
             sellValue: 3,
+            imageName: 'big-o.png',
         });
     }
 
@@ -113,6 +117,7 @@ class GlyphU extends Glyph {
             tags: ['scoring', 'mult', 'rank_based'],
             purchaseCost: 6,
             sellValue: 3,
+            imageName: 'big-u.png',
         });
     }
 
@@ -137,6 +142,7 @@ class GlyphAPoints extends Glyph {
             tags: ['scoring', 'chips', 'rank_based'],
             purchaseCost: 6,
             sellValue: 3,
+            imageName: 'little-a.png',
         });
     }
     onScoring(gameState, handInfo) {
@@ -158,6 +164,7 @@ class GlyphEPoints extends Glyph {
             tags: ['scoring', 'chips', 'rank_based'],
             purchaseCost: 6,
             sellValue: 3,
+            imageName: 'little-e.png',
         });
     }
     onScoring(gameState, handInfo) {
@@ -179,6 +186,7 @@ class GlyphIPoints extends Glyph {
             tags: ['scoring', 'chips', 'rank_based'],
             purchaseCost: 6,
             sellValue: 3,
+            imageName: 'little-i.png',
         });
     }
     onScoring(gameState, handInfo) {
@@ -200,6 +208,7 @@ class GlyphOPoints extends Glyph {
             tags: ['scoring', 'chips', 'rank_based'],
             purchaseCost: 6,
             sellValue: 3,
+            imageName: 'little-o.png',
         });
     }
     onScoring(gameState, handInfo) {
@@ -221,6 +230,7 @@ class GlyphUPoints extends Glyph {
             tags: ['scoring', 'chips', 'rank_based'],
             purchaseCost: 6,
             sellValue: 3,
+            imageName: 'little-u.png',
         });
     }
     onScoring(gameState, handInfo) {
@@ -229,6 +239,63 @@ class GlyphUPoints extends Glyph {
             if (tile.letter === 'U') bonusScore += 20;
         });
         return { bonusScore };
+    }
+}
+
+class GlyphPilcrow extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_pilcrow',
+            name: 'Pilcrow',
+            description: 'Gain +1 max Refreshes for the run.',
+            rarity: 'Uncommon',
+            tags: ['utility', 'refresh'],
+            purchaseCost: 8,
+            sellValue: 4,
+            imageName: 'Pilcrow.png',
+        });
+    }
+}
+
+class GlyphAmpersand extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_ampersand',
+            name: 'Ampersand',
+            description: "Words containing 'AND' score a bonus +50 points.",
+            rarity: 'Uncommon',
+            tags: ['scoring', 'chips'],
+            purchaseCost: 8,
+            sellValue: 4,
+            imageName: 'Ampersand.png',
+        });
+    }
+
+    onScoring(gameState, handInfo) {
+        const word = handInfo.playedTiles.map(t => t.letter).join('');
+        if (word.includes('AND')) return { bonusScore: 50 };
+        return {};
+    }
+}
+
+class GlyphCedille extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_cedille',
+            name: 'Cedille',
+            description: "Words containing 'C' score a bonus +40 points.",
+            rarity: 'Uncommon',
+            tags: ['scoring', 'chips'],
+            purchaseCost: 8,
+            sellValue: 4,
+            imageName: 'Cedille.png',
+        });
+    }
+
+    onScoring(gameState, handInfo) {
+        const word = handInfo.playedTiles.map(t => t.letter).join('');
+        if (word.includes('C')) return { bonusScore: 40 };
+        return {};
     }
 }
 
@@ -244,6 +311,9 @@ const ALL_GLYPHS = [
     new GlyphIPoints(),
     new GlyphOPoints(),
     new GlyphUPoints(),
+    new GlyphPilcrow(),
+    new GlyphAmpersand(),
+    new GlyphCedille(),
 ];
 
 // --- UPGRADE DEFINITIONS ---
@@ -482,6 +552,9 @@ const GLYPH_MAP = {
     'glyph_i_points': GlyphIPoints,
     'glyph_o_points': GlyphOPoints,
     'glyph_u_points': GlyphUPoints,
+    'glyph_pilcrow': GlyphPilcrow,
+    'glyph_ampersand': GlyphAmpersand,
+    'glyph_cedille': GlyphCedille,
 };
 
 const UPGRADE_MAP = {

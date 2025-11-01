@@ -1,0 +1,155 @@
+/* =============================================================================
+   SHARED STYLES
+   This file contains common styles used across multiple pages (gameplay, shop, events).
+   ============================================================================= */
+
+/* --- BASE BUTTON STYLE --- */
+.btn {
+    appearance: none;
+    border: none;
+    color: white;
+    padding: 16px;
+    border-radius: 16px;
+    font-family: 'Roboto Slab', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: 0 4px 0 black;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 black;
+}
+
+.btn:disabled {
+    background-color: #555 !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: translateY(0);
+    box-shadow: 0 4px 0 black;
+}
+
+/* --- BUTTON COLOR VARIATIONS --- */
+.btn-green { background-color: var(--accent-green); }
+.btn-blue { background-color: var(--accent-blue); }
+.btn-red { background-color: var(--accent-red); }
+.btn-orange { background-color: var(--accent-orange); }
+.btn-purple { background-color: var(--mult-mult-box); }
+
+/* --- MODAL STYLES --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 16px;
+}
+
+.modal-content {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 24px;
+    width: 100%;
+    max-width: 328px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    border: 2px solid #3b4b4f;
+    animation: successPopWord 0.5s ease-out; /* Reuse pop animation */
+}
+
+.modal-title {
+    font-family: m5x7;
+    font-size: 36px;
+    text-align: center;
+    margin: 0;
+    color: white;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.btn-close {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--accent-red);
+    color: white;
+    border: 2px solid white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 2px 0 var(--shadow);
+    font-family: m5x7;
+}
+
+/* --- DEV PANEL STYLES --- */
+.dev-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--panel);
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    z-index: 2000;
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    gap: 10px;
+    border: 2px solid var(--accent-red);
+}
+
+.dev-panel.enabled {
+    display: flex; /* Show when enabled */
+}
+
+.dev-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.dev-panel .dev-title {
+    margin: 0;
+    text-align: center;
+    font-family: m5x7;
+    color: var(--accent-red);
+    font-size: 24px;
+    text-shadow: 0 2px 0 var(--shadow);
+}
+
+.dev-panel .dev-subtitle {
+    margin: 10px 0 5px;
+    text-align: center;
+    font-family: 'Roboto Slab', sans-serif;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 18px;
+    border-top: 1px solid var(--tile-border);
+    padding-top: 10px;
+}
+
+.dev-panel button {
+    appearance: none;
+    border: 1px solid var(--tile-border);
+    background: var(--panel-soft);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    font-family: 'Roboto Slab', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    cursor: pointer;
+}

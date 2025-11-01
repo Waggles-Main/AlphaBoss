@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaBoss - Sandbox</title>
+    <!-- Re-use existing fonts and styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@600&family=Monoton&display=swap" rel="stylesheet">
+    <!-- Link to main CSS to get variables and base styles -->
+    <link rel="stylesheet" href="gameplay.css">
+    <!-- Link to sandbox-specific styles -->
+    <link rel="stylesheet" href="sandbox.css">
+</head>
+<body>
+    <main class="sandbox-container">
+        <header class="sandbox-header">
+            <h1>Component Sandbox</h1>
+            <a href="gameplay.html" class="back-link">Back to Game</a>
+        </header>
+
+        <section class="component-section">
+            <h2 class="component-title">Test Area</h2>
+            <div class="component-showcase">
+                <p>Add components here to test them in isolation.</p>
+            </div>
+        </section>
+
+        <section class="component-section">
+            <h2 class="component-title">Glyphs</h2>
+            <div class="component-showcase" id="glyph-showcase">
+                <!-- All glyphs will be rendered here by JS -->
+            </div>
+        </section>
+        
+    </main>
+    <script src="game-objects.js"></script>
+    <script src="definitions.js"></script>
+    <script src="sandbox.js"></script>
+</body>
+</html>

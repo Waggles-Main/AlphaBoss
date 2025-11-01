@@ -95,6 +95,59 @@ function shuffleArray(array) {
     }
 }
 
+function initDevControls(gameState = {}) {
+    const devPanel = document.getElementById('devPanel');
+    if (!devPanel) return;
+
+    // --- Visibility ---
+    const devControlsEnabled = localStorage.getItem('alphaBossDevControlsEnabled') === 'true';
+    if (devControlsEnabled) {
+        devPanel.classList.add('enabled');
+    }
+
+    const devMinimizeBtn = document.getElementById('devMinimizeBtn');
+    if (devMinimizeBtn) {
+        devMinimizeBtn.addEventListener('click', () => {
+            devPanel.classList.toggle('minimized');
+            devMinimizeBtn.textContent = devPanel.classList.contains('minimized') ? '+' : '-';
+        });
+    }
+
+    // --- Navigation ---
+    const navMapping = {
+        'devNavMenu': 'index.html',
+        'devNavGame': 'gameplay.html',
+        'devNavShop': 'shop.html',
+        'devNavEvent': 'event.html',
+        'devNavWordle': 'wordle.html',
+        'devNavScramble': 'word-scramble.html',
+        'devNavSandbox': 'sandbox.html',
+    };
+
+    for (const [id, url] of Object.entries(navMapping)) {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.addEventListener('click', () => window.location.href = url);
+        }
+    }
+
+    // --- Gameplay Specific Dev Controls ---
+    const devWinBtn = document.getElementById('devWin');
+    const devLoseBtn = document.getElementById('devLose');
+
+    if (devWinBtn && gameState.winCondition) {
+        devWinBtn.addEventListener('click', gameState.winCondition);
+    }
+    if (devLoseBtn && gameState.loseCondition) {
+        devLoseBtn.addEventListener('click', gameState.loseCondition);
+    }
+
+    // --- Other Dev Panel Initializations (like boss select) would go here ---
+    const devScoreDetailsEl = document.getElementById('devScoreDetails');
+    if (devScoreDetailsEl && gameState.updateDevPanel) {
+        gameState.updateDevPanel();
+    }
+}
 // --- SHARED UI INTERACTIONS ---
 
 function initGlyphInteractions(stateObject, saveStateCallback, updateUICallback) {
@@ -103,75 +156,119 @@ function initGlyphInteractions(stateObject, saveStateCallback, updateUICallback)
     const overlay = document.getElementById('glyphActionOverlay');
     if (!glyphsContainer || !tooltip || !overlay) return;
 
-    // Tooltip elements
+    // --- Tooltip Elements ---
     const sellInfo = document.getElementById('glyphSellInfo');
     const sellBtn = document.getElementById('glyphSellBtn');
-    const sellValueEl = document.getElementById('glyphSellValue');
+    const useBtn = document.getElementById('glyphUseBtn');
     const graphicEl = document.getElementById('glyphActionGraphic');
     const nameEl = document.getElementById('glyphActionName');
     const descEl = document.getElementById('glyphActionDescription');
     const rarityEl = document.getElementById('glyphActionRarity');
+    const infoPanelEl = document.getElementById('glyphTooltipInfoPanel');
 
     let tooltipHoverTimer = null;
+    let holdTimer = null;
     let currentSellHandler = null;
+    let currentUseHandler = null;
 
     const closeTooltip = () => {
         tooltip.classList.remove('visible');
         overlay.style.display = 'none';
-        tooltip.classList.remove('interactive');
+        // Clean up event listeners to prevent memory leaks
         if (currentSellHandler) {
             sellBtn.removeEventListener('click', currentSellHandler);
             currentSellHandler = null;
         }
+        if (currentUseHandler) {
+            useBtn.removeEventListener('click', currentUseHandler);
+            currentUseHandler = null;
+        }
     };
 
-    const populateTooltip = (glyph) => {
-        graphicEl.textContent = glyph.name.substring(0, 2).toUpperCase();
+    const populateTooltip = (glyph, state) => {
+        graphicEl.textContent = ''; // Clear any old text
+        graphicEl.style.backgroundImage = `url('images/glyphs/${glyph.imageName}')`;
         nameEl.textContent = glyph.name;
-        descEl.innerHTML = colorizeTooltipText(glyph.description);
         rarityEl.textContent = glyph.rarity;
-        sellValueEl.textContent = `$${glyph.sellValue}`;
+
+        // Handle different states
+        if (state === 'HOVER') {
+            descEl.innerHTML = `<em>${glyph.description}</em>`; // Placeholder description
+            sellInfo.style.display = 'none';
+            infoPanelEl.classList.remove('visible');
+        } else if (state === 'INFO') {
+            // Dynamically build the info panel based on the glyph's effects
+            descEl.innerHTML = colorizeTooltipText(glyph.description);
+            
+            // Re-create a temporary instance to access its methods
+            const glyphInstance = new (GLYPH_MAP[glyph.id])();
+            let infoContent = '';
+            
+            // Check for different types of effects and add them to the panel
+            if (glyphInstance.onScoring) {
+                const scoringEffect = glyphInstance.onScoring(stateObject, { playedTiles: [{ letter: 'A' }] }); // Simulate with a dummy tile
+                if (scoringEffect.bonusScore) infoContent += `<span>+${scoringEffect.bonusScore} PTS</span>`;
+                if (scoringEffect.bonusMult) infoContent += `<span>+${scoringEffect.bonusMult} MULT</span>`;
+            }
+            
+            infoPanelEl.innerHTML = infoContent || '<span>No Stats</span>';
+            infoPanelEl.classList.add('visible');
+            sellInfo.style.display = 'none';
+        } else if (state === 'HOLD') {
+            descEl.innerHTML = `Choose an action for <strong>${glyph.name}</strong>.`;
+            sellBtn.textContent = `SELL $${glyph.sellValue}`;
+            sellInfo.style.display = 'flex';
+            infoPanelEl.classList.remove('visible');
+        }
     };
 
-    glyphsContainer.addEventListener('click', (e) => {
+    // --- Event Listeners for Hold, Hover, and Click ---
+
+    glyphsContainer.addEventListener('mousedown', (e) => {
         const slot = e.target.closest('.glyph-slot');
         if (!slot || !slot.classList.contains('filled')) return;
 
-        const glyphIndex = parseInt(slot.dataset.glyphIndex, 10);
-        const glyph = stateObject.glyphs[glyphIndex];
-        if (!glyph) return;
+        holdTimer = setTimeout(() => {
+            // --- HOLD State ---
+            const glyphIndex = parseInt(slot.dataset.glyphIndex, 10);
+            const glyph = stateObject.glyphs[glyphIndex];
+            if (!glyph) return;
 
-        // Populate tooltip
-        populateTooltip(glyph);
-        sellInfo.style.display = 'flex'; // Ensure sell info is visible on click
+            populateTooltip(glyph, 'HOLD');
 
-        // Position tooltip
-        const rect = slot.getBoundingClientRect();
-        tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`; // Position above
-        tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+            const rect = slot.getBoundingClientRect();
+            tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`;
+            tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
 
-        // Show tooltip and overlay
-        overlay.style.display = 'block';
-        tooltip.classList.add('visible');
-        tooltip.classList.add('interactive'); // Make it clickable
+            overlay.style.display = 'block';
+            tooltip.classList.add('visible', 'interactive');
 
-        // Define and attach the sell handler
-        currentSellHandler = () => {
-            // 1. Add money
-            stateObject.money += glyph.sellValue;
-            // 2. Remove glyph
-            stateObject.glyphs.splice(glyphIndex, 1);
-            // 3. Save state and update UI
-            saveStateCallback(stateObject);
-            updateUICallback(); // This will call renderGlyphs() and updateMoneyDisplay()
-            closeTooltip();
-        };
-        sellBtn.addEventListener('click', currentSellHandler, { once: true });
+            // Attach USE handler (placeholder)
+            currentUseHandler = () => {
+                console.log(`USE action for ${glyph.name}`);
+                closeTooltip();
+            };
+            useBtn.addEventListener('click', currentUseHandler, { once: true });
+
+            // Attach SELL handler
+            currentSellHandler = () => {
+                stateObject.money += glyph.sellValue;
+                stateObject.glyphs.splice(glyphIndex, 1);
+                saveStateCallback(stateObject);
+                updateUICallback();
+                closeTooltip();
+            };
+            sellBtn.addEventListener('click', currentSellHandler, { once: true });
+
+        }, 500); // 500ms for long press
     });
+
+    const cancelHold = () => clearTimeout(holdTimer);
+    glyphsContainer.addEventListener('mouseup', cancelHold);
+    glyphsContainer.addEventListener('mouseleave', cancelHold);
 
     overlay.addEventListener('click', closeTooltip);
 
-    // --- New Hover Logic ---
     glyphsContainer.addEventListener('mouseover', (e) => {
         const slot = e.target.closest('.glyph-slot');
         if (!slot || !slot.classList.contains('filled')) return;
@@ -186,10 +283,12 @@ function initGlyphInteractions(stateObject, saveStateCallback, updateUICallback)
             const glyph = stateObject.glyphs[glyphIndex];
             if (!glyph) return;
 
-            populateTooltip(glyph);
-            sellInfo.style.display = 'none'; // Hide sell info for hover preview
+            // --- HOVER/INFO State ---
+            // Decide which tooltip to show based on the options toggle
+            const tooltipState = stateObject.showGlyphInfo ? 'INFO' : 'HOVER';
+            populateTooltip(glyph, tooltipState);
 
-            tooltip.classList.add('visible'); // Make it visible to calculate its height
+            tooltip.classList.add('visible'); // Make visible to calculate height
 
             const rect = slot.getBoundingClientRect();
             // Position tooltip ABOVE the slot for hover
@@ -200,9 +299,8 @@ function initGlyphInteractions(stateObject, saveStateCallback, updateUICallback)
 
     glyphsContainer.addEventListener('mouseout', () => {
         clearTimeout(tooltipHoverTimer);
-        if (overlay.style.display !== 'block') { // Only hide if it's a hover tooltip
+        if (!tooltip.classList.contains('interactive')) { // Only hide if it's a non-interactive (hover) tooltip
             tooltip.classList.remove('visible');
-            tooltip.classList.remove('interactive');
         }
     });
 }

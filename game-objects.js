@@ -15,7 +15,7 @@ class Glyph {
      * @param {number} config.purchaseCost - Cost to buy from the shop.
      * @param {number} config.sellValue - Value when sold.
      */
-    constructor({ id, name, description, rarity, tags, purchaseCost, sellValue }) {
+    constructor({ id, name, description, rarity, tags, purchaseCost, sellValue, imageName }) {
         // Metadata
         this.id = id;
         this.rarity = rarity; // 'Common', 'Uncommon', 'Rare', 'Legendary'
@@ -29,6 +29,9 @@ class Glyph {
         this.isActive = true;
         this.purchaseCost = purchaseCost;
         this.sellValue = sellValue;
+
+        // Visuals
+        this.imageName = imageName || `${id}.png`; // Use custom name or default to id.png
     }
 
     // --- Interaction Methods (to be implemented by subclasses) ---

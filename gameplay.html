@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>AlphaBoss - Gameplay</title>
     <link rel="stylesheet" href="gameplay.css">
+    <link rel="stylesheet" href="shared.css">
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
@@ -153,6 +154,10 @@
                     <label for="devControlsToggle" class="option-label">DEV CONTROLS</label>
                     <input type="checkbox" id="devControlsToggle" class="toggle-switch">
                 </div>
+                <div class="option-row">
+                    <label for="glyphInfoToggle" class="option-label">GLYPH INFO</label>
+                    <input type="checkbox" id="glyphInfoToggle" class="toggle-switch">
+                </div>
             </div>
             <div class="options-footer">
                 <span class="version-info">v0.0.1</span>
@@ -255,6 +260,9 @@
             <button id="devNavGame">Gameplay</button>
             <button id="devNavShop">Shop</button>
             <button id="devNavEvent">Event</button>
+            <button id="devNavSandbox">Sandbox</button>
+            <button id="devNavWordle">Wordle Event</button>
+            <button id="devNavScramble">Word Scramble</button>
             <div class="dev-section" style="margin-top: 10px;">
                 <h4 class="dev-subtitle" style="margin:0; padding:0; border:0;">Go to Stage:</h4>
                 <div id="devStageNav" style="display: flex; flex-direction: column; gap: 5px; margin-top: 5px;"></div>
@@ -290,8 +298,9 @@
             <div class="glyph-tooltip-footer">
                 <div class="glyph-tooltip-rarity" id="glyphActionRarity">Common</div>
                 <div class="glyph-tooltip-sell-info" id="glyphSellInfo">
-                    <span class="glyph-tooltip-sell-value" id="glyphSellValue">$0</span>
-                    <button class="btn-sell" id="glyphSellBtn">Sell</button>
+                    <!-- New action buttons -->
+                    <button class="btn-glyph-action btn-use" id="glyphUseBtn">USE</button>
+                    <button class="btn-glyph-action btn-sell" id="glyphSellBtn">SELL $5</button>
                 </div>
             </div>
         </div>
