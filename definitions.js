@@ -14,15 +14,15 @@ class GlyphA extends Glyph {
             name: 'A Glyph',
             description: 'Played tiles with A give +3 Mult when scored.',
             rarity: 'Common',
-            tags: ['scoring', 'mult', 'rank_based'],
-            purchaseCost: 6,
-            sellValue: 3,
-            imageName: 'big-a.png', // Use the web-safe artwork name
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'big-a.png',
             hasAction: true,
-
         });
     }
 
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         let bonusMult = 0;
         handInfo.playedTiles.forEach(tile => {
@@ -41,13 +41,15 @@ class GlyphE extends Glyph {
             name: 'E Glyph',
             description: 'Played tiles with E give +3 Mult when scored.',
             rarity: 'Common',
-            tags: ['scoring', 'mult', 'rank_based'],
-            purchaseCost: 6,
-            sellValue: 3,
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
             imageName: 'big-e.png',
+            hasAction: false,
         });
     }
 
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         let bonusMult = 0;
         handInfo.playedTiles.forEach(tile => {
@@ -66,13 +68,15 @@ class GlyphI extends Glyph {
             name: 'I Glyph',
             description: 'Played tiles with I give +3 Mult when scored.',
             rarity: 'Common',
-            tags: ['scoring', 'mult', 'rank_based'],
-            purchaseCost: 6,
-            sellValue: 3,
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
             imageName: 'big-i.png',
+            hasAction: false,
         });
     }
 
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         let bonusMult = 0;
         handInfo.playedTiles.forEach(tile => {
@@ -91,13 +95,15 @@ class GlyphO extends Glyph {
             name: 'O Glyph',
             description: 'Played tiles with O give +3 Mult when scored.',
             rarity: 'Common',
-            tags: ['scoring', 'mult', 'rank_based'],
-            purchaseCost: 6,
-            sellValue: 3,
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
             imageName: 'big-o.png',
+            hasAction: false,
         });
     }
 
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         let bonusMult = 0;
         handInfo.playedTiles.forEach(tile => {
@@ -116,13 +122,15 @@ class GlyphU extends Glyph {
             name: 'U Glyph',
             description: 'Played tiles with U give +3 Mult when scored.',
             rarity: 'Common',
-            tags: ['scoring', 'mult', 'rank_based'],
-            purchaseCost: 6,
-            sellValue: 3,
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
             imageName: 'big-u.png',
+            hasAction: false,
         });
     }
 
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         let bonusMult = 0;
         handInfo.playedTiles.forEach(tile => {
@@ -131,6 +139,10 @@ class GlyphU extends Glyph {
             }
         });
         return { bonusMult };
+    }
+
+    getPowerText() {
+        return { text: '+3 MULT', class: 'mult' };
     }
 }
 
@@ -141,12 +153,15 @@ class GlyphAPoints extends Glyph {
             name: 'a Glyph',
             description: 'Played tiles with A give +20 points when scored.',
             rarity: 'Common',
-            tags: ['scoring', 'chips', 'rank_based'],
-            purchaseCost: 6,
-            sellValue: 3,
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
             imageName: 'little-a.png',
+            hasAction: false,
         });
     }
+
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         let bonusScore = 0;
         handInfo.playedTiles.forEach(tile => {
@@ -163,12 +178,15 @@ class GlyphEPoints extends Glyph {
             name: 'e Glyph',
             description: 'Played tiles with E give +20 points when scored.',
             rarity: 'Common',
-            tags: ['scoring', 'chips', 'rank_based'],
-            purchaseCost: 6,
-            sellValue: 3,
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
             imageName: 'little-e.png',
+            hasAction: false,
         });
     }
+
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         let bonusScore = 0;
         handInfo.playedTiles.forEach(tile => {
@@ -185,12 +203,15 @@ class GlyphIPoints extends Glyph {
             name: 'i Glyph',
             description: 'Played tiles with I give +20 points when scored.',
             rarity: 'Common',
-            tags: ['scoring', 'chips', 'rank_based'],
-            purchaseCost: 6,
-            sellValue: 3,
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
             imageName: 'little-i.png',
+            hasAction: false,
         });
     }
+
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         let bonusScore = 0;
         handInfo.playedTiles.forEach(tile => {
@@ -207,12 +228,15 @@ class GlyphOPoints extends Glyph {
             name: 'o Glyph',
             description: 'Played tiles with O give +20 points when scored.',
             rarity: 'Common',
-            tags: ['scoring', 'chips', 'rank_based'],
-            purchaseCost: 6,
-            sellValue: 3,
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
             imageName: 'little-o.png',
+            hasAction: false,
         });
     }
+
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         let bonusScore = 0;
         handInfo.playedTiles.forEach(tile => {
@@ -229,18 +253,25 @@ class GlyphUPoints extends Glyph {
             name: 'u Glyph',
             description: 'Played tiles with U give +20 points when scored.',
             rarity: 'Common',
-            tags: ['scoring', 'chips', 'rank_based'],
-            purchaseCost: 6,
-            sellValue: 3,
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
             imageName: 'little-u.png',
+            hasAction: false,
         });
     }
+
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         let bonusScore = 0;
         handInfo.playedTiles.forEach(tile => {
             if (tile.letter === 'U') bonusScore += 20;
         });
         return { bonusScore };
+    }
+
+    getPowerText() {
+        return { text: '+20 PTS', class: 'score' };
     }
 }
 
@@ -250,11 +281,11 @@ class GlyphPilcrow extends Glyph {
             id: 'glyph_pilcrow',
             name: 'Pilcrow',
             description: 'Gain +1 max Refreshes for the run.',
-            rarity: 'Uncommon',
-            tags: ['utility', 'refresh'],
-            purchaseCost: 8,
-            sellValue: 4,
-            imageName: 'Pilcrow.png',
+            rarity: 'Common',
+            tags: ['utility'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'pilcrow.png',
             hasAction: true, // This glyph has a usable action
         });
     }
@@ -271,13 +302,15 @@ class GlyphAmpersand extends Glyph {
             name: 'Ampersand',
             description: "Words containing 'AND' score a bonus +50 points.",
             rarity: 'Uncommon',
-            tags: ['scoring', 'chips'],
-            purchaseCost: 8,
-            sellValue: 4,
-            imageName: 'Ampersand.png',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'ampersand.png',
+            hasAction: false,
         });
     }
 
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         const word = handInfo.playedTiles.map(t => t.letter).join('');
         if (word.includes('AND')) return { bonusScore: 50 };
@@ -294,15 +327,17 @@ class GlyphCedille extends Glyph {
         super({
             id: 'glyph_cedille',
             name: 'Cedille',
-            description: "Words starting with 'LE' or 'LA' score a bonus +40 points.",
+            description: "Words starting with 'LE' or 'LA' score a bonus +X points.",
             rarity: 'Uncommon',
-            tags: ['scoring', 'chips'],
-            purchaseCost: 8,
-            sellValue: 4,
-            imageName: 'Cedille.png',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'cedille.png',
+            hasAction: false,
         });
     }
 
+    // onScoring provides the data for the base getPowerText()
     onScoring(gameState, handInfo) {
         const word = handInfo.playedTiles.map(t => t.letter).join('');
         if (word.startsWith('LE') || word.startsWith('LA')) {
@@ -327,7 +362,7 @@ class GlyphStar extends Glyph {
             purchaseCost: 10,
             sellValue: 5,
             imageName: 'star.png', // You would create a star.png image for this
-            hasAction: true,       // Let's give it an action button for testing
+            hasAction: true,
         });
     }
 
@@ -346,7 +381,1737 @@ class GlyphExclamation extends Glyph {
             tags: ['sandbox', 'test'],
             purchaseCost: 5,
             sellValue: 2,
-            imageName: 'exclamation.png', // You would create an exclamation.png image for this
+            imageName: 'exclamation.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'TEST', class: 'utility' };
+    }
+}
+
+class GlyphInterest extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_interest',
+            name: 'Interest',
+            description: 'Raise the cap on interest earned in each round to $20',
+            rarity: 'Uncommon',
+            tags: ['economy'],
+            purchaseCost: 10,
+            sellValue: 5,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphSly extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_sly',
+            name: 'Sly Glyph',
+            description: '+50 Points if played word contains a pair of letters. MAM',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 3,
+            sellValue: 1,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+50 PTS', class: 'score' }; }
+}
+
+class GlyphClever extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_clever',
+            name: 'Clever Glyph',
+            description: '+80 Points if played word contains a two pairs of letters. OPPOsition',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+80 PTS', class: 'score' }; }
+}
+
+class GlyphDevious extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_devious',
+            name: 'Devious Glyph',
+            description: '+100 Points if played tiles are in alphabetical order. BOX',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+100 PTS', class: 'score' }; }
+}
+
+class GlyphMicro extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_micro',
+            name: 'Micro µ',
+            description: 'Words played with 6 or less letters get +4 mult',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false
+        });
+    }
+
+    getPowerText() { return { text: '+4 MULT', class: 'mult' }; }
+}
+
+class GlyphStencil extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_stencil',
+            name: 'Glyph Stencil',
+            description: 'X1 Mult Mult for each empty Glyph slot. Glyph Stencil included {Attribute variable showing active value:}',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 8,
+            sellValue: 4,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X1 MULT', class: 'mult' }; }
+}
+
+class GlyphMime extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_mime',
+            name: 'Mime',
+            description: 'Retrigger all tile held in word abilities',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'RETRIGGER', class: 'utility' };
+    }
+}
+
+class GlyphCreditCard extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_credit_card',
+            name: 'Credit Card',
+            description: 'Go up to -$20 in debt',
+            rarity: 'Common',
+            tags: ['economy'],
+            purchaseCost: 1,
+            sellValue: 0,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphCeremonialDagger extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_ceremonial_dagger',
+            name: 'Ceremonial Dagger',
+            description: 'When next round is selected, destroy Glyph to the right and permanently add double its sell value to this Mult {Attribute variable showing value:{Attribute variable that shows the unique value:} (Currently +0 Mult)}',
+            rarity: 'Uncommon',
+            tags: ['scaling'],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'SCALING', class: 'utility' };
+    }
+}
+
+class GlyphBanner extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_banner',
+            name: 'Banner',
+            description: '+30 Points for each remaining remaining',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+30 PTS', class: 'score' }; }
+}
+
+class GlyphMysticSummit extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_mystic_summit',
+            name: 'Mystic Summit',
+            description: '+15 Mult when 0 refreshes remaining',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+15 MULT', class: 'mult' }; }
+}
+
+class GlyphMarble extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_marble',
+            name: 'Marble Glyph',
+            description: 'Adds one stone tile to the bag when round is selected',
+            rarity: 'Uncommon',
+            tags: ['utility'],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphLoyaltyCard extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_loyalty_card',
+            name: 'Loyalty Card',
+            description: 'X4 Mult every 6 words played {Attribute variable: (6 remaining)}',
+            rarity: 'Uncommon',
+            tags: ['scaling'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X4 MULT', class: 'mult' }; }
+}
+
+class GlyphMisprint extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_misprint',
+            name: 'Misprint',
+            description: '+0-23 Mult',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+0-23 MULT', class: 'mult' }; }
+}
+
+class GlyphDusk extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_dusk',
+            name: 'Dusk',
+            description: 'Retrigger all played tiles in final word of the round',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'RETRIGGER', class: 'utility' };
+    }
+}
+
+class GlyphRaisedFist extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_raised_fist',
+            name: 'Raised Fist',
+            description: 'Adds double the rank of lowest ranked tile held in grid to Mult',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'SCALING', class: 'utility' };
+    }
+}
+
+class GlyphChaosTheClown extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_chaos_the_clown',
+            name: 'Chaos the Clown',
+            description: '1 free Reroll per shop',
+            rarity: 'Common',
+            tags: ['economy'],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphAbstract extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_abstract',
+            name: 'Abstract Glyph',
+            description: '+3 Mult for each Glyph tile {Attribute variable: {Attribute variable that shows the unique value:} (Currently +0 Mult)}',
+            rarity: 'Common',
+            tags: ['scaling'],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+3 MULT', class: 'mult' }; }
+}
+
+class GlyphDelayedGratification extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_delayed_gratification',
+            name: 'Delayed Gratification',
+            description: 'Earn $2 per refresh at the end of the round',
+            rarity: 'Common',
+            tags: ['economy'],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphGrosMichel extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_gros_michel',
+            name: 'Gros Michel',
+            description: '+15 Mult 1 in 6 chance this is destroyed at the end of round.',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+15 MULT', class: 'mult' }; }
+}
+
+class GlyphSpace extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_space',
+            name: 'Space Glyph',
+            description: '1 in 4 chance to upgrade level of played tiles',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphEgg extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_egg',
+            name: 'Egg',
+            description: 'Gains $3 of sell value at end of round',
+            rarity: 'Common',
+            tags: ['economy'],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphBurglar extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_burglar',
+            name: 'Burglar',
+            description: 'When Blind is selected, gain +3 words and lose all refreshes',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphIceCream extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_ice_cream',
+            name: 'Ice Cream',
+            description: '+100 Points -5 Points for every word played',
+            rarity: 'Common',
+            tags: ['scaling'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+100 PTS', class: 'score' }; }
+}
+
+class GlyphBlue extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_blue',
+            name: 'Blue Glyph',
+            description: '+2 Points for each remaining tile in deck {Attribute variable that shows the unique value:} (Currently +104 Points)',
+            rarity: 'Common',
+            tags: ['scaling'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+2 PTS', class: 'score' }; }
+}
+
+class GlyphHiker extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_hiker',
+            name: 'Hiker',
+            description: 'Every played tile permanently gains +5 Points when scored',
+            rarity: 'Uncommon',
+            tags: ['scaling'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'SCALING', class: 'utility' };
+    }
+}
+
+class GlyphGreen extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_green',
+            name: 'Green Glyph',
+            description: '+1 Mult per word played -1 Mult per distile {Attribute variable that shows the unique value:} (Currently +0 Mult)',
+            rarity: 'Common',
+            tags: ['scaling'],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+1 MULT', class: 'mult' }; }
+}
+
+class GlyphToDoList extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_to_do_list',
+            name: 'To Do List',
+            description: 'Earn $4 if word played is a certain length, word length changes at end of round',
+            rarity: 'Common',
+            tags: ['economy'],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphCavendish extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_cavendish',
+            name: 'Cavendish',
+            description: 'X3 Mult 1 in 1000 chance this tile is destroyed at the end of round',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X3 MULT', class: 'mult' }; }
+}
+
+class GlyphCardSharp extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_card_sharp',
+            name: 'Card Sharp',
+            description: 'X3 Mult if played poker word has already been played this round',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X3 MULT', class: 'mult' }; }
+}
+
+class GlyphRedCard extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_red_card',
+            name: 'Red Card',
+            description: 'This Glyph gains +3 Mult when any Booster Pack is skipped {Attribute variable that shows the unique value:} (Currently +0 Mult)',
+            rarity: 'Common',
+            tags: ['scaling'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+3 MULT', class: 'mult' }; }
+}
+
+class GlyphMadness extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_madness',
+            name: 'Madness',
+            description: 'When Quiz or Test is selected, gain X0.5 Mult and destroy a random Glyph {Attribute variable that shows the unique value:} (Currently X1 Mult)',
+            rarity: 'Uncommon',
+            tags: ['scaling'],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X0.5 MULT', class: 'mult' }; }
+}
+
+class GlyphSquare extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_square',
+            name: 'Square Glyph',
+            description: 'This Glyph gains +4 Points if played word has exactly 4 tiles {Attribute variable that shows the unique value:} (Currently 0 Points)',
+            rarity: 'Common',
+            tags: ['scaling'],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+4 PTS', class: 'score' }; }
+}
+
+class GlyphRiffRaff extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_riff_raff',
+            name: 'Riff-Raff',
+            description: 'When Blind is selected, create 2 Common Glyphs (Must have room)',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphVampire extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_vampire',
+            name: 'Vampire',
+            description: 'This Glyph gains X0.1 Mult per scoring Enhanced tile played, removes tile Enhancement {Attribute variable that shows the unique value:} (Currently X1 Mult)',
+            rarity: 'Uncommon',
+            tags: ['scaling'],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X0.1 MULT', class: 'mult' }; }
+}
+
+class GlyphHologram extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_hologram',
+            name: 'Hologram',
+            description: 'This Glyph gains X0.25 Mult every time a playing tile is added to your deck {Attribute variable that shows the unique value:} (Currently X1 Mult)',
+            rarity: 'Uncommon',
+            tags: ['scaling'],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X0.25 MULT', class: 'mult' }; }
+}
+
+class GlyphVagabond extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_vagabond',
+            name: 'Vagabond',
+            description: 'Create a consumablet tile if word is played with $4 or less',
+            rarity: 'Rare',
+            tags: [],
+            purchaseCost: 8,
+            sellValue: 4,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphRocket extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_rocket',
+            name: 'Rocket',
+            description: 'Earn $1 at end of round. Payout increases by $2 when round Exam is passed',
+            rarity: 'Uncommon',
+            tags: ['economy', 'scaling'],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphMidasMask extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_midas_mask',
+            name: 'Midas Mask',
+            description: 'All played vowel tiles become Gold tiles when scored',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphLuchador extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_luchador',
+            name: 'Luchador',
+            description: 'Sell this tile to disable the current Boss Blind',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphGiftCard extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_gift_card',
+            name: 'Gift Card',
+            description: 'Add $1 of sell value to every Glyph and Consumable tile at end of round',
+            rarity: 'Uncommon',
+            tags: ['economy'],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphTurtleBean extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_turtle_bean',
+            name: 'Turtle Bean',
+            description: '+4 grid size, reduces by 1 each round',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphToTheMoon extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_to_the_moon',
+            name: 'To the Moon',
+            description: 'Earn an extra $1 of interest for every $5 you have at end of round',
+            rarity: 'Uncommon',
+            tags: ['economy'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphDrunkard extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_drunkard',
+            name: 'Drunkard',
+            description: '+1 distile each round',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphGolden extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_golden',
+            name: 'Golden Glyph',
+            description: 'Earn $4 at end of round',
+            rarity: 'Common',
+            tags: ['economy'],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphLuckyCat extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_lucky_cat',
+            name: 'Lucky Cat',
+            description: 'This Glyph gains X0.25 Mult every time a Lucky tile successfully triggers {Attribute variable that shows the unique value:} (Currently X1 Mult)',
+            rarity: 'Uncommon',
+            tags: ['scaling'],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X0.25 MULT', class: 'mult' }; }
+}
+
+class GlyphBaseballCard extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_baseball_card',
+            name: 'Baseball Card',
+            description: 'Uncommon Glyphs each give X1.5 Mult',
+            rarity: 'Rare',
+            tags: [],
+            purchaseCost: 8,
+            sellValue: 4,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X1.5 MULT', class: 'mult' }; }
+}
+
+class GlyphBull extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_bull',
+            name: 'Bull',
+            description: '+2 Points for each $1 you have {Attribute variable that shows the unique value:} (Currently +0 Points)',
+            rarity: 'Uncommon',
+            tags: ['economy', 'scaling'],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+2 PTS', class: 'score' }; }
+}
+
+class GlyphDietCola extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_diet_cola',
+            name: 'Diet Cola',
+            description: 'Sell this tile to create a free Double Tag',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphTradingCard extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_trading_card',
+            name: 'Trading Card',
+            description: 'If first distile of round has only 1 tile, destroy it and earn $3',
+            rarity: 'Uncommon',
+            tags: ['economy'],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphPopcorn extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_popcorn',
+            name: 'Popcorn',
+            description: '+20 Mult -4 Mult per round played',
+            rarity: 'Common',
+            tags: ['scaling'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+20 MULT', class: 'mult' }; }
+}
+
+class GlyphRamen extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_ramen',
+            name: 'Ramen',
+            description: 'X2 Mult, loses X0.25 Mult per refresh/tile distile',
+            rarity: 'Uncommon',
+            tags: ['scaling'],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X2 MULT', class: 'mult' }; }
+}
+
+class GlyphSeltzer extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_seltzer',
+            name: 'Seltzer',
+            description: 'Retrigger all tiles played for the next 10 words',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'RETRIGGER', class: 'utility' };
+    }
+}
+
+class GlyphGoldenTicket extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_golden_ticket',
+            name: 'Golden Ticket',
+            description: 'Played Gold tiles earn $4 when scored',
+            rarity: 'Common',
+            tags: ['economy'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphMrBones extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_mr_bones',
+            name: 'Mr. Bones',
+            description: 'Prevents Death if points scored are at least 25% of required chips self destructs',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphAcrobat extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_acrobat',
+            name: 'Acrobat',
+            description: 'X3 Mult on final word of round',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X3 MULT', class: 'mult' }; }
+}
+
+class GlyphSockAndBuskin extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_sock_and_buskin',
+            name: 'Sock and Buskin',
+            description: 'Retrigger all played vowel tiles',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'RETRIGGER', class: 'utility' };
+    }
+}
+
+class GlyphTroubadour extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_troubadour',
+            name: 'Troubadour',
+            description: '+2 word size, -1 word per round',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphHangingChad extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_hanging_chad',
+            name: 'Hanging Chad',
+            description: 'Retrigger first played tile used in scoring 2 additional times',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'RETRIGGER', class: 'utility' };
+    }
+}
+
+class GlyphRoughGem extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_rough_gem',
+            name: 'Rough Gem',
+            description: 'Played U tiles earn $1 when scored',
+            rarity: 'Uncommon',
+            tags: ['economy'],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphBloodstone extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_bloodstone',
+            name: 'Bloodstone',
+            description: '1 in 2 chance for played O tiles to give X1.5 Mult when scored',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X1.5 MULT', class: 'mult' }; }
+}
+
+class GlyphArrowhead extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_arrowhead',
+            name: 'Arrowhead',
+            description: 'Played E tiles with give +50 Points when scored',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+50 PTS', class: 'score' }; }
+}
+
+class GlyphOnyxAgate extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_onyx_agate',
+            name: 'Onyx Agate',
+            description: 'Played I tiles give +7 Mult when scored',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+7 MULT', class: 'mult' }; }
+}
+
+class GlyphGlass extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_glass',
+            name: 'Glass Glyph',
+            description: 'This Glyph gains X0.75 Mult for every Glass tile that is destroyed {Attribute variable that shows the unique value:} (Currently X1 Mult)',
+            rarity: 'Uncommon',
+            tags: ['scaling'],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X0.75 MULT', class: 'mult' }; }
+}
+
+class GlyphFlowerPot extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_flower_pot',
+            name: 'Flower Pot',
+            description: 'X3 Mult if word contains a 4 different vowels.',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 6,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X3 MULT', class: 'mult' }; }
+}
+
+class GlyphBlueprint extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_blueprint',
+            name: 'Blueprint',
+            description: 'Copies ability of Glyph to the right',
+            rarity: 'Rare',
+            tags: [],
+            purchaseCost: 10,
+            sellValue: 5,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphMerryAndy extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_merry_andy',
+            name: 'Merry Andy',
+            description: '+3 words each round, -1 grid size',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphOopsAll6s extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_oops_all_6s',
+            name: 'Oops! All 6s',
+            description: 'Doubles all listed probabilities (ex: 1 in 3 -> 2 in 3)',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 4,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphTheDuo extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_the_duo',
+            name: 'The Duo',
+            description: 'X2 Mult if played word contains a two of the same letters',
+            rarity: 'Rare',
+            tags: [],
+            purchaseCost: 8,
+            sellValue: 4,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X2 MULT', class: 'mult' }; }
+}
+
+class GlyphTheTrio extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_the_trio',
+            name: 'The Trio',
+            description: 'X3 Mult if played word contains a three of the same letters',
+            rarity: 'Rare',
+            tags: [],
+            purchaseCost: 8,
+            sellValue: 4,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X3 MULT', class: 'mult' }; }
+}
+
+class GlyphStuntman extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_stuntman',
+            name: 'Stuntman',
+            description: '+250 Points, -1 grid column',
+            rarity: 'Rare',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+250 PTS', class: 'score' }; }
+}
+
+class GlyphBrainstorm extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_brainstorm',
+            name: 'Brainstorm',
+            description: 'Copies the ability of leftmost Glyph',
+            rarity: 'Rare',
+            tags: [],
+            purchaseCost: 10,
+            sellValue: 5,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphDriversLicense extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_drivers_license',
+            name: 'Driver\'s License',
+            description: 'X3 Mult if you have at least 16 Enhanced tiles in your full deck {Attribute variable that shows the unique value:} (Currently 0)',
+            rarity: 'Rare',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X3 MULT', class: 'mult' }; }
+}
+
+class GlyphBootstraps extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_bootstraps',
+            name: 'Bootstraps',
+            description: '+2 Mult for every $5 you have {Attribute variable that shows the unique value:} (Currently +0 Mult)',
+            rarity: 'Uncommon',
+            tags: ['economy', 'scaling'],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: '+2 MULT', class: 'mult' }; }
+}
+
+class GlyphYorick extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_yorick',
+            name: 'Yorick',
+            description: 'This Glyph gains X1 Mult every 23 [23] tiles refreshed {Attribute variable that shows the unique value:} (Currently X1 Mult)',
+            rarity: 'Legendary',
+            tags: ['scaling'],
+            purchaseCost: 20,
+            sellValue: 10,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() { return { text: 'X1 MULT', class: 'mult' }; }
+}
+
+class GlyphChicot extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_chicot',
+            name: 'Chicot',
+            description: 'Disables effect of every exam',
+            rarity: 'Legendary',
+            tags: [],
+            purchaseCost: 20,
+            sellValue: 10,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphBowOfZyx extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_bow_of_zyx',
+            name: 'Bow of Zyx',
+            description: 'Increases damage done by X, Y and Z letter tiles, makes X, Y and Z count as 2.5 letters each (up from 2, 1.5 and 2) towards adjusted word length.',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphWoodenParrot extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_wooden_parrot',
+            name: 'Wooden Parrot',
+            description: "all 'R' tiles doubled",
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphKanji extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_kanji',
+            name: 'Kanji',
+            description: 'Has a 25% chance to break. and return back stronger',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphFourthTile extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_fourth_tile',
+            name: 'Fourth Tile',
+            description: 'When submitting, the fourth tile will score 3x its points.',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphSecondTile extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_second_tile',
+            name: 'Second Tile',
+            description: 'When submitting, the second tile will score 3x its points.',
+            rarity: 'Common',
+            tags: [],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphFreeReroll extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_free_reroll',
+            name: 'Free Reroll',
+            description: 'You can reroll the perks for free, once per round.',
+            rarity: 'Common',
+            tags: ['economy'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'ECONOMY', class: 'utility' };
+    }
+}
+
+class GlyphVowelStart extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_vowel_start',
+            name: 'Vowel Start',
+            description: 'If the first tile is a Vowel, multiply its score by 5.',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphVowelEnd extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_vowel_end',
+            name: 'Vowel End',
+            description: 'If the last tile is a Vowel, permanently increase its score by 2.',
+            rarity: 'Uncommon',
+            tags: ['scaling'],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'SCALING', class: 'utility' };
+    }
+}
+
+class GlyphCollector extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_collector',
+            name: 'Collector',
+            description: 'Rare and Legendary glyphs are much more likely to appear.',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphSeventhGold extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_seventh_gold',
+            name: 'Seventh Gold',
+            description: 'When submitting, convert the seventh tile into a Golden Tile.',
+            rarity: 'Rare',
+            tags: [],
+            purchaseCost: 10,
+            sellValue: 5,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphSixthEmerald extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_sixth_emerald',
+            name: 'Sixth Emerald',
+            description: 'When submitting, convert the sixth tile into an Emerald Tile.',
+            rarity: 'Rare',
+            tags: [],
+            purchaseCost: 10,
+            sellValue: 5,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    getPowerText() {
+        return { text: 'UTILITY', class: 'utility' };
+    }
+}
+
+class GlyphPentagram extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_pentagram',
+            name: 'The Pentagram',
+            description: '+100 Points if played word has exactly 5 tiles.',
+            rarity: 'Uncommon',
+            tags: [],
+            purchaseCost: 7,
+            sellValue: 3,
+            imageName: 'test.png',
+            hasAction: false,
+        });
+    }
+
+    // onScoring provides the data for the base getPowerText()
+    onScoring(gameState, handInfo) {
+        if (handInfo.playedTiles.length === 5) {
+            return { bonusScore: 100 };
+        }
+        return {};
+    }
+
+    getPowerText() { return { text: '+100 PTS', class: 'score' }; }
+}
+
+class GlyphDollarsign extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_dollarsign',
+            name: 'Dollarsign',
+            description: 'A placeholder glyph for testing.',
+            rarity: 'Common',
+            tags: ['sandbox', 'test'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'dollarsign.png',
+            hasAction: false
+        });
+    }
+
+    getPowerText() {
+        return { text: 'TEST', class: 'utility' };
+    }
+}
+
+class GlyphZyx extends Glyph {
+    constructor() {
+        super({
+            id: 'glyph_zyx',
+            name: 'Zyx',
+            description: 'A placeholder glyph for testing.',
+            rarity: 'Common',
+            tags: ['sandbox', 'test'],
+            purchaseCost: 5,
+            sellValue: 2,
+            imageName: 'test.png',
             hasAction: false,
         });
     }
@@ -373,6 +2138,96 @@ const ALL_GLYPHS = [
     new GlyphCedille(),
     new GlyphStar(),
     new GlyphExclamation(),
+    new GlyphSly(),
+    new GlyphClever(),
+    new GlyphDevious(),
+    new GlyphMicro(),
+    new GlyphStencil(),
+    new GlyphMime(),
+    new GlyphCreditCard(),
+    new GlyphCeremonialDagger(),
+    new GlyphBanner(),
+    new GlyphMysticSummit(),
+    new GlyphMarble(),
+    new GlyphLoyaltyCard(),
+    new GlyphMisprint(),
+    new GlyphDusk(),
+    new GlyphRaisedFist(),
+    new GlyphChaosTheClown(),
+    new GlyphAbstract(),
+    new GlyphDelayedGratification(),
+    new GlyphGrosMichel(),
+    new GlyphSpace(),
+    new GlyphEgg(),
+    new GlyphBurglar(),
+    new GlyphIceCream(),
+    new GlyphBlue(),
+    new GlyphHiker(),
+    new GlyphGreen(),
+    new GlyphToDoList(),
+    new GlyphCavendish(),
+    new GlyphCardSharp(),
+    new GlyphRedCard(),
+    new GlyphMadness(),
+    new GlyphSquare(),
+    new GlyphRiffRaff(),
+    new GlyphVampire(),
+    new GlyphHologram(),
+    new GlyphVagabond(),
+    new GlyphRocket(),
+    new GlyphMidasMask(),
+    new GlyphLuchador(),
+    new GlyphGiftCard(),
+    new GlyphTurtleBean(),
+    new GlyphToTheMoon(),
+    new GlyphDrunkard(),
+    new GlyphGolden(),
+    new GlyphLuckyCat(),
+    new GlyphBaseballCard(),
+    new GlyphBull(),
+    new GlyphDietCola(),
+    new GlyphTradingCard(),
+    new GlyphPopcorn(),
+    new GlyphRamen(),
+    new GlyphSeltzer(),
+    new GlyphGoldenTicket(),
+    new GlyphMrBones(),
+    new GlyphAcrobat(),
+    new GlyphSockAndBuskin(),
+    new GlyphTroubadour(),
+    new GlyphHangingChad(),
+    new GlyphRoughGem(),
+    new GlyphBloodstone(),
+    new GlyphArrowhead(),
+    new GlyphOnyxAgate(),
+    new GlyphGlass(),
+    new GlyphFlowerPot(),
+    new GlyphBlueprint(),
+    new GlyphMerryAndy(),
+    new GlyphOopsAll6s(),
+    new GlyphTheDuo(),
+    new GlyphTheTrio(),
+    new GlyphStuntman(),
+    new GlyphBrainstorm(),
+    new GlyphDriversLicense(),
+    new GlyphBootstraps(),
+    new GlyphYorick(),
+    new GlyphChicot(),
+    new GlyphBowOfZyx(),
+    new GlyphWoodenParrot(),
+    new GlyphKanji(),
+    new GlyphFourthTile(),
+    new GlyphSecondTile(),
+    new GlyphFreeReroll(),
+    new GlyphVowelStart(),
+    new GlyphVowelEnd(),
+    new GlyphCollector(),
+    new GlyphSeventhGold(),
+    new GlyphSixthEmerald(),
+    new GlyphInterest(),
+    new GlyphPentagram(),
+    new GlyphDollarsign(),
+    new GlyphZyx(),
 ];
 
 // --- UPGRADE DEFINITIONS ---
@@ -616,6 +2471,95 @@ const GLYPH_MAP = {
     'glyph_cedille': GlyphCedille,
     'glyph_star': GlyphStar,
     'glyph_exclamation': GlyphExclamation,
+    'glyph_interest': GlyphInterest,
+    'glyph_sly': GlyphSly,
+    'glyph_clever': GlyphClever,
+    'glyph_stencil': GlyphStencil,
+    'glyph_devious': GlyphDevious,
+    'glyph_micro': GlyphMicro,
+    'glyph_credit_card': GlyphCreditCard,
+    'glyph_ceremonial_dagger': GlyphCeremonialDagger,
+    'glyph_banner': GlyphBanner,
+    'glyph_mystic_summit': GlyphMysticSummit,
+    'glyph_marble': GlyphMarble,
+    'glyph_loyalty_card': GlyphLoyaltyCard,
+    'glyph_misprint': GlyphMisprint,
+    'glyph_dusk': GlyphDusk,
+    'glyph_raised_fist': GlyphRaisedFist,
+    'glyph_chaos_the_clown': GlyphChaosTheClown,
+    'glyph_abstract': GlyphAbstract,
+    'glyph_delayed_gratification': GlyphDelayedGratification,
+    'glyph_gros_michel': GlyphGrosMichel,
+    'glyph_space': GlyphSpace,
+    'glyph_egg': GlyphEgg,
+    'glyph_burglar': GlyphBurglar,
+    'glyph_ice_cream': GlyphIceCream,
+    'glyph_blue': GlyphBlue,
+    'glyph_hiker': GlyphHiker,
+    'glyph_green': GlyphGreen,
+    'glyph_to_do_list': GlyphToDoList,
+    'glyph_cavendish': GlyphCavendish,
+    'glyph_card_sharp': GlyphCardSharp,
+    'glyph_red_card': GlyphRedCard,
+    'glyph_madness': GlyphMadness,
+    'glyph_square': GlyphSquare,
+    'glyph_riff_raff': GlyphRiffRaff,
+    'glyph_vampire': GlyphVampire,
+    'glyph_hologram': GlyphHologram,
+    'glyph_vagabond': GlyphVagabond,
+    'glyph_rocket': GlyphRocket,
+    'glyph_midas_mask': GlyphMidasMask,
+    'glyph_luchador': GlyphLuchador,
+    'glyph_gift_card': GlyphGiftCard,
+    'glyph_turtle_bean': GlyphTurtleBean,
+    'glyph_to_the_moon': GlyphToTheMoon,
+    'glyph_drunkard': GlyphDrunkard,
+    'glyph_golden': GlyphGolden,
+    'glyph_lucky_cat': GlyphLuckyCat,
+    'glyph_baseball_card': GlyphBaseballCard,
+    'glyph_bull': GlyphBull,
+    'glyph_diet_cola': GlyphDietCola,
+    'glyph_trading_card': GlyphTradingCard,
+    'glyph_popcorn': GlyphPopcorn,
+    'glyph_ramen': GlyphRamen,
+    'glyph_seltzer': GlyphSeltzer,
+    'glyph_golden_ticket': GlyphGoldenTicket,
+    'glyph_mr_bones': GlyphMrBones,
+    'glyph_acrobat': GlyphAcrobat,
+    'glyph_sock_and_buskin': GlyphSockAndBuskin,
+    'glyph_troubadour': GlyphTroubadour,
+    'glyph_hanging_chad': GlyphHangingChad,
+    'glyph_rough_gem': GlyphRoughGem,
+    'glyph_bloodstone': GlyphBloodstone,
+    'glyph_arrowhead': GlyphArrowhead,
+    'glyph_onyx_agate': GlyphOnyxAgate,
+    'glyph_glass': GlyphGlass,
+    'glyph_flower_pot': GlyphFlowerPot,
+    'glyph_blueprint': GlyphBlueprint,
+    'glyph_merry_andy': GlyphMerryAndy,
+    'glyph_oops_all_6s': GlyphOopsAll6s,
+    'glyph_the_duo': GlyphTheDuo,
+    'glyph_the_trio': GlyphTheTrio,
+    'glyph_stuntman': GlyphStuntman,
+    'glyph_brainstorm': GlyphBrainstorm,
+    'glyph_drivers_license': GlyphDriversLicense,
+    'glyph_bootstraps': GlyphBootstraps,
+    'glyph_yorick': GlyphYorick,
+    'glyph_chicot': GlyphChicot,
+    'glyph_bow_of_zyx': GlyphBowOfZyx,
+    'glyph_wooden_parrot': GlyphWoodenParrot,
+    'glyph_kanji': GlyphKanji,
+    'glyph_fourth_tile': GlyphFourthTile,
+    'glyph_second_tile': GlyphSecondTile,
+    'glyph_free_reroll': GlyphFreeReroll,
+    'glyph_vowel_start': GlyphVowelStart,
+    'glyph_vowel_end': GlyphVowelEnd,
+    'glyph_collector': GlyphCollector,
+    'glyph_seventh_gold': GlyphSeventhGold,
+    'glyph_sixth_emerald': GlyphSixthEmerald,
+    'glyph_pentagram': GlyphPentagram,
+    'glyph_dollarsign': GlyphDollarsign,
+    'glyph_zyx': GlyphZyx,
 };
 
 const UPGRADE_MAP = {

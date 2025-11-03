@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Create the main container for the glyph item
             const itemContainer = document.createElement('div');
             itemContainer.className = 'sandbox-glyph-item';
+            itemContainer.classList.add(glyph.rarity.toLowerCase());
 
             const glyphImage = document.createElement('div');
             glyphImage.className = 'sandbox-glyph-image';
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const rarityEl = document.createElement('div');
             rarityEl.className = 'overlay-rarity';
             rarityEl.textContent = glyph.rarity;
+            rarityEl.classList.add(glyph.rarity.toLowerCase());
 
             // Create the attributes panel that appears below
             const attributesPanel = document.createElement('div');
@@ -148,11 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 tileItem.classList.add(`tile-edition-${tileData.edition.type}`);
             }
 
-            // Apply Frequency class
-            if (tileData.frequency) {
-                tileItem.classList.add(`tile-frequency-${tileData.frequency.toLowerCase()}`);
-            }
-
             // --- Create the new attributes panel (for hover state) ---
             const attributesPanel = document.createElement('div');
             attributesPanel.className = 'sandbox-tile-attributes';
@@ -173,9 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (tileData.edition) {
                 attributesHTML += `<div class="attribute-line edition">Edition: ${tileData.edition.type}</div>`;
-            }
-            if (tileData.frequency) {
-                attributesHTML += `<div class="attribute-line frequency-${tileData.frequency.toLowerCase()}">Frequency: ${tileData.frequency}</div>`;
             }
 
             attributesPanel.innerHTML = attributesHTML;
@@ -201,10 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Define the tiles you want to create ---
         const tilesToCreate = [
-            { letter: 'E', value: 1, frequency: 'Bronze' }, // Bronze
-            { letter: 'B', value: 3, frequency: 'Silver' }, // Silver
-            { letter: 'K', value: 5, frequency: 'Gold' },   // Gold
-            { letter: 'T', value: 1, frequency: 'Bronze', stamp: { type: 'red' }, enhancement: { type: 'boosted', value: 10 } },
+            { letter: 'F', value: 4 },
+            { letter: 'A', value: 1 },
+            { letter: 'R', value: 1 },
+            { letter: 'T', value: 1, stamp: { type: 'red' }, enhancement: { type: 'boosted', value: 10 } },
             { letter: 'S', value: 1, stamp: { type: 'blue' }, edition: { type: 'foil' } },
             { letter: 'H', value: 4, enhancement: { type: 'bold' }, edition: { type: 'holographic' } }
         ];

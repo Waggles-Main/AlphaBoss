@@ -203,6 +203,9 @@ function initGlyphInteractions(stateObject, saveStateCallback, updateUICallback)
         graphicEl.style.backgroundImage = `url('images/glyphs/${glyph.imageName}')`;
         nameEl.textContent = glyph.name;
         rarityEl.textContent = glyph.rarity;
+        // Set rarity class for color styling
+        rarityEl.className = 'glyph-action-rarity'; // Reset classes first
+        rarityEl.classList.add(glyph.rarity.toLowerCase());
 
         // Handle different states
         if (state === 'HOVER') {

@@ -217,17 +217,6 @@ class Tile {
         this.type = null;                      // 'enhancement', 'seal', etc.
         this.modifier = null;                  // 'booster', 'steel', etc.
 
-        // --- NEW FREQUENCY LOGIC ---
-        const goldLetters = ['J', 'K', 'Q', 'X', 'Z'];
-        const silverLetters = ['B', 'C', 'F', 'H', 'M', 'P', 'V', 'W', 'Y'];
-        if (goldLetters.includes(letter)) {
-            this.frequency = 'Gold';
-        } else if (silverLetters.includes(letter)) {
-            this.frequency = 'Silver';
-        } else {
-            this.frequency = 'Bronze';
-        }
-
         // --- MODIFIER ASSIGNMENT ---
         // Placeholder for modifier logic. Here, we'll give a 15% chance for a tile to be Enhanced.
         const rand = Math.random();

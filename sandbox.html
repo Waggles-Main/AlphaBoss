@@ -17,36 +17,32 @@
     <main class="sandbox-container">
         <header class="sandbox-header">
             <h1>Component Sandbox</h1>
-            <div class="header-links">
-                <a href="glyph-3d-sandbox.html" class="nav-link">3D Glyph Sandbox &rarr;</a>
-                <a href="gameplay.html" class="nav-link">&larr; Back to Game</a>
-            </div>
+            <a href="gameplay.html" class="nav-link">&larr; Back to Game</a>
         </header>
 
-        <section class="component-section">
-            <h2 class="component-title">Glyphs</h2>
-            <div class="component-showcase" id="glyph-showcase">
-                <!-- All glyphs will be rendered here by JS -->
-            </div>
-        </section>
-        
-        <section class="component-section">
-            <h2 class="component-title">Tiles</h2>
-            <div class="component-showcase" id="tile-showcase">
-                <!-- Tiles will be rendered here by JS -->
-            </div>
-        </section>
-
-        <section class="component-section">
-            <h2 class="component-title">4x4 Tile Grid</h2>
-            <div class="grid-container-sandbox">
-                <div class="grid" id="sandboxTileGrid"></div>
-            </div>
-        </section>
+        <nav class="sandbox-nav">
+            <a href="glyphs-sandbox.html" class="nav-card">
+                <h3>Glyphs</h3>
+                <p>View all 98+ glyphs and their interactions.</p>
+            </a>
+            <a href="tiles-sandbox.html" class="nav-card">
+                <h3>Tiles</h3>
+                <p>See all tile variations, including frequency and editions.</p>
+            </a>
+            <a href="grid-sandbox.html" class="nav-card">
+                <h3>4x4 Tile Grid</h3>
+                <p>Test the interactive 4x4 gameplay grid.</p>
+            </a>
+            <a href="glyph-3d-sandbox.html" class="nav-card">
+                <h3>3D Glyph Sandbox</h3>
+                <p>Experiment with juicy 3D card effects.</p>
+            </a>
+            <a href="scoring-sandbox.html" class="nav-card">
+                <h3>Scoring Area</h3>
+                <p>Placeholder for scoring component tests.</p>
+            </a>
+        </nav>
 
     </main>
-    <script src="game-objects.js"></script>
-    <script src="definitions.js"></script>
-    <script src="sandbox.js"></script>
 </body>
 </html>
