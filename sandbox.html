@@ -17,7 +17,10 @@
     <main class="sandbox-container">
         <header class="sandbox-header">
             <h1>Component Sandbox</h1>
-            <a href="gameplay.html" class="back-link">Back to Game</a>
+            <div class="header-links">
+                <a href="glyph-3d-sandbox.html" class="nav-link">3D Glyph Sandbox &rarr;</a>
+                <a href="gameplay.html" class="nav-link">&larr; Back to Game</a>
+            </div>
         </header>
 
         <section class="component-section">
@@ -31,6 +34,13 @@
             <h2 class="component-title">Tiles</h2>
             <div class="component-showcase" id="tile-showcase">
                 <!-- Tiles will be rendered here by JS -->
+            </div>
+        </section>
+
+        <section class="component-section">
+            <h2 class="component-title">4x4 Tile Grid</h2>
+            <div class="grid-container-sandbox">
+                <div class="grid" id="sandboxTileGrid"></div>
             </div>
         </section>
 

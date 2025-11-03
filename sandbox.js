@@ -42,28 +42,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Dynamically get the "power" text
             const glyphInstance = new (GLYPH_MAP[glyph.id])();
-            if (glyphInstance.onScoring) {
-                // Simulate playing the correct letter to see the effect.
-                // Extracts the letter from the glyph's ID (e.g., 'glyph_e' -> 'E').
-                const letterToTest = glyph.id.split('_')[1]?.toUpperCase() || 'A';
-                const scoringEffect = glyphInstance.onScoring({}, { playedTiles: [{ letter: letterToTest }] });
+            const powerInfo = glyphInstance.getPowerText();
 
-                if (scoringEffect.bonusScore) {
-                    powerEl.textContent = `+${scoringEffect.bonusScore} PTS`;
-                    powerEl.classList.add('score'); // Add score class for blue color
-                    const attr = document.createElement('div');
-                    attr.className = 'attribute-line score';
-                    attr.textContent = `+${scoringEffect.bonusScore} PTS`;
-                    attributesPanel.appendChild(attr);
-                }
-                if (scoringEffect.bonusMult) {
-                    powerEl.textContent = `+${scoringEffect.bonusMult} MULT`;
-                    powerEl.classList.add('mult'); // Add mult class for red color
-                    const attr = document.createElement('div');
-                    attr.className = 'attribute-line mult';
-                    attr.textContent = `+${scoringEffect.bonusMult} MULT`;
-                    attributesPanel.appendChild(attr);
-                }
+            if (powerInfo) {
+                powerEl.textContent = powerInfo.text;
+                powerEl.classList.add(powerInfo.class);
+
+                const attr = document.createElement('div');
+                attr.className = `attribute-line ${powerInfo.class}`;
+                attr.textContent = powerInfo.text;
+                attributesPanel.appendChild(attr);
+            } else {
+                // Handle glyphs that might not have a simple power text (like Pilcrow)
+                powerEl.textContent = 'UTILITY';
+                powerEl.classList.add('utility');
             }
 
             // --- Create the new SELL button ---
@@ -156,21 +148,154 @@ document.addEventListener('DOMContentLoaded', () => {
                 tileItem.classList.add(`tile-edition-${tileData.edition.type}`);
             }
 
+            // Apply Frequency class
+            if (tileData.frequency) {
+                tileItem.classList.add(`tile-frequency-${tileData.frequency.toLowerCase()}`);
+            }
+
+            // --- Create the new attributes panel (for hover state) ---
+            const attributesPanel = document.createElement('div');
+            attributesPanel.className = 'sandbox-tile-attributes';
+
+            let attributesHTML = '';
+            attributesHTML += `<div class="attribute-line score">Base Value: ${tileData.value}</div>`;
+
+            if (tileData.stamp) {
+                attributesHTML += `<div class="attribute-line stamp-${tileData.stamp.type}">Stamp: ${tileData.stamp.type}</div>`;
+            }
+            if (tileData.enhancement) {
+                // Assuming enhancement might have a value, e.g., { type: 'boosted', value: 10 }
+                let enhancementText = `Enhancement: ${tileData.enhancement.type}`;
+                if (tileData.enhancement.value) {
+                    enhancementText += ` (+${tileData.enhancement.value})`;
+                }
+                attributesHTML += `<div class="attribute-line enhancement">${enhancementText}</div>`;
+            }
+            if (tileData.edition) {
+                attributesHTML += `<div class="attribute-line edition">Edition: ${tileData.edition.type}</div>`;
+            }
+            if (tileData.frequency) {
+                attributesHTML += `<div class="attribute-line frequency-${tileData.frequency.toLowerCase()}">Frequency: ${tileData.frequency}</div>`;
+            }
+
+            attributesPanel.innerHTML = attributesHTML;
+            tileItem.appendChild(attributesPanel);
+
+            // Add hover listeners to show/hide the panel
+            tileItem.addEventListener('mouseenter', () => {
+                // Deactivate any active glyphs to prevent overlap
+                document.querySelectorAll('.sandbox-glyph-item.active').forEach(el => el.classList.remove('active'));
+                tileItem.classList.add('hover');
+            });
+            tileItem.addEventListener('mouseleave', () => {
+                tileItem.classList.remove('hover');
+            });
+            // Add a click listener for a "pressed" state
+            tileItem.addEventListener('click', () => {
+                tileItem.classList.toggle('pressed');
+            });
+
+
             return tileItem;
         };
 
         // --- Define the tiles you want to create ---
         const tilesToCreate = [
-            { letter: 'F', value: 4 },
-            { letter: 'A', value: 1 },
-            { letter: 'R', value: 1 },
-            { letter: 'T', value: 1, stamp: { type: 'red' }, enhancement: { type: 'boosted' } } // Example with attributes
+            { letter: 'E', value: 1, frequency: 'Bronze' }, // Bronze
+            { letter: 'B', value: 3, frequency: 'Silver' }, // Silver
+            { letter: 'K', value: 5, frequency: 'Gold' },   // Gold
+            { letter: 'T', value: 1, frequency: 'Bronze', stamp: { type: 'red' }, enhancement: { type: 'boosted', value: 10 } },
+            { letter: 'S', value: 1, stamp: { type: 'blue' }, edition: { type: 'foil' } },
+            { letter: 'H', value: 4, enhancement: { type: 'bold' }, edition: { type: 'holographic' } }
         ];
 
         // Create and append each tile to the showcase
         tilesToCreate.forEach(tileData => {
             const tileElement = createTileElement(tileData);
             tileShowcase.appendChild(tileElement);
+        });
+    }
+
+    // --- 4x4 GRID GENERATION ---
+    const sandboxGridEl = document.getElementById('sandboxTileGrid');
+    if (sandboxGridEl) {
+        // Create a temporary tile set for the sandbox grid
+        const sandboxTileSet = TILE_DISTRIBUTION.map(letter => new Tile(letter));
+        for (let i = sandboxTileSet.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [sandboxTileSet[i], sandboxTileSet[j]] = [sandboxTileSet[j], sandboxTileSet[i]];
+        }
+
+        const drawSandboxTile = () => {
+            if (sandboxTileSet.length === 0) return new Tile('_');
+            return sandboxTileSet.pop();
+        };
+
+        for (let idx = 0; idx < 16; idx++) {
+            const tileObject = drawSandboxTile();
+            const tile = document.createElement('button');
+            tile.className = 'tile';
+            tile.dataset.index = String(idx);
+
+            const tileAnimator = document.createElement('div');
+            tileAnimator.className = 'tile-animator';
+            tile.appendChild(tileAnimator);
+
+            const tileContent = document.createElement('div');
+            tileContent.className = 'tile-content';
+
+            const displayLetter = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter;
+            const displayValue = tileObject.value + tileObject.mult;
+            tileContent.innerHTML = `${displayLetter}<span class="val">${displayValue}</span>`;
+            tileAnimator.appendChild(tileContent);
+            sandboxGridEl.appendChild(tile);
+        }
+
+        initSandboxGridHoverEffects();
+    }
+
+    /**
+     * Initializes the 3D tilt hover effects for the sandbox grid.
+     * This is adapted from gameplay.js.
+     */
+    function initSandboxGridHoverEffects() {
+        const tiles = sandboxGridEl.querySelectorAll('.tile');
+        const MAX_ROTATION = 20;
+        const HOVER_TRANSLATE_Z = 40;
+
+        tiles.forEach(tile => {
+            tile.addEventListener('mouseenter', () => {
+                tile.classList.add('hovering');
+                tile.style.zIndex = '10';
+            });
+
+            tile.addEventListener('mousemove', (e) => {
+                if (!tile.classList.contains('hovering')) return;
+
+                const rect = tile.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateY = (x / centerX) * MAX_ROTATION;
+                const rotateX = -1 * (y / centerY) * MAX_ROTATION;
+
+                tile.style.transform = `perspective(1000px) translateZ(${HOVER_TRANSLATE_Z}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            tile.addEventListener('mouseleave', () => {
+                tile.classList.remove('hovering');
+                tile.style.transform = `perspective(1000px) translateZ(0) rotateX(0) rotateY(0)`;
+                setTimeout(() => {
+                    tile.style.zIndex = '1';
+                }, 150);
+            });
+
+            // Add a simple click effect for selection feedback
+            tile.addEventListener('click', () => {
+                tile.classList.toggle('selected');
+            });
         });
     }
 });

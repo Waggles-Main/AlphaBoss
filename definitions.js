@@ -258,6 +258,10 @@ class GlyphPilcrow extends Glyph {
             hasAction: true, // This glyph has a usable action
         });
     }
+
+    getPowerText() {
+        return { text: '+1 REFRESH', class: 'utility' };
+    }
 }
 
 class GlyphAmpersand extends Glyph {
@@ -278,6 +282,10 @@ class GlyphAmpersand extends Glyph {
         const word = handInfo.playedTiles.map(t => t.letter).join('');
         if (word.includes('AND')) return { bonusScore: 50 };
         return {};
+    }
+
+    getPowerText() {
+        return { text: '+50 PTS', class: 'score' };
     }
 }
 
@@ -302,6 +310,10 @@ class GlyphCedille extends Glyph {
         }
         return {};
     }
+
+    getPowerText() {
+        return { text: '+40 PTS', class: 'score' };
+    }
 }
 
 class GlyphStar extends Glyph {
@@ -318,6 +330,10 @@ class GlyphStar extends Glyph {
             hasAction: true,       // Let's give it an action button for testing
         });
     }
+
+    getPowerText() {
+        return { text: 'TEST', class: 'utility' };
+    }
 }
 
 class GlyphExclamation extends Glyph {
@@ -333,6 +349,10 @@ class GlyphExclamation extends Glyph {
             imageName: 'exclamation.png', // You would create an exclamation.png image for this
             hasAction: false,
         });
+    }
+
+    getPowerText() {
+        return { text: 'TEST', class: 'utility' };
     }
 }
 

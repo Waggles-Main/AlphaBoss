@@ -29,10 +29,17 @@ body {
     margin: 0;
 }
 
-.back-link {
+.header-links {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.nav-link {
     color: var(--accent-blue);
     font-size: 18px;
     text-decoration: none;
+    transition: filter 0.2s;
 }
 
 .component-section {
@@ -75,7 +82,7 @@ body {
     background-size: cover; /* Fill the container without distorting the image */
     background-position: center;
     background-repeat: no-repeat;
-    background-color: var(--bg);
+    background-color: transparent;
 }
 
 .sandbox-glyph-item:hover {
@@ -308,6 +315,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
     padding: 4px;
     color: #1e2f33; /* Dark ink color */
 }
@@ -344,6 +352,74 @@ body {
 .tile-stamp.purple { background-color: var(--mult-mult-box); }
 .tile-stamp.black { background-color: #333; }
 
+/* --- Tile Hover and Pressed States --- */
+.sandbox-tile-item.hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    z-index: 20; /* Ensure it's above glyphs */
+}
+
+.sandbox-tile-item.pressed {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.25);
+}
+
+/* --- Tile Attributes Panel (for Hover) --- */
+.sandbox-tile-attributes {
+    position: absolute;
+    bottom: 100%; /* Position above the tile */
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    width: 150px; /* Wider panel for more text */
+    padding: 8px;
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    /* Hidden by default */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-out;
+    z-index: 21; /* Above the tile itself */
+}
+
+.sandbox-tile-item.hover .sandbox-tile-attributes {
+    opacity: 1;
+}
+
+.sandbox-tile-attributes .attribute-line {
+    font-family: 'Roboto Slab', sans-serif;
+    font-size: 12px;
+    color: #d9d9d9;
+    text-align: left;
+    text-shadow: none;
+}
+
+/* Color coding for tile attributes */
+.sandbox-tile-attributes .attribute-line.stamp-red { color: var(--accent-red); }
+.sandbox-tile-attributes .attribute-line.stamp-blue { color: var(--accent-blue); }
+.sandbox-tile-attributes .attribute-line.enhancement { color: var(--accent-green); }
+.sandbox-tile-attributes .attribute-line.edition { color: var(--mult-mult-box); }
+
+/* --- Tile Frequency Styles --- */
+.tile-frequency-bronze { border: 2px solid #cd7f32; }
+.tile-frequency-silver { border: 2px solid #c0c0c0; }
+.tile-frequency-gold { 
+    border: 2px solid #ffd700; 
+    animation: gold-pulse 2s ease-in-out infinite;
+}
+
+/* Color coding for frequency attributes in the panel */
+.sandbox-tile-attributes .attribute-line.frequency-bronze { color: #cd7f32; }
+.sandbox-tile-attributes .attribute-line.frequency-silver { color: #c0c0c0; }
+.sandbox-tile-attributes .attribute-line.frequency-gold { color: #ffd700; }
+
 /* Enhancement Styles */
 .tile-enhancement-boosted {
     box-shadow: 0 2px 0 rgba(0,0,0,0.25), inset 0 0 0 3px var(--accent-blue);
@@ -351,6 +427,20 @@ body {
 .tile-enhancement-italics .tile-letter { font-style: italic; }
 .tile-enhancement-bold .tile-letter { font-weight: 900; }
 .tile-enhancement-underline .tile-letter { text-decoration: underline; }
+
+/* --- Sandbox Grid Container --- */
+.grid-container-sandbox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+/* The grid itself, using styles from gameplay.css but with a defined size */
+#sandboxTileGrid {
+    width: 320px;
+    height: 320px;
+}
 
 /* Edition Overlay/Effect */
 .tile-edition-foil::after {
@@ -371,4 +461,9 @@ body {
     25% { box-shadow: inset 0 0 10px #56a67a; }
     50% { box-shadow: inset 0 0 10px #1f8df2; }
     75% { box-shadow: inset 0 0 10px #7a73bb; }
+}
+
+@keyframes gold-pulse {
+    0%, 100% { box-shadow: 0 2px 0 rgba(0,0,0,0.25), 0 0 5px #ffd700; }
+    50% { box-shadow: 0 2px 0 rgba(0,0,0,0.25), 0 0 15px #ffd700; }
 }

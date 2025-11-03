@@ -1,0 +1,212 @@
+/* =============================================================================
+   BASE & LAYOUT STYLES
+   ========================================================================== */
+@import url('gameplay.css');
+
+body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: 'Roboto Slab', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+.sandbox-wrapper {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    padding: 24px;
+}
+
+.sandbox-header {
+    text-align: center;
+}
+
+.sandbox-header h1 {
+    font-family: m5x7;
+    font-size: 48px;
+    color: var(--accent-orange);
+    margin: 0;
+}
+
+.back-link {
+    color: var(--accent-blue);
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.showcase {
+    display: flex;
+    gap: 64px; /* Increased gap for larger cards */
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+/* =============================================================================
+   3D SCENE & GLYPH STYLES
+   ========================================================================== */
+
+/* The container that sets up the 3D perspective */
+.scene {
+    width: 400px;  /* Doubled width */
+    height: 520px; /* Doubled height */
+    perspective: 2000px; /* Increased perspective for the larger size */
+}
+
+/* New container to hold both the main glyph and its outline */
+.glyph-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d; /* This is crucial for containing 3D children */
+    /* The initial transform is now set to (0,0,1) in the JS state */
+}
+
+/* Shared styles for both the main glyph and its outline */
+.mahjong-glyph {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-style: preserve-3d;
+}
+
+/* --- The new, more efficient outline effect --- */
+.mahjong-glyph.outline {
+    transform: scale(1.05); /* Make the outline slightly larger */
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.2s ease-out; /* Faster fade */
+}
+
+.glyph-container.highlight .outline {
+    opacity: 1; /* Show the outline on hover */
+}
+
+.face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    backface-visibility: hidden; /* Performance: Don't draw faces when they are turned away */
+}
+
+/* --- Styling the Outline Shell --- */
+/* Make the front face of the outline a solid white color */
+.outline .face.front {
+    background: #ffd700; /* Solid Gold/Yellow */
+    border-radius: 16px;
+}
+
+/* --- Main Glyph Face Styling --- */
+.main .face.front {
+    background-color: var(--panel-soft);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.3);
+    transform: translateZ(40px); /* Bring forward by half the new thickness */
+}
+
+/* --- Main Glyph Side & Back Faces --- */
+/* The back face of the tile */
+.main .back {
+    background: #1e4a45; /* A dark teal for the back */
+    border-radius: 16px;
+    border: 1px solid #112d2a;
+    transform: rotateY(180deg) translateZ(40px);
+}
+
+/* The right side/edge of the tile */
+.main .right {
+    width: 80px; /* Increased thickness */
+    background: #1b423e; /* Darker teal */
+    border-radius: 0 16px 16px 0;
+    transform: rotateY(90deg) translateZ(360px); /* new width - (new thickness / 2) */
+}
+
+/* The left side/edge of the tile */
+.main .left {
+    width: 80px; /* Increased thickness */
+    background: #1b423e; /* Darker teal */
+    border-radius: 16px 0 0 16px;
+    transform: rotateY(-90deg) translateZ(40px); /* new thickness / 2 */
+}
+
+/* The top side/edge of the tile */
+.main .top {
+    height: 80px; /* Increased thickness */
+    background: #255a54; /* Lighter teal */
+    border-radius: 16px 16px 0 0;
+    transform: rotateX(90deg) translateZ(40px); /* new thickness / 2 */
+}
+
+/* The bottom side/edge of the tile */
+.main .bottom {
+    height: 80px; /* Increased thickness */
+    background: #153633; /* Darkest teal */
+    border-radius: 0 0 16px 16px;
+    transform: rotateX(-90deg) translateZ(480px); /* new height - (new thickness / 2) */
+}
+
+/* =============================================================================
+   PARTICLE EFFECT STYLES
+   ========================================================================== */
+
+/* --- Dust Particle Effect --- */
+.dust-particle {
+    position: fixed; /* Use fixed positioning to place relative to the viewport */
+    pointer-events: none;
+    background-color: rgba(222, 211, 190, 0.5); /* A dusty, light-brown color */
+    border-radius: 50%;
+    z-index: 100;
+    /* Animation is set dynamically by JS */
+    animation: dust-poof 0.6s ease-out forwards; /* Faster poof */
+}
+
+@keyframes dust-poof {
+    0% {
+        transform: scale(0.5) translate(0, 0);
+        opacity: 1;
+    }
+    100% {
+        /* Use CSS variables set by JS for random destinations */
+        transform: scale(var(--s)) translate(var(--x), var(--y));
+        opacity: 0;
+    }
+}
+
+/* --- New Rainbow Particle Effect --- */
+.rainbow-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 99; /* Position behind the tile */
+    /* Background color is set by JS */
+    animation: rainbow-burst 0.5s ease-out forwards; /* Faster burst */
+}
+
+@keyframes rainbow-burst {
+    0% {
+        /* Start small and centered, fully opaque */
+        transform: translate(var(--x-start), var(--y-start)) scale(0.2) rotate(var(--r-start));
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        /* End at the random destination, larger, and faded out */
+        transform: translate(var(--x-end), var(--y-end)) scale(1) rotate(var(--r-end));
+        opacity: 0;
+    }
+}

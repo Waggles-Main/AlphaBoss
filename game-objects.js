@@ -37,6 +37,25 @@ class Glyph {
         this.hasAction = hasAction || false; // Does this glyph have a usable action?
     }
 
+    /**
+     * Gets a short, representative text for the glyph's primary power.
+     * This can be overridden by subclasses for more complex effects.
+     * @returns {{text: string, class: string}|null}
+     */
+    getPowerText() {
+        // Simulate a scoring check to derive power text automatically for simple glyphs.
+        if (this.onScoring) {
+            const letterToTest = this.id.split('_')[1]?.toUpperCase() || 'A';
+            const scoringEffect = this.onScoring({}, { playedTiles: [{ letter: letterToTest }] });
+            if (scoringEffect.bonusScore) {
+                return { text: `+${scoringEffect.bonusScore} PTS`, class: 'score' };
+            }
+            if (scoringEffect.bonusMult) {
+                return { text: `+${scoringEffect.bonusMult} MULT`, class: 'mult' };
+            }
+        }
+        return null; // No simple power text
+    }
     // --- Interaction Methods (to be implemented by subclasses) ---
     onScoring(gameState, handInfo) { console.log(`${this.name} onScoring triggered.`); }
     onTilePlayed(gameState, tile) { console.log(`${this.name} onTilePlayed triggered.`); }
@@ -197,6 +216,17 @@ class Tile {
         this.mult_mult = 1;                    // Multiplicative bonus (not used yet, but available)
         this.type = null;                      // 'enhancement', 'seal', etc.
         this.modifier = null;                  // 'booster', 'steel', etc.
+
+        // --- NEW FREQUENCY LOGIC ---
+        const goldLetters = ['J', 'K', 'Q', 'X', 'Z'];
+        const silverLetters = ['B', 'C', 'F', 'H', 'M', 'P', 'V', 'W', 'Y'];
+        if (goldLetters.includes(letter)) {
+            this.frequency = 'Gold';
+        } else if (silverLetters.includes(letter)) {
+            this.frequency = 'Silver';
+        } else {
+            this.frequency = 'Bronze';
+        }
 
         // --- MODIFIER ASSIGNMENT ---
         // Placeholder for modifier logic. Here, we'll give a 15% chance for a tile to be Enhanced.
