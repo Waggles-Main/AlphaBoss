@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const glyphShowcase = document.getElementById('glyph-showcase');
     const sortControls = document.querySelector('.sort-buttons');
+    const glyphCountSlider = document.getElementById('glyphCountSlider');
+    const glyphCountDisplay = document.getElementById('glyphCountDisplay');
     let currentSort = 'name'; // Default sort
 
     if (glyphShowcase && typeof ALL_GLYPHS !== 'undefined') {
@@ -32,6 +34,16 @@ document.addEventListener('DOMContentLoaded', () => {
             // If sort controls don't exist, just do an initial render
             sortGlyphs(currentSort);
         }
+
+        // --- Simulator Logic ---
+        if (glyphCountSlider) {
+            glyphCountSlider.addEventListener('input', (e) => {
+                const count = parseInt(e.target.value, 10);
+                glyphCountDisplay.textContent = count;
+                // Re-render the glyphs with the new simulated state
+                renderGlyphs(ALL_GLYPHS);
+            });
+        }
     }
 
     /**
@@ -40,6 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderGlyphs(glyphsToRender) {
         glyphShowcase.innerHTML = ''; // Clear placeholder text
+
+        const glyphCount = glyphCountSlider ? parseInt(glyphCountSlider.value, 10) : 1;
+        // Create a simulated gameState for dynamic power text
+        const simulatedState = {
+            glyphs: Array(glyphCount).fill({})
+        };
 
         glyphsToRender.forEach(glyph => {
             // Create the main container for the glyph item
@@ -76,15 +94,17 @@ document.addEventListener('DOMContentLoaded', () => {
             attributesPanel.className = 'sandbox-glyph-attributes';
 
             // Dynamically get the "power" text
-            const powerInfo = glyph.getPowerText();
+            const powerInfo = glyph.getPowerText(simulatedState);
 
             if (powerInfo) {
-                powerEl.textContent = powerInfo.text;
+                // Use staticText for the main overlay power display
+                powerEl.textContent = powerInfo.staticText || powerInfo.text;
                 powerEl.classList.add(powerInfo.class);
 
                 const attr = document.createElement('div');
                 attr.className = `attribute-line ${powerInfo.class}`;
-                attr.textContent = powerInfo.text;
+                // Use dynamicText for the attribute panel, falling back to static if it doesn't exist
+                attr.textContent = powerInfo.dynamicText || powerInfo.staticText || powerInfo.text;
                 attributesPanel.appendChild(attr);
             } else {
                 powerEl.textContent = 'UTILITY';
@@ -123,10 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemContainer.classList.remove('active');
             });
 
-            const elementsToAppend = [glyphImage, overlay, sellBtn, attributesPanel];
-            if (useBtn) {
-                elementsToAppend.push(useBtn);
-            }
+            const elementsToAppend = [glyphImage, overlay, sellBtn, useBtn, attributesPanel].filter(Boolean);
             itemContainer.append(...elementsToAppend);
             glyphShowcase.appendChild(itemContainer);
         });

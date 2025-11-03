@@ -11,6 +11,7 @@ body {
     margin: 0 auto;
     display: flex;
     flex-direction: column;
+    position: relative; /* Needed for positioning the shutdown overlay */
     gap: 32px;
 }
 
@@ -133,6 +134,21 @@ body {
     background: var(--accent-blue);
     color: white;
     border-color: var(--accent-blue);
+}
+
+/* --- New Simulator Controls --- */
+.sandbox-simulator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--panel-soft);
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin-top: -110px; /* Pull it up into the empty space */
+    margin-bottom: 154px; /* Increased from 24px */
+    max-width: 400px;
+    font-family: 'Roboto Slab', sans-serif;
+    color: var(--muted);
 }
 
 /* --- Sandbox Glyph Styles --- */
@@ -524,12 +540,326 @@ body {
     padding: 16px;
 }
 
-/* The grid itself, using styles from gameplay.css but with a defined size */
-#sandboxTileGrid {
-    width: 320px;
-    height: 320px;
+/* --- New Grid System for Sandbox --- */
+.grid, .hold-area {
+    display: grid;
+    gap: 8px;
+    padding: 8px;
+    background: #152020;
+    border-radius: 8px;
 }
 
+.grid {
+    grid-template-columns: repeat(var(--grid-cols, 4), 1fr);
+    grid-template-rows: repeat(var(--grid-rows, 4), 1fr);
+    aspect-ratio: var(--grid-cols, 4) / var(--grid-rows, 4); /* Dynamically calculate aspect ratio */
+    width: 100%;
+    max-width: 400px; /* Limit max size */
+}
+
+.grid-slot {
+    background: var(--panel-soft);
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1;
+}
+
+/* New style for the dashed column in the main grid */
+.grid-slot.dashed-outline {
+    background: transparent;
+    border: 2px dashed var(--muted);
+}
+
+.grid-slot.dashed-outline .placeholder-tile {
+    display: none;
+}
+
+/* New style for the transparent left column */
+.grid-slot.transparent-slot {
+    background: rgba(46, 58, 60, 0.2); /* --panel-soft at 20% opacity */
+}
+
+.grid-slot.transparent-slot .placeholder-tile {
+    display: none;
+}
+
+
+.placeholder-tile {
+    width: 85%;
+    height: 85%;
+    background: var(--tile-bg);
+    color: var(--tile-ink);
+    border-radius: 6px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: m5x7;
+    font-size: 24px;
+}
+
+/* --- GAME OVER SANDBOX STYLES --- */
+.game-over-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+}
+
+.btn-game-over {
+    appearance: none;
+    border: none;
+    background: var(--accent-red);
+    color: white;
+    font-family: m5x7;
+    font-size: 64px;
+    padding: 32px 64px;
+    border-radius: 16px;
+    box-shadow: 0 8px 0 #8c2f2f, 0 12px 24px rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: all 0.1s ease-out;
+    text-shadow: 0 4px 0 rgba(0,0,0,0.4);
+}
+
+.btn-game-over:active {
+    transform: translateY(4px);
+    box-shadow: 0 4px 0 #8c2f2f;
+}
+
+/* --- Shutdown Effect --- */
+.shutdown-overlay {
+    position: absolute; /* Changed from fixed */
+    top: 100px; /* Placeholder, will be set by JS */
+    left: 0;
+    width: 100%;
+    bottom: 0; /* Stretch to the bottom of the container */
+    background: black;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s ease-in; /* Slow down the fade-in */
+}
+
+.shutdown-overlay.active {
+    opacity: 1;
+    animation: crt-shutdown 1s ease-in forwards;
+}
+
+@keyframes crt-shutdown {
+    0% { clip-path: inset(0 0 0 0); }
+    80% { clip-path: inset(50% 0 50% 0); }
+    100% { clip-path: inset(50% 50% 50% 50%); }
+}
+
+/* --- Reboot Screen --- */
+.reboot-screen {
+    width: 100%;
+    max-width: 600px;
+    background: #0a0a0a;
+    border: 2px solid var(--accent-green);
+    padding: 24px;
+    font-family: 'Courier New', Courier, monospace;
+    color: var(--accent-green);
+    text-shadow: 0 0 5px var(--accent-green);
+}
+
+.reboot-screen.hidden {
+    display: none;
+}
+
+.loading-bar-container {
+    width: 100%;
+    height: 16px;
+    border: 1px solid var(--accent-green);
+    padding: 2px;
+    margin-bottom: 24px;
+}
+
+.loading-bar {
+    width: 0%;
+    height: 100%;
+    background: var(--accent-green);
+    transition: width 2s ease-out;
+}
+
+.reboot-messages p {
+    margin: 0 0 8px;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: typing 0.7s steps(40, end);
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+.btn-new-game-reboot {
+    appearance: none;
+    border: 1px solid var(--accent-green);
+    background: transparent;
+    color: var(--accent-green);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 20px;
+    padding: 12px 24px;
+    margin-top: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-new-game-reboot:hover {
+    background: var(--accent-green);
+    color: #0a0a0a;
+    text-shadow: none;
+}
+
+.btn-new-game-reboot.hidden {
+    display: none;
+}
+
+/* --- RESPONSIVE SCORING AREA --- */
+
+.scoring-area-wrapper {
+    width: 100%;
+    max-width: 420px; /* Set a max-width for larger screens */
+    margin: auto; /* Center it */
+}
+
+.scoring {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 4px 0 var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.chips {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr); /* Default 8 slots */
+    gap: 4px;
+    background: #152020;
+    padding: 8px;
+    border-radius: 8px;
+    min-height: 50px; /* Give it a minimum height */
+}
+
+.chip-slot {
+    aspect-ratio: 1;
+    background: var(--panel-soft);
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chip {
+    width: 85%;
+    height: 85%;
+    background: var(--chip-bg);
+    color: #111;
+    border-radius: 4px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Roboto Slab', sans-serif;
+    font-weight: 600;
+    /* Responsive font size using clamp() */
+    font-size: clamp(14px, 4vw, 20px);
+}
+
+.score-calculation {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Roboto Slab', sans-serif;
+    font-weight: 600;
+}
+
+.calc-box {
+    flex: 1;
+    padding: 8px 4px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 0 var(--shadow);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.calc-label {
+    font-size: clamp(8px, 2vw, 10px);
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+}
+
+.calc-value {
+    font-size: clamp(16px, 5vw, 24px);
+    color: white;
+}
+
+.calc-operator {
+    font-size: clamp(16px, 5vw, 24px);
+    color: var(--muted);
+}
+
+.calc-total {
+    font-size: clamp(24px, 8vw, 36px);
+    color: var(--accent-orange);
+    font-weight: 900;
+}
+
+/* --- PACKS SANDBOX STYLES --- */
+.pack-item {
+    background: var(--panel-soft);
+    border-radius: 12px;
+    padding: 16px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 2px solid var(--tile-border);
+    box-shadow: 0 4px 0 var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.pack-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 12px var(--shadow);
+}
+
+.pack-name {
+    font-family: m5x7;
+    font-size: 24px;
+    margin: 0;
+    color: var(--accent-orange);
+    text-align: center;
+}
+
+.pack-description {
+    font-family: 'Roboto Slab', sans-serif;
+    font-size: 14px;
+    color: var(--muted);
+    text-align: center;
+    flex-grow: 1;
+    margin: 0;
+}
+
+.pack-cost {
+    font-family: m5x7;
+    font-size: 28px;
+    color: var(--accent-green);
+    text-align: center;
+    background: var(--panel-dark);
+    padding: 4px;
+    border-radius: 8px;
+}
 /* Edition Overlay/Effect */
 .tile-edition-foil::after {
     content: '';

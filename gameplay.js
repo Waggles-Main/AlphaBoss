@@ -1468,19 +1468,13 @@ function saveRunState(runState) {
 
 async function init() {
     // --- New State Management ---
-    const runState = getRunState();
-    state.round = runState.round;
-    state.money = runState.money;
-    state.upgrades = runState.upgrades || {};
-    state.glyphs = runState.glyphs || [];
-    state.stageIndex = runState.stageIndex; // state.devControlsEnabled is now always false by default
-    state.showGlyphInfo = runState.showGlyphInfo || false; // Load glyph info state
-    state.currentBossId = runState.currentBossId;
-    state.target = runState.stageTarget || ROUND_TARGETS[Math.min(runState.round - 1, ROUND_TARGETS.length - 1)];
+    // Load the saved run state and merge it into the current game state.
+    // This is safer than manually copying each property.
+    Object.assign(state, getRunState());
 
     // --- Apply Boss Effect if it's an Exam round ---
-    if (runState.stageIndex === 4 && runState.currentBossId) { // 4 is the index for 'exam'
-        const BossClass = BOSS_MAP[runState.currentBossId];
+    if (state.stageIndex === 4 && state.currentBossId) { // 4 is the index for 'exam'
+        const BossClass = BOSS_MAP[state.currentBossId];
         if (BossClass) {
             const boss = new BossClass();
             boss.applyEffect(state); // The 'state' object is the gameplay state.
@@ -1498,7 +1492,7 @@ async function init() {
             3: 'Event',
             4: 'Exam'
         };
-        stageIndicatorEl.textContent = stageNames[runState.stageIndex] ?? 'Unknown';
+        stageIndicatorEl.textContent = stageNames[state.stageIndex] ?? 'Unknown';
     }
 
     // Load and apply saved volume settings
@@ -1514,8 +1508,8 @@ async function init() {
         setSfxVolume(0.7); // Default
     }
 
-    const wordsPerRound = runState.wordsPerRound || 5;
-    const refreshesPerRound = runState.refreshesPerRound || 5;
+    const wordsPerRound = state.wordsPerRound || 5;
+    const refreshesPerRound = state.refreshesPerRound || 5;
 
     // Initialize game state object
     state.selected = [];
@@ -1533,13 +1527,13 @@ async function init() {
     }
 
     // 1. Create or load the master tile set for the run.
-    if (runState.masterTileSet) {
-        state.masterTileSet = runState.masterTileSet;
+    if (state.masterTileSet) {
+        state.masterTileSet = state.masterTileSet;
     } else {
         // First time loading for this run, create the set.
         state.masterTileSet = TILE_DISTRIBUTION.map(letter => new Tile(letter));
-        runState.masterTileSet = state.masterTileSet;
-        saveRunState(runState);
+        state.masterTileSet = state.masterTileSet;
+        saveRunState(state);
     }
 
 

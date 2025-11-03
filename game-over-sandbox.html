@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Over Sandbox</title>
+    <link rel="stylesheet" href="gameplay.css">
+    <link rel="stylesheet" href="sandbox.css">
+</head>
+<body>
+    <main class="sandbox-container">
+        <header class="sandbox-header">
+            <h1>Game Over Screen Sandbox</h1>
+            <a href="sandbox.html" class="nav-link">&larr; Back to Hub</a>
+        </header>
+
+        <div class="game-over-container">
+            <!-- The initial button -->
+            <button id="gameOverBtn" class="btn-game-over">GAME OVER</button>
+
+            <!-- Hidden reboot screen -->
+            <div id="rebootScreen" class="reboot-screen hidden">
+                <div class="loading-bar-container">
+                    <div id="loadingBar" class="loading-bar"></div>
+                </div>
+                <div id="rebootMessages" class="reboot-messages">
+                    <!-- Messages will be injected here by JS -->
+                </div>
+                <button id="newGameBtn" class="btn-new-game-reboot hidden">NEW GAME</button>
+            </div>
+        </div>
+        <!-- This overlay will be used for the shutdown effect -->
+        <div id="shutdownOverlay" class="shutdown-overlay"></div>
+    </main>
+    <script src="game-over-sandbox.js"></script>
+</body>
+</html>

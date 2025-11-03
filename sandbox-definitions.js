@@ -598,7 +598,7 @@ class GlyphBanner extends Glyph {
         super({
             id: 'glyph_banner',
             name: 'Banner',
-            description: '+30 Points for each remaining remaining',
+            description: '+30 Points for each refresh remaining',
             rarity: 'Common',
             tags: [],
             purchaseCost: 5,
@@ -749,18 +749,34 @@ class GlyphAbstract extends Glyph {
     constructor() {
         super({
             id: 'glyph_abstract',
-            name: 'Abstract Glyph',
-            description: '+3 Mult for each Glyph tile {Attribute variable: {Attribute variable that shows the unique value:} (Currently +0 Mult)}',
+            name: 'Abstract',
+            description: '+3 Mult for each Glyph you own.',
             rarity: 'Common',
             tags: ['scaling'],
             purchaseCost: 4,
             sellValue: 2,
-            imageName: 'test.png',
-            hasAction: false,
+            imageName: 'abstract.png',
+            hasAction: false
         });
     }
 
-    getPowerText() { return { text: '+3 MULT', class: 'mult' }; }
+    /**
+     * In the real game, this would read the number of glyphs from the gameState.
+     */
+    onScoring(gameState, handInfo) {
+        const glyphCount = gameState.glyphs ? gameState.glyphs.length : 1;
+        return { bonusMult: glyphCount * 3 };
+    }
+
+    /**
+     * Returns both a static description of the power and a dynamic one
+     * based on the current game state.
+     */
+    getPowerText(gameState = { glyphs: [{}] }) {
+        const glyphCount = gameState.glyphs ? gameState.glyphs.length : 1;
+        const currentBonus = glyphCount * 3;
+        return { staticText: '+3 MULT', dynamicText: `(Currently +${currentBonus} Mult)`, class: 'mult' };
+    }
 }
 
 class GlyphDelayedGratification extends Glyph {
@@ -927,7 +943,7 @@ class GlyphGreen extends Glyph {
             tags: ['scaling'],
             purchaseCost: 4,
             sellValue: 2,
-            imageName: 'test.png',
+            imageName: 'abstract.png',
             hasAction: false,
         });
     }

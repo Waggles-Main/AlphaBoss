@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoring Area Sandbox</title>
+    <link rel="stylesheet" href="gameplay.css">
+    <link rel="stylesheet" href="sandbox.css">
+</head>
+<body>
+    <main class="sandbox-container">
+        <header class="sandbox-header">
+            <h1>Scoring Area Sandbox</h1>
+            <a href="sandbox.html" class="nav-link">&larr; Back to Hub</a>
+        </header>
+        <section class="component-section">
+            <h2 class="component-title">Interactive Scoring Area</h2>
+            <!-- New responsive wrapper -->
+            <div class="scoring-area-wrapper">
+                <!-- This is the scoring component, now fully responsive -->
+                <div class="scoring">
+                    <div class="chips" id="playedTilesArea">
+                        <!-- Chips will be rendered here by the sandbox script -->
+                    </div>
+                    <div class="score-calculation">
+                        <div class="calc-box value-box"><span class="calc-label">VALUE</span><span class="calc-value" id="calcValue">0</span></div>
+                        <span class="calc-operator">×</span>
+                        <div class="calc-box mult-box"><span class="calc-label">MULT</span><span class="calc-value" id="calcMult">1x</span></div>
+                        <span class="calc-operator">×</span>
+                        <div class="calc-box mult-mult-box"><span class="calc-label">WORD</span><span class="calc-value" id="calcMultMult">1x</span></div>
+                        <span class="calc-operator">=</span>
+                        <div class="calc-total" id="calcTotal">0</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="game-objects.js"></script>
+    <script src="sandbox-definitions.js"></script>
+    <script src="scoring-sandbox.js"></script>
+</body>
+</html>
