@@ -174,6 +174,8 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     background-color: transparent;
+    /* Ensure the image is always on a lower layer than the overlay */
+    z-index: 1;
 }
 
 .sandbox-glyph-item:hover {
@@ -231,6 +233,7 @@ body {
     /* Hidden by default */
     opacity: 0;
     pointer-events: none;
+    z-index: 2; /* Ensure overlay is on top of the image */
     transition: opacity 0.2s ease-out;
 }
 
@@ -859,6 +862,89 @@ body {
     background: var(--panel-dark);
     padding: 4px;
     border-radius: 8px;
+}
+
+/* --- PLAYER INVENTORY STYLES --- */
+.player-inventory-container {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    background: #152020;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.empty-slot {
+    background: transparent;
+    border: 2px dashed var(--muted);
+    cursor: default;
+}
+
+
+/* --- TILE SELECTION MODAL --- */
+.tile-selection-modal {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 var(--shadow);
+    padding: 24px;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border: 2px solid var(--accent-blue);
+}
+
+.tile-selection-modal h2 {
+    font-family: m5x7;
+    font-size: 36px;
+    text-align: center;
+    margin: 0;
+    color: white;
+}
+
+.tile-selection-modal p {
+    font-family: 'Roboto Slab', sans-serif;
+    font-size: 16px;
+    color: var(--muted);
+    text-align: center;
+    margin: -8px 0 0;
+}
+
+.tile-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    background: #152020;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.tile-selection-item {
+    background: var(--tile-bg);
+    color: var(--tile-ink);
+    border-radius: 8px;
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Roboto Slab', sans-serif;
+    font-weight: 600;
+    font-size: 32px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.tile-selection-item.selected {
+    border-color: var(--accent-orange);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--accent-orange);
+}
+
+.tile-selection-actions {
+    display: flex;
+    justify-content: center;
 }
 /* Edition Overlay/Effect */
 .tile-edition-foil::after {

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumables Sandbox</title>
+    <link rel="stylesheet" href="gameplay.css">
+    <link rel="stylesheet" href="sandbox.css">
+</head>
+<body>
+    <main class="sandbox-container">
+        <header class="sandbox-header">
+            <h1>Consumables Sandbox</h1>
+            <a href="sandbox.html" class="nav-link">&larr; Back to Hub</a>
+        </header>
+        <section class="component-section">
+            <h2 class="component-title">Player's Held Consumables (Game State)</h2>
+            <div class="player-inventory-container" id="playerConsumablesContainer"></div>
+        </section>
+        <section class="component-section">
+            <h2 class="component-title">Available Consumables</h2>
+            <div class="component-showcase" id="consumable-showcase"></div>
+        </section>
+    </main>
+
+    <!-- New Tile Selection Modal (hidden by default) -->
+    <div class="modal-overlay" id="tileSelectionModalOverlay">
+        <div class="tile-selection-modal">
+            <h2 id="tileSelectionTitle">Select Tiles</h2>
+            <p id="tileSelectionSubtitle">Choose up to 2 tiles to enhance.</p>
+            <div class="tile-selection-grid" id="tileSelectionGrid">
+                <!-- Tiles from the bag will be rendered here -->
+            </div>
+            <div class="tile-selection-actions">
+                <button id="tileSelectionConfirmBtn" class="btn-confirm" disabled>Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game-objects.js"></script>
+    <script src="sandbox-definitions.js"></script>
+    <script src="consumables-sandbox.js"></script>
+</body>
+</html>

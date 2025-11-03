@@ -2380,6 +2380,167 @@ const ALL_UPGRADES = [
     new UpgradeRefreshPlus(),
 ];
 
+// --- CONSUMABLE DEFINITIONS ---
+// This new structure is based on the data you provided. Each consumable
+// now has a detailed effect object, making it easier to implement game logic.
+const ALL_CONSUMABLES = [
+    new TarotTile({
+        id: 'tarot_fool',
+        name: 'The Fool (0)',
+        description: 'Creates a copy of the last Arcana tile used (The Fool excluded).',
+        effect: { type: 'DUPLICATE', target: 'NONE', details: { action: 'duplicate_last_consumable' } },
+        imageName: 'fool.png',
+    }),
+    new TarotTile({
+        id: 'tarot_magician',
+        name: 'The Magician (I)',
+        description: 'Enhances 2 selected tiles to Lucky tiles.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { enhancement: 'Lucky', targetCount: 2 } },
+        imageName: 'magician.png',
+    }),
+    new TarotTile({
+        id: 'tarot_priestess',
+        name: 'The High Priestess (II)',
+        description: 'Creates 2 random tiles with length-based suit enhancements.',
+        effect: { type: 'CREATE_TILE', target: 'NONE', details: { pool: ['Length'], count: 2 } },
+        imageName: 'highpriestess.png',
+    }),
+    new TarotTile({
+        id: 'tarot_star',
+        name: 'The Star (XVII)',
+        description: 'Converts up to 4 selected tiles on grid to Amethyst.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { action: 'change_suit', suit: 'Diamonds', targetCount: 4 } },
+        imageName: 'star.png',
+    }),
+    new TarotTile({
+        id: 'tarot_moon',
+        name: 'The Moon (XVIII)',
+        description: 'Converts up to 3 selected tiles on grid to Sapphire.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { action: 'change_suit', suit: 'Clubs', targetCount: 3 } },
+        imageName: 'moon.png',
+    }),
+    new TarotTile({
+        id: 'tarot_empress',
+        name: 'The Empress (III)',
+        description: 'Enhances 2 selected tiles to Mult tiles.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { enhancement: 'Mult', targetCount: 2 } },
+        imageName: 'empress.png',
+    }),
+    new TarotTile({
+        id: 'tarot_emperor',
+        name: 'The Emperor (IV)',
+        description: 'Creates up to 2 random Tarot consumable TILEs (Must have room).',
+        effect: { type: 'CREATE_TILE', target: 'NONE', details: { pool: ['Tarot'], count: 2 } },
+        imageName: 'emperor.png',
+    }),
+    new TarotTile({
+        id: 'tarot_hierophant',
+        name: 'The Hierophant (V)',
+        description: 'Enhances 2 selected tiles to boosted tiles.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { enhancement: 'Bonus', targetCount: 2 } },
+        imageName: 'hierophant.png',
+    }),
+    new TarotTile({
+        id: 'tarot_lovers',
+        name: 'The Lovers (VI)',
+        description: 'Makes 1/4 of a wild tile piece.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { enhancement: 'Wild', targetCount: 1 } },
+        imageName: 'lovers.png',
+    }),
+    new TarotTile({
+        id: 'tarot_chariot',
+        name: 'The Chariot (VII)',
+        description: 'Enhances 1 selected tile into a Steel tile.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { enhancement: 'Steel', targetCount: 1 } },
+        imageName: 'chariot.png',
+    }),
+    new TarotTile({
+        id: 'tarot_justice',
+        name: 'Justice (VIII)',
+        description: 'Enhances 1 selected tile into a Glass tile.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { enhancement: 'Glass', targetCount: 1 } },
+        imageName: 'justice.png',
+    }),
+    new TarotTile({
+        id: 'tarot_hermit',
+        name: 'The Hermit (IX)',
+        description: 'Doubles money (Max of $20).',
+        effect: { type: 'ADD_MONEY', target: 'NONE', details: { action: 'double', max_gain: 20 } },
+        imageName: 'hermit.png',
+    }),
+    new TarotTile({
+        id: 'tarot_wheel',
+        name: 'The Wheel of Fortune (X)',
+        description: '1 in 4 chance to add Foil, Holographic, or Polychrome edition to a random Glyph.',
+        effect: { type: 'MODIFY_GLYPH', target: 'NONE', details: { action: 'add_random_edition', target: 'random_glyph', chance: 0.25, editions: ['Foil', 'Holographic', 'Polychrome'] } },
+        imageName: 'wheel.png',
+    }),
+    new TarotTile({
+        id: 'tarot_strength',
+        name: 'Strength (XI)',
+        description: 'Permanatly adds 10+ points to 2 selected tiles.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { action: 'rank_up', targetCount: 2, amount: 1 } },
+        imageName: 'strength.png',
+    }),
+    new TarotTile({
+        id: 'tarot_hanged_man',
+        name: 'The Hanged Man (XII)',
+        description: 'Destroys up to 2 selected tiles.',
+        effect: { type: 'DESTROY', target: 'TILE_IN_HAND', details: { target: 'selected_tile', targetCount: 2 } },
+        imageName: 'hangedman.png',
+    }),
+    new TarotTile({
+        id: 'tarot_death',
+        name: 'Death (XIII)',
+        description: 'Select 2 tiles, convert the left tile into the right tile (Drag to rearrange).',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { action: 'convert', targetCount: 2, source: 'left', destination: 'right' } },
+        imageName: 'death.png',
+    }),
+    new TarotTile({
+        id: 'tarot_temperance',
+        name: 'Temperance (XIV)',
+        description: 'Gives the total sell value of all current Glyphs (Max of $50).',
+        effect: { type: 'ADD_MONEY', target: 'NONE', details: { action: 'sell_all_glyphs_value', max_gain: 50 } },
+        imageName: 'temperance.png',
+    }),
+    new TarotTile({
+        id: 'tarot_devil',
+        name: 'The Devil (XV)',
+        description: 'Enhances 1 selected tile into a Gold tile.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { enhancement: 'Gold', targetCount: 1 } },
+        imageName: 'devil.png',
+    }),
+    new TarotTile({
+        id: 'tarot_tower',
+        name: 'The Tower (XVI)',
+        description: 'Enhances 1 selected tile into a Stone tile.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { enhancement: 'Stone', targetCount: 1 } },
+        imageName: 'tower.png',
+    }),
+    new TarotTile({
+        id: 'tarot_judgement',
+        name: 'Judgement (XX)',
+        description: 'Creates a random Glyph (Must have room).',
+        effect: { type: 'CREATE_GLYPH', target: 'NONE', details: { count: 1, isPristine: true } },
+        imageName: 'judgement.png',
+    }),
+    new TarotTile({
+        id: 'tarot_sun',
+        name: 'The Sun (XIX)',
+        description: 'Converts up to 2 selected tiles on grid to Ruby.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { action: 'change_suit', suit: 'Hearts', targetCount: 2 } },
+        imageName: 'sun.png',
+    }),
+    new TarotTile({
+        id: 'tarot_world',
+        name: 'The World (XXI)',
+        description: 'Converts up to 1 selected tiles on grid to Diamond.',
+        effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { action: 'change_suit', suit: 'Spades', targetCount: 1 } },
+        imageName: 'world.png',
+    }),
+];
+
+
 // --- GRAB BAG DEFINITIONS ---
 
 const ALL_GRAB_BAGS = [

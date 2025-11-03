@@ -1527,13 +1527,12 @@ async function init() {
     }
 
     // 1. Create or load the master tile set for the run.
-    if (state.masterTileSet) {
-        state.masterTileSet = state.masterTileSet;
-    } else {
+    if (!state.masterTileSet) {
         // First time loading for this run, create the set.
+        const runState = getRunState(); // Get the current run state
         state.masterTileSet = TILE_DISTRIBUTION.map(letter => new Tile(letter));
-        state.masterTileSet = state.masterTileSet;
-        saveRunState(state);
+        runState.masterTileSet = state.masterTileSet; // Add the new tile set to it
+        saveRunState(runState); // Save the complete state back
     }
 
 

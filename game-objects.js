@@ -94,19 +94,27 @@ class Consumable {
      * @param {string} config.type - 'Planet', 'Tarot', 'Spectral', 'Voucher'.
      * @param {string} config.description - Explains the item's effect.
      * @param {object} config.effect - Defines the action to be taken.
+     * @param {string} [config.imageName='test.png'] - The image file for the consumable.
+     * @param {number} [config.sellValue=2] - The amount it sells for.
+     * @param {boolean} [config.hasAction=true] - If it has a "USE" button.
      */
-    constructor({ id, name, type, description, effect }) {
+    constructor({ id, name, type, description, effect, imageName, sellValue, hasAction }) {
         // Metadata
         this.id = id;
         this.source = "Unknown"; // Can be set to 'Shop', 'Booster Pack', etc.
 
         // Attributes
         this.name = name;
-        this.type = type;
+        this.type = type || 'Consumable';
         this.description = description;
+        this.sellValue = sellValue !== undefined ? sellValue : 2;
 
         // Nested Effect Object
         this.effect = effect; // e.g., { type: 'EnhanceHand', details: { handToLevel: 'Flush' } }
+
+        // Visuals & Interactivity
+        this.imageName = imageName || 'test.png';
+        this.hasAction = hasAction !== undefined ? hasAction : true;
     }
 
     /**
