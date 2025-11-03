@@ -32,6 +32,10 @@ class GlyphA extends Glyph {
         });
         return { bonusMult };
     }
+
+    getPowerText() {
+        return { text: '+3 MULT', class: 'mult' };
+    }
 }
 
 class GlyphE extends Glyph {
@@ -58,6 +62,10 @@ class GlyphE extends Glyph {
             }
         });
         return { bonusMult };
+    }
+
+    getPowerText() {
+        return { text: '+3 MULT', class: 'mult' };
     }
 }
 
@@ -86,6 +94,10 @@ class GlyphI extends Glyph {
         });
         return { bonusMult };
     }
+
+    getPowerText() {
+        return { text: '+3 MULT', class: 'mult' };
+    }
 }
 
 class GlyphO extends Glyph {
@@ -112,6 +124,10 @@ class GlyphO extends Glyph {
             }
         });
         return { bonusMult };
+    }
+
+    getPowerText() {
+        return { text: '+3 MULT', class: 'mult' };
     }
 }
 
@@ -169,6 +185,10 @@ class GlyphAPoints extends Glyph {
         });
         return { bonusScore };
     }
+
+    getPowerText() {
+        return { text: '+20 PTS', class: 'score' };
+    }
 }
 
 class GlyphEPoints extends Glyph {
@@ -193,6 +213,10 @@ class GlyphEPoints extends Glyph {
             if (tile.letter === 'E') bonusScore += 20;
         });
         return { bonusScore };
+    }
+
+    getPowerText() {
+        return { text: '+20 PTS', class: 'score' };
     }
 }
 
@@ -219,6 +243,10 @@ class GlyphIPoints extends Glyph {
         });
         return { bonusScore };
     }
+
+    getPowerText() {
+        return { text: '+20 PTS', class: 'score' };
+    }
 }
 
 class GlyphOPoints extends Glyph {
@@ -243,6 +271,10 @@ class GlyphOPoints extends Glyph {
             if (tile.letter === 'O') bonusScore += 20;
         });
         return { bonusScore };
+    }
+
+    getPowerText() {
+        return { text: '+20 PTS', class: 'score' };
     }
 }
 
@@ -469,14 +501,14 @@ class GlyphMicro extends Glyph {
     constructor() {
         super({
             id: 'glyph_micro',
-            name: 'Micro µ',
+            name: 'Micro Mu',
             description: 'Words played with 6 or less letters get +4 mult',
             rarity: 'Common',
             tags: [],
             purchaseCost: 5,
             sellValue: 2,
             imageName: 'test.png',
-            hasAction: false
+            hasAction: false,
         });
     }
 
@@ -2477,6 +2509,7 @@ const GLYPH_MAP = {
     'glyph_stencil': GlyphStencil,
     'glyph_devious': GlyphDevious,
     'glyph_micro': GlyphMicro,
+    'glyph_mime': GlyphMime,
     'glyph_credit_card': GlyphCreditCard,
     'glyph_ceremonial_dagger': GlyphCeremonialDagger,
     'glyph_banner': GlyphBanner,

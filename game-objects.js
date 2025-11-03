@@ -47,11 +47,15 @@ class Glyph {
         if (this.onScoring) {
             const letterToTest = this.id.split('_')[1]?.toUpperCase() || 'A';
             const scoringEffect = this.onScoring({}, { playedTiles: [{ letter: letterToTest }] });
-            if (scoringEffect.bonusScore) {
-                return { text: `+${scoringEffect.bonusScore} PTS`, class: 'score' };
-            }
-            if (scoringEffect.bonusMult) {
-                return { text: `+${scoringEffect.bonusMult} MULT`, class: 'mult' };
+
+            // Defensive check: Ensure onScoring returned a valid object before accessing its properties.
+            if (scoringEffect) {
+                if (scoringEffect.bonusScore) {
+                    return { text: `+${scoringEffect.bonusScore} PTS`, class: 'score' };
+                }
+                if (scoringEffect.bonusMult) {
+                    return { text: `+${scoringEffect.bonusMult} MULT`, class: 'mult' };
+                }
             }
         }
         return null; // No simple power text

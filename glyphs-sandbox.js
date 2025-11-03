@@ -1,10 +1,47 @@
 document.addEventListener('DOMContentLoaded', () => {
     const glyphShowcase = document.getElementById('glyph-showcase');
+    const sortControls = document.querySelector('.sort-buttons');
+    let currentSort = 'name'; // Default sort
 
     if (glyphShowcase && typeof ALL_GLYPHS !== 'undefined') {
+        // --- Sorting Logic ---
+        const sortGlyphs = (sortBy) => {
+            currentSort = sortBy;
+            if (sortBy === 'name') {
+                ALL_GLYPHS.sort((a, b) => a.name.localeCompare(b.name));
+            }
+            renderGlyphs(ALL_GLYPHS);
+        };
+
+        // --- Event Listeners for Sort Buttons ---
+        if (sortControls) {
+            // Since there's only one sort option now, we can simplify this.
+            // The listener remains in case you add other sort options later.
+            sortControls.addEventListener('click', (e) => {
+                const sortBtn = e.target.closest('.sort-btn');
+                if (sortBtn && sortBtn.dataset.sort) {
+                    const sortBy = sortBtn.dataset.sort;
+                    // Update active button
+                    document.querySelectorAll('.sort-btn').forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.sort === sortBy);
+                    });
+                    sortGlyphs(sortBy);
+                }
+            });
+        } else {
+            // If sort controls don't exist, just do an initial render
+            sortGlyphs(currentSort);
+        }
+    }
+
+    /**
+     * Renders the glyphs into the showcase container.
+     * @param {Glyph[]} glyphsToRender - The array of glyph objects to render.
+     */
+    function renderGlyphs(glyphsToRender) {
         glyphShowcase.innerHTML = ''; // Clear placeholder text
 
-        ALL_GLYPHS.forEach(glyph => {
+        glyphsToRender.forEach(glyph => {
             // Create the main container for the glyph item
             const itemContainer = document.createElement('div');
             itemContainer.className = 'sandbox-glyph-item';
@@ -39,8 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             attributesPanel.className = 'sandbox-glyph-attributes';
 
             // Dynamically get the "power" text
-            const glyphInstance = new (GLYPH_MAP[glyph.id])();
-            const powerInfo = glyphInstance.getPowerText();
+            const powerInfo = glyph.getPowerText();
 
             if (powerInfo) {
                 powerEl.textContent = powerInfo.text;

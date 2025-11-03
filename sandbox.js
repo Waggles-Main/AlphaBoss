@@ -43,8 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             attributesPanel.className = 'sandbox-glyph-attributes';
 
             // Dynamically get the "power" text
-            const glyphInstance = new (GLYPH_MAP[glyph.id])();
-            const powerInfo = glyphInstance.getPowerText();
+            const powerInfo = glyph.getPowerText();
 
             if (powerInfo) {
                 powerEl.textContent = powerInfo.text;
@@ -55,9 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 attr.textContent = powerInfo.text;
                 attributesPanel.appendChild(attr);
             } else {
-                // Handle glyphs that might not have a simple power text (like Pilcrow)
-                powerEl.textContent = 'UTILITY';
-                powerEl.classList.add('utility');
+                // Fallback for glyphs that don't have a simple power text (like Pilcrow)
+                const fallbackPower = { text: 'UTILITY', class: 'utility' };
+                powerEl.textContent = fallbackPower.text;
+                powerEl.classList.add(fallbackPower.class);
             }
 
             // --- Create the new SELL button ---
@@ -85,9 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // Append all parts to the overlay
-            overlay.append(nameEl, powerEl, descEl, rarityEl);
-
             // Add click listener to the main container to toggle the active state
             itemContainer.addEventListener('click', () => {
                 const wasActive = itemContainer.classList.contains('active');
@@ -102,11 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemContainer.classList.remove('active');
             });
 
-            // Append the image and the new overlay to the main container
-            const elementsToAppend = [glyphImage, overlay, sellBtn, attributesPanel];
-            if (useBtn) {
-                elementsToAppend.push(useBtn);
-            }
+            // Append all parts
+            overlay.append(nameEl, powerEl, descEl, rarityEl);
+            const elementsToAppend = [glyphImage, overlay, sellBtn, useBtn, attributesPanel].filter(Boolean); // Filter out null useBtn
             itemContainer.append(...elementsToAppend);
             glyphShowcase.appendChild(itemContainer);
         });

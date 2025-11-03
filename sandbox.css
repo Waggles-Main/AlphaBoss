@@ -95,6 +95,46 @@ body {
     flex-wrap: wrap;
 }
 
+/* --- Sandbox Controls (Sorting) --- */
+.sandbox-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 130px;
+}
+
+.sort-label {
+    font-family: m5x7;
+    font-size: 20px;
+    color: var(--muted);
+}
+
+.sort-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.sort-btn {
+    appearance: none;
+    border: 2px solid var(--tile-border);
+    background: var(--panel-soft);
+    color: var(--muted);
+    font-family: 'Roboto Slab', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sort-btn.active,
+.sort-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
 /* --- Sandbox Glyph Styles --- */
 .sandbox-glyph-item {
     display: flex;

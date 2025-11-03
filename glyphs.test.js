@@ -44,14 +44,14 @@ describe('GlyphInterest', () => {
         expect(glyph.imageName).toBe('test.png');
     });
 
-    it('should return null for getPowerText since it has no onScoring method', () => {
-        // This confirms it inherits the base method correctly and follows the expected path
-        // for a glyph without a simple scoring power.
-        expect(glyph.getPowerText()).toBeNull();
+    it('should return the correct power text object', () => {
+        // This confirms it returns the expected utility power text.
+        const powerText = glyph.getPowerText();
+        expect(powerText).toEqual({ text: 'ECONOMY', class: 'utility' });
     });
 
-    it('should have empty tags by default', () => {
-        // The constructor in the base class defaults tags to an empty array.
-        expect(glyph.tags).toEqual([]);
+    it('should have the correct tags', () => {
+        // The constructor for this glyph now defines a specific tag.
+        expect(glyph.tags).toEqual(['economy']);
     });
 });
