@@ -2641,6 +2641,37 @@ const ALL_GRAB_BAGS = [
         picks: 2,
         lootTable: { itemType: 'Tarot' }
     }),
+    // --- [NEW] Special Tile & Spectral Packs ---
+    new GrabBag({
+        id: 'pack_special_normal',
+        name: 'Special Tile Pack',
+        type: 'Special',
+        description: 'Choose 1 of 2 special tiles to add to your bag.',
+        purchaseCost: 10,
+        packSize: 2,
+        picks: 1,
+        lootTable: { itemType: 'Special' }
+    }),
+    new GrabBag({
+        id: 'pack_special_jumbo',
+        name: 'Jumbo Special Tile Pack',
+        type: 'Special',
+        description: 'Choose 1 of 4 Special Tiles to add to your bag.',
+        purchaseCost: 20,
+        packSize: 4,
+        picks: 1,
+        lootTable: { itemType: 'Special' }
+    }),
+    new GrabBag({
+        id: 'pack_special_mega',
+        name: 'Mega Special Tile Pack',
+        type: 'Special',
+        description: 'Choose 2 of 4 Special Tiles to add to your bag.',
+        purchaseCost: 40,
+        packSize: 4,
+        picks: 2,
+        lootTable: { itemType: 'Special' }
+    }),
     // --- Other Grab Bags ---
     new GrabBag({
         id: 'grab_bag_glyph',

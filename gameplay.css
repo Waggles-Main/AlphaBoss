@@ -1,19 +1,3 @@
-@font-face {
-    font-family: 'm5x7';
-    src: url('Fonts/m5x7.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'm6x11plus';
-    src: url('Fonts/m6x11plus.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
 :root {
     --bg: #162222;
     --panel: rgba(46, 58, 60, 0.85); /* Made panel slightly transparent */
@@ -43,7 +27,7 @@ body {
     margin: 0;
     background-color: #0c1010; /* Darker background for the effect */
     color: var(--ink);
-    font-family: m6x11plus, m5x7, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font-family: 'Roboto Slab Variable', sans-serif;
     /* overflow: hidden; was preventing scrolling */
 }
 
@@ -91,10 +75,10 @@ body {
 }
 
 .round-info { 
-    background: var(--panel); 
+    background: transparent; 
     border-radius: 16px; 
     padding: 8px 16px; 
-    box-shadow: 0 4px 0 var(--shadow); 
+    border: 1px solid white;
 }
 .boss { 
     display: none; 
@@ -111,12 +95,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: m5x7;
     color: white;
     font-size: 10px;
     letter-spacing: 1px;
     position: relative;
     overflow: hidden;
+    font-family: 'Roboto Slab Variable', sans-serif;
 }
 
 
@@ -152,36 +136,34 @@ body {
 .boss-dialog { 
     background: #e8eaed; 
     color: #1e2f33; 
-    border-radius: 10px; 
-    padding: 4px 16px; 
-    font-family: m6x11plus; 
+    border-radius: 10px;
+    padding: 4px 16px;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 12px;
     line-height: 1.2;
     display: flex;
     align-items: center;
-    justify-content: center;
 }
 .round-indicator { 
     text-align: center; 
 }
 .round-label { 
     font-size: 11px; 
-    color: white; 
-    font-family: m6x11plus;
+    color: white;
+    font-family: 'Roboto Slab Variable', sans-serif;
 }
 .round-value { 
-    font-family: m5x7; 
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 24px; 
     color: white;
     text-shadow: 0 2px 0 var(--shadow);
 }
 
 .stage-indicator {
-    font-family: m6x11plus;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 14px;
     color: var(--accent-orange);
     text-transform: uppercase;
-    margin-top: -4px;
 }
 
 .scores { 
@@ -191,12 +173,12 @@ body {
     align-items: center; 
 }
 .score-label, .target-label { 
-    font-size: 11px; 
-    color: white; 
-    font-family: m6x11plus;
+    font-size: 11px;
+    color: white;
+    font-family: 'Roboto Slab Variable', sans-serif;
 }
 .score-value, .target-value { 
-    font-family: m5x7; 
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 24px; 
     color: white;
     text-shadow: 0 2px 0 var(--shadow);
@@ -242,23 +224,22 @@ body {
     gap: 8px; 
 }
 .pill { 
-    background: var(--panel); 
+    background: transparent; 
     border-radius: 12px;
     padding: 4px 10px;
-    box-shadow: 0 4px 0 var(--shadow); 
+    border: 1px solid white;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    height: 48px;
 }
 .pill-label { 
-    font-size: 11px; 
-    color: white; 
-    font-family: m6x11plus;
+    font-size: 11px;
+    color: white;
+    font-family: 'Roboto Slab Variable', sans-serif;
 }
 .pill-value { 
-    font-family: m5x7; 
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 24px;
     color: white;
     text-shadow: 0 2px 0 var(--shadow);
@@ -273,9 +254,10 @@ button.pill {
     border: none;
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s, filter 0.2s;
+    box-shadow: none;
 }
-button.pill:hover { filter: brightness(1.15); }
-button.pill:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--shadow); }
+button.pill:hover { background: rgba(255,255,255,0.1); }
+button.pill:active { transform: translateY(1px); }
 button.pill:disabled {
     cursor: not-allowed;
     filter: brightness(0.6);
@@ -294,9 +276,8 @@ button.pill:disabled {
     border: 0; 
     background: var(--panel); 
     color: white; 
-    padding: 12px 8px; 
-    border-radius: 16px; 
-    font-family: m6x11plus; 
+    padding: 12px 8px;
+    border-radius: 16px;
     font-size: 18px;
     box-shadow: 0 4px 0 var(--shadow); 
 }
@@ -305,10 +286,10 @@ button.pill:disabled {
 }
 
 .scoring { 
-    background: var(--panel); 
+    background: transparent; 
     border-radius: 16px; 
     padding: 4px 16px; 
-    box-shadow: 0 4px 0 var(--shadow);
+    border: 1px solid white;
     overflow: hidden;
 }
 .chips { 
@@ -336,8 +317,7 @@ button.pill:disabled {
     align-items: center;
     justify-content: flex-end;
     height: 36px;
-    width: 100%;
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 18px;
     line-height: 1;
 }
@@ -358,7 +338,7 @@ button.pill:disabled {
 
 .chip-position-display {
     height: 20px; /* Adjusted height */
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 18px;
     color: var(--muted); /* Changed to muted color to de-emphasize */
     text-align: center;
@@ -368,7 +348,7 @@ button.pill:disabled {
 /* New style for the word length bonus placeholder */
 .chip-length-bonus-display {
     height: 24px; /* Give it some space */
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 24px;
     font-weight: bold;
     color: var(--mult-mult-box);
@@ -378,8 +358,8 @@ button.pill:disabled {
 .chip { 
     background: var(--chip-bg); 
     color: #111; 
-    border-radius: 4px; 
-    font-family: m6x11plus;
+    border-radius: 4px;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 36px; /* Increased font size for the letter */
     display: flex; 
     justify-content: center; 
@@ -401,11 +381,11 @@ button.pill:disabled {
 }
 .base-score .muted { 
     color: white; 
-    font-size: 18px; 
-    font-family: m6x11plus;
+    font-size: 18px;
+    font-family: 'Roboto Slab Variable', sans-serif;
 }
 .base-score .base-value { 
-    font-family: m5x7; 
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 18px; 
     color: white;
 }
@@ -423,48 +403,32 @@ button.pill:disabled {
 .calc-box {
     flex: 1;
     padding: 8px;
-    border-radius: 12px;
+    border-radius: 8px;
     text-align: center;
-    box-shadow: 0 4px 0 var(--shadow);
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid white;
+    background: transparent !important; /* Override specific color classes */
 }
 
 .calc-box .calc-value {
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 24px;
     color: white;
     text-shadow: 0 2px 0 var(--shadow);
 }
 
-.value-box {
-    background-color: var(--accent-blue);
-}
-
-.mult-box {
-    background-color: var(--accent-red);
-}
-
-.mult-mult-box {
-    background-color: #7a73bb; /* Purple color from the design */
-}
-
 .calc-operator {
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 32px;
-    color: white;
-    text-shadow: 0 2px 0 var(--shadow);
+    color: var(--muted);
 }
 
 .calc-total {
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 36px;
     color: var(--accent-orange);
-    text-shadow: 0 2px 0 var(--shadow);
-    background: var(--panel-soft);
+    border: 1px solid var(--accent-orange);
     padding: 6px 16px;
-    border-radius: 12px;
-    box-shadow: 0 4px 0 var(--shadow);
-    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
     min-width: 60px;
     text-align: center;
 }
@@ -472,15 +436,39 @@ button.pill:disabled {
 
 .grid { 
     display: grid; 
-    grid-template-columns: repeat(4, 1fr); 
-    gap: 0; 
+    grid-template-columns: repeat(var(--grid-cols, 6), 1fr);
+    grid-template-rows: repeat(var(--grid-rows, 4), 1fr);
+    gap: 8px;
     padding: 0; 
-    aspect-ratio: 1;
+    aspect-ratio: var(--grid-cols, 6) / var(--grid-rows, 4);
     max-width: 100%;
-    /* Add perspective to create a 3D space for child elements */
     perspective: 1000px;
     background: transparent;
+    border-radius: 8px;
+    border: 1px solid white;
 }
+
+.grid-slot {
+    background: transparent;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1;
+    position: relative; /* For positioning the tile inside */
+}
+
+/* New style for the dashed column in the main grid */
+.grid-slot.dashed-outline {
+    border: 2px dashed var(--muted);
+    background: transparent;
+}
+
+/* New style for the transparent left column */
+.grid-slot.transparent-slot {
+    background: transparent;
+}
+
 .tile { 
     position: relative; 
     display: flex; 
@@ -547,7 +535,7 @@ button.pill:disabled {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-family: m6x11plus; 
+    font-family: 'Roboto Slab Variable', sans-serif; 
     font-size: 48px;
     position: relative;
 }
@@ -555,7 +543,7 @@ button.pill:disabled {
 
 
 .tile .val { 
-    font-family: m5x7; 
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 18px; 
     color: #0096f0; 
     font-weight: bold;
@@ -574,10 +562,9 @@ button.pill:disabled {
     position: absolute;
     top: 0px;
     right: 5px;
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 28px;
     font-weight: bold;
-    color: var(--accent-red);
     text-shadow: 0 1px 0 var(--shadow);
     line-height: 1;
     pointer-events: none; /* Make sure it doesn't interfere with hover */
@@ -781,9 +768,8 @@ button.pill:disabled {
 .btn { 
     appearance: none; 
     border: 0; 
-    padding: 15px 10px; 
-    border-radius: 16px; 
-    font-family: m6x11plus; 
+    padding: 15px 10px;
+    border-radius: 16px;
     color: #fff; 
     box-shadow: 0 5px 0 var(--shadow); 
     font-size: 5vw;
@@ -796,10 +782,10 @@ button.pill:disabled {
 }
 
 .glyphs-section {
-    background: var(--panel-dark);
+    background: transparent;
     border-radius: 16px;
     padding: 8px;
-    box-shadow: 0 4px 0 var(--shadow);
+    border: 1px solid white;
     position: relative; /* For positioning the counter */
 }
 
@@ -871,15 +857,157 @@ button.pill:disabled {
     0%, 100% { box-shadow: 0 5px 0 var(--shadow), 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--accent-green); }
     50% { box-shadow: 0 5px 0 var(--shadow), 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--accent-green); }
 }
-
 .chips::-webkit-scrollbar { height: 6px; }
 .chips::-webkit-scrollbar-thumb { background: #3a4a4f; border-radius: 8px; }
 
-@media (min-width: 360px) {
-    .screen { max-width: 360px; }
+.error-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--accent-red);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 16px;
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 10000;
+    box-shadow: 0 8px 0 var(--shadow);
+}
+/* --- [REFACTORED] GLYPH SECTION STYLES --- */
+.glyphs-section {
+    background: var(--panel-dark);
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 4px 0 var(--shadow);
+    position: relative; /* For positioning the counter */
 }
 
-/* Animations for word validation */
+.glyph-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    gap: 8px;
+    justify-content: center;
+}
+
+.glyph-slot {
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: transparent;
+    border: 1px solid white;
+    border-radius: 4px;
+    position: relative;
+    transition: transform 0.2s ease-out;
+}
+
+.glyph-slot.filled {
+    border: none;
+    cursor: pointer;
+}
+
+.glyph-slot.filled:hover {
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+.glyph-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+}
+
+.glyph-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(46, 58, 60, 0.85);
+    border-radius: 4px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-out;
+}
+
+.glyph-slot.filled:hover .glyph-overlay {
+    opacity: 1;
+}
+
+.glyph-overlay .overlay-name {
+    font-family: 'Roboto Slab Variable', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.glyph-overlay .overlay-description {
+    font-family: 'Roboto Slab Variable', sans-serif;
+    font-size: 9px;
+    color: #d9d9d9;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.glyph-overlay .overlay-rarity {
+    font-family: 'Roboto Slab Variable', sans-serif;
+    font-weight: 600;
+    font-size: 8px;
+    text-align: center;
+    border-radius: 2px;
+    padding: 1px 0;
+    text-transform: uppercase;
+    color: white;
+}
+
+.overlay-rarity.common { background: #a0a0a0; }
+.overlay-rarity.uncommon { background: #63d471; }
+.overlay-rarity.rare { background: #ff9a24; }
+.overlay-rarity.legendary { background: linear-gradient(90deg, #ff5f4f, #fd8c1f, #ffd700); background-size: 200% 200%; animation: rainbow-text-anim 3s linear infinite; }
+
+.glyph-counter {
+    position: absolute;
+    bottom: 8px;
+    right: 16px;
+    font-family: 'Roboto Slab Variable', sans-serif;
+    font-size: 11px;
+    color: white;
+}
+
+/* --- [NEW] CONSUMABLES SECTION --- */
+.consumables-section {
+    background: transparent;
+    border-radius: 16px;
+    padding: 8px;
+    border: 1px solid white;
+}
+
+.consumable-slots {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 slots */
+    gap: 8px;
+    justify-content: center;
+}
+
+.consumable-slot {
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: transparent;
+    border: 1px solid white;
+    border-radius: 4px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 @keyframes screenShake {
     0%, 100% { transform: translateX(0); }
     10% { transform: translateX(-5px); }
@@ -891,35 +1019,6 @@ button.pill:disabled {
     70% { transform: translateX(-5px); }
     80% { transform: translateX(5px); }
     90% { transform: translateX(-5px); }
-}
-
-@keyframes errorShake {
-    0%, 100% { transform: translate(-50%, -50%); }
-    10% { transform: translate(-50%, -50%) rotate(-2deg); }
-    20% { transform: translate(-50%, -50%) rotate(2deg); }
-    30% { transform: translate(-50%, -50%) rotate(-2deg); }
-    40% { transform: translate(-50%, -50%) rotate(2deg); }
-    50% { transform: translate(-50%, -50%) rotate(-2deg); }
-    60% { transform: translate(-50%, -50%) rotate(2deg); }
-    70% { transform: translate(-50%, -50%) rotate(-2deg); }
-    80% { transform: translate(-50%, -50%) rotate(2deg); }
-    90% { transform: translate(-50%, -50%) rotate(-2deg); }
-}
-
-.error-message {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: var(--accent-red);
-    color: white;
-    padding: 20px 30px;
-    border-radius: 16px;
-    font-family: m6x11plus;
-    font-size: 24px;
-    font-weight: bold;
-    z-index: 10000;
-    box-shadow: 0 8px 0 var(--shadow);
 }
 
 @keyframes successPop {
@@ -937,23 +1036,6 @@ button.pill:disabled {
     }
 }
 
-/* Add these new styles to your gameplay.css file */
-
-.chip {
-    cursor: grab; /* Indicates the chips are draggable */
-}
-
-.chip:active {
-    cursor: grabbing;
-}
-
-/* Style for the chip being dragged */
-.chip.dragging {
-    opacity: 0.5;
-}
-
-/* Replace the old .success-message and related @keyframes with this new section */
-
 .success-container {
     position: fixed;
     top: 50%;
@@ -968,7 +1050,6 @@ button.pill:disabled {
 
 .success-word {
     font-family: m6x11plus, m5x7, sans-serif;
-    font-size: 48px;
     font-weight: bold;
     color: white;
     text-shadow: 0 4px 0 var(--shadow);
@@ -1057,42 +1138,6 @@ button.pill:disabled {
     animation: chip-slam 0.4s ease-in-out;
 }
 
-/* New animation for the chip slam effect */
-@keyframes chip-slam {
-    0% { transform: translateY(0) scale(1); }
-    40% { transform: translateY(-30px) scale(1.1); }
-    70% { transform: translateY(5px) scale(0.95); }
-    85% { transform: translateY(-5px) scale(1.05); }
-    100% { transform: translateY(0) scale(1); }
-}
-
-
-/* New styles for the confetti effect on tile click */
-.confetti-particle {
-    position: fixed;
-    width: 8px;
-    height: 8px;
-    border-radius: 2px;
-    pointer-events: none;
-    z-index: 10001; /* Above other elements */
-    transform-origin: center;
-    /* The animation is set dynamically via JS */
-    animation: confetti-fly 1s ease-out forwards;
-}
-
-@keyframes confetti-fly {
-    0% {
-        transform: translate(-50%, -50%) scale(1) rotate(0deg);
-        opacity: 1;
-    }
-    100% {
-        /* Use CSS variables set by JS for random destinations */
-        transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(0) rotate(var(--r));
-        opacity: 0;
-    }
-}
-
-
 /* In gameplay.css */
 
 /* Bag Modal Styles */
@@ -1111,9 +1156,8 @@ button.pill:disabled {
 }
 
 .bag-modal {
-    background: var(--panel);
+    background: transparent;
     border-radius: 16px;
-    box-shadow: 0 4px 0 var(--shadow);
     padding: 24px;
     width: 100%;
     max-width: 420px;
@@ -1123,7 +1167,7 @@ button.pill:disabled {
     flex-direction: column;
     gap: 16px;
     position: relative;
-    border: 2px solid #3b4b4f;
+    border: 1px solid white;
 }
 
 .btn-close {
@@ -1144,12 +1188,11 @@ button.pill:disabled {
 }
 
 .bag-title {
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 36px;
     text-align: center;
     margin: 0;
     color: white;
-    text-shadow: 0 2px 0 var(--shadow);
 }
 
 .bag-info {
@@ -1188,7 +1231,6 @@ button.pill:disabled {
     color: white;
     padding: 12px 8px;
     border-radius: 8px;
-    font-family: m6x11plus;
     font-size: 24px;
     box-shadow: 0 4px 0 var(--shadow);
     cursor: pointer;
@@ -1201,7 +1243,7 @@ button.pill:disabled {
 }
 
 .bag-grid-container {
-    background: #152020;
+    background: transparent;
     border-radius: 8px;
     padding: 12px;
     overflow-y: auto;
@@ -1228,7 +1270,6 @@ button.pill:disabled {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-family: m6x11plus;
     font-size: 36px;
     box-shadow: 0 4px 0 var(--shadow);
     user-select: none;
@@ -1238,7 +1279,7 @@ button.pill:disabled {
 }
 
 .bag-tile .val {
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 16px;
     color: #0096f0;
     font-weight: bold;
@@ -1266,7 +1307,7 @@ button.pill:disabled {
 }
 
 .bag-section-title {
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 18px;
     color: var(--muted);
     text-align: center;
@@ -1286,14 +1327,13 @@ button.pill:disabled {
     color: white;
     padding: 6px 12px;
     border-radius: 8px;
-    font-family: m6x11plus;
     font-size: 16px;
     box-shadow: 0 2px 0 var(--shadow);
     text-align: center;
 }
 
 .bag-empty-text {
-    font-family: m6x11plus;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 14px;
     color: var(--muted);
     text-align: center;
@@ -1311,15 +1351,14 @@ button.pill:disabled {
     position: fixed;
     top: 20px;
     right: 20px;
-    background: var(--panel);
+    background: transparent;
     padding: 16px;
     border-radius: 16px;
-    box-shadow: 0 4px 0 var(--shadow);
     z-index: 2000;
     display: none; /* Hide the panel by default */
     flex-direction: column;
     gap: 10px;
-    border: 2px solid var(--accent-red);
+    border: 1px solid var(--accent-red);
 }
 
 .dev-panel.enabled {
@@ -1339,7 +1378,6 @@ button.pill:disabled {
 .dev-panel .dev-title {
     margin: 0 0 10px;
     text-align: center;
-    font-family: m5x7;
     color: var(--accent-red);
     font-size: 24px;
     text-shadow: 0 2px 0 var(--shadow);
@@ -1348,7 +1386,6 @@ button.pill:disabled {
 .dev-panel .dev-subtitle {
     margin: 10px 0 5px;
     text-align: center;
-    font-family: m6x11plus;
     color: var(--muted);
     font-size: 18px;
     border-top: 1px solid var(--tile-border);
@@ -1392,7 +1429,6 @@ button.pill:disabled {
 }
 
 #devBossSelect label {
-    font-family: m6x11plus;
     font-size: 14px;
 }
 
@@ -1403,7 +1439,6 @@ button.pill:disabled {
 }
 
 #devScoreDetails {
-    font-family: m5x7;
     font-size: 16px;
     color: white;
     text-align: left;
@@ -1421,7 +1456,6 @@ button.pill:disabled {
     color: white;
     padding: 10px;
     border-radius: 8px;
-    font-family: m6x11plus;
     font-size: 16px;
     box-shadow: 0 4px 0 var(--shadow);
     cursor: pointer;
@@ -1434,7 +1468,6 @@ button.pill:disabled {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    font-family: m5x7;
     font-size: 18px;
     line-height: 1;
     padding: 0;
@@ -1453,21 +1486,19 @@ button.pill:disabled {
 
 /* --- VICTORY MODAL STYLES --- */
 .victory-modal {
-    background: var(--panel-dark);
+    background: transparent;
     border-radius: 16px;
-    box-shadow: 0 4px 0 var(--shadow);
     padding: 16px;
     width: 100%;
     max-width: 328px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    border: 2px solid #3b4b4f;
+    border: 1px solid white;
     animation: successPopWord 0.5s ease-out; /* Reuse pop animation */
 }
 
 .victory-title {
-    font-family: m5x7;
     font-size: 36px;
     text-align: center;
     margin: 0 0 8px;
@@ -1501,14 +1532,12 @@ button.pill:disabled {
     color: #444748;
     border-radius: 8px;
     padding: 8px 16px;
-    font-family: m6x11plus;
     font-size: 14px;
     line-height: 1.2;
     flex-grow: 1;
 }
 
 .victory-label-num {
-    font-family: m5x7;
     font-size: 32px;
     color: var(--accent-blue);
     text-shadow: 0 2px 0 var(--shadow);
@@ -1518,14 +1547,12 @@ button.pill:disabled {
 }
 
 .victory-label {
-    font-family: m6x11plus;
     font-size: 18px;
     color: white;
     flex-grow: 1;
 }
 
 .victory-value {
-    font-family: m5x7;
     font-size: 32px;
     text-shadow: 0 2px 0 var(--shadow);
     flex-shrink: 0;
@@ -1554,8 +1581,7 @@ button.pill:disabled {
     color: white;
     border: 1px solid var(--tile-border);
     border-radius: 8px;
-    padding: 16px;
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 36px;
     text-shadow: 0 2px 0 var(--shadow);
     box-shadow: 0 4px 0 var(--shadow);
@@ -1571,21 +1597,19 @@ button.pill:disabled {
 
 /* --- DEFEAT MODAL STYLES --- */
 .defeat-modal {
-    background: var(--panel-dark);
+    background: transparent;
     border-radius: 16px;
-    box-shadow: 0 4px 0 var(--shadow);
     padding: 16px;
     width: 100%;
     max-width: 328px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    border: 2px solid #3b4b4f;
+    border: 1px solid white;
     animation: successPopWord 0.5s ease-out;
 }
 
 .defeat-title {
-    font-family: m5x7;
     font-size: 36px;
     text-align: center;
     margin: 0;
@@ -1607,7 +1631,6 @@ button.pill:disabled {
 }
 
 .defeat-label {
-    font-family: m5x7;
     font-size: 24px;
     color: white;
     text-shadow: 0 2px 0 var(--shadow);
@@ -1618,7 +1641,6 @@ button.pill:disabled {
     color: #444748;
     border-radius: 16px;
     padding: 8px 16px;
-    font-family: m6x11plus;
     font-size: 14px;
     line-height: 1.2;
     flex-grow: 1;
@@ -1643,7 +1665,6 @@ button.pill:disabled {
     color: white;
     padding: 16px;
     border-radius: 16px;
-    font-family: m6x11plus;
     font-size: 20px;
     box-shadow: 0 4px 0 black;
     cursor: pointer;
@@ -1660,20 +1681,19 @@ button.pill:disabled {
 
 /* --- HOW TO PLAY MODAL STYLES --- */
 .how-to-play-modal {
-    background: var(--panel-dark);
+    background: transparent;
     border-radius: 16px;
-    box-shadow: 0 4px 0 black;
     padding: 16px;
     width: 100%;
     max-width: 328px;
     display: flex;
     flex-direction: column;
     gap: 16px;
+    border: 1px solid white;
     animation: successPopWord 0.5s ease-out; /* Reuse pop animation */
 }
 
 .how-to-play-title {
-    font-family: m5x7;
     font-size: 48px;
     color: white;
     text-shadow: 0 2px 0 var(--shadow);
@@ -1687,8 +1707,7 @@ button.pill:disabled {
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    font-family: m6x11plus;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 18px;
     color: white;
     text-align: center;
@@ -1701,7 +1720,6 @@ button.pill:disabled {
     color: white;
     padding: 16px;
     border-radius: 16px;
-    font-family: m6x11plus;
     font-size: 20px;
     box-shadow: 0 4px 0 black;
     cursor: pointer;
@@ -1734,9 +1752,8 @@ button.pill:disabled {
 
 /* --- OPTIONS MODAL STYLES --- */
 .options-modal {
-    background: var(--panel-dark);
+    background: transparent;
     border-radius: 16px;
-    box-shadow: 0 4px 0 var(--shadow);
     padding: 24px;
     width: 100%;
     max-width: 328px;
@@ -1744,48 +1761,16 @@ button.pill:disabled {
     flex-direction: column;
     gap: 24px;
     position: relative;
-    border: 2px solid #3b4b4f;
+    border: 1px solid white;
     animation: successPopWord 0.5s ease-out;
 }
 
 .options-title {
-    font-family: m5x7;
     font-size: 36px;
     text-align: center;
     margin: 0;
     color: white;
     text-shadow: 0 2px 0 var(--shadow);
-}
-
-.options-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.option-row {
-    display: grid;
-    grid-template-columns: 80px 1fr;
-    align-items: center;
-    gap: 16px;
-}
-
-.option-label {
-    font-family: m6x11plus;
-    font-size: 24px;
-    color: white;
-    text-shadow: 0 2px 0 var(--shadow);
-}
-
-.volume-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 12px;
-    background: #152020;
-    outline: none;
-    border-radius: 6px;
-    border: 1px solid var(--tile-border);
 }
 
 /* --- Slider Thumb Styles --- */
@@ -1811,28 +1796,8 @@ button.pill:disabled {
     box-shadow: 0 2px 0 var(--shadow);
 }
 
-/* --- Slider Track Styles --- */
-.volume-slider::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 12px;
-    cursor: pointer;
-    background: #152020;
-    border-radius: 6px;
-    border: 1px solid var(--tile-border);
-}
-
-.volume-slider::-moz-range-track {
-    width: 100%;
-    height: 12px;
-    cursor: pointer;
-    background: #152020;
-    border-radius: 6px;
-    border: 1px solid var(--tile-border);
-}
-
 .options-footer {
     text-align: center;
-    font-family: m5x7;
     font-size: 16px;
     color: var(--muted);
     margin-top: 8px;
@@ -1884,14 +1849,12 @@ button.pill:disabled {
 }
 
 .tooltip-letter {
-    font-family: m6x11plus;
     font-size: 48px;
     color: #1e2f33;
     line-height: 1;
 }
 
 .tooltip-value {
-    font-family: m5x7;
     font-size: 18px;
     color: var(--accent-blue);
     font-weight: bold;
@@ -1901,7 +1864,6 @@ button.pill:disabled {
 }
 
 .tooltip-info {
-    font-family: m6x11plus;
     font-size: 14px;
     color: white;
     text-align: center;
@@ -1933,7 +1895,6 @@ button.pill:disabled {
 }
 
 .generic-tooltip .tooltip-title {
-    font-family: m5x7;
     font-size: 24px;
     color: var(--accent-orange);
     margin: 0 0 8px;
@@ -1941,7 +1902,6 @@ button.pill:disabled {
 }
 
 .generic-tooltip .tooltip-text {
-    font-family: m6x11plus;
     font-size: 14px;
     color: white;
     margin: 0;
@@ -2038,7 +1998,7 @@ button.pill:disabled {
 }
 
 .glyph-tooltip-name {
-    font-family: m5x7;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 32px;
     color: white;
     text-shadow: 0 2px 0 var(--shadow);
@@ -2047,7 +2007,7 @@ button.pill:disabled {
 }
 
 .glyph-tooltip-description {
-    font-family: m6x11plus;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 16px;
     color: white;
     text-align: center;
@@ -2065,7 +2025,7 @@ button.pill:disabled {
 }
 
 .glyph-tooltip-rarity {
-    font-family: m6x11plus;
+    font-family: 'Roboto Slab Variable', sans-serif;
     font-size: 18px;
     color: var(--muted);
 }

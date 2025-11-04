@@ -410,59 +410,22 @@ document.addEventListener('DOMContentLoaded', () => {
         devScoreDetailsEl.textContent = `Main Word: ${state.mainWord}\nFound: ${found}/${total}\nBonus: ${state.bonusWordsCount}\n\nWords: ${hiddenWordsList}`;
     }
 
-    function initDevControls() {
-        const devWinBtn = document.getElementById('devWin');
-        const devLoseBtn = document.getElementById('devLose');
-        const devNavMenuBtn = document.getElementById('devNavMenu');
-        const devNavGameBtn = document.getElementById('devNavGame');
-        const devMinimizeBtn = document.getElementById('devMinimizeBtn');
-        const devNavShopBtn = document.getElementById('devNavShop');
-        const devNavEventBtn = document.getElementById('devNavEvent');
-
-        if (!devWinBtn) return; // Assume panel doesn't exist if one button is missing
-
-        // Minimize/Maximize toggle
-        devMinimizeBtn.addEventListener('click', () => {
-            const panel = document.getElementById('devPanel');
-            panel.classList.toggle('minimized');
-            if (panel.classList.contains('minimized')) {
-                devMinimizeBtn.textContent = '+';
-            } else {
-                devMinimizeBtn.textContent = '-';
-            }
-        });
-
-        // Auto Win:
-        devWinBtn.addEventListener('click', () => {
-            endGame(true);
-        });
-
-        // Auto Lose:
-        devLoseBtn.addEventListener('click', () => {
-            endGame(false);
-        });
-
-        // Navigate to the main menu
-        devNavMenuBtn.addEventListener('click', () => {
-            window.location.href = 'index.html';
-        });
-
-        // Reload the gameplay screen
-        devNavGameBtn.addEventListener('click', () => {
-            window.location.href = 'gameplay.html';
-        });
-
-        // Navigate to the shop screen
-        devNavShopBtn.addEventListener('click', () => {
-            window.location.href = 'shop.html';
-        });
-
-        // Navigate to the event screen
-        devNavEventBtn.addEventListener('click', () => {
-            window.location.href = 'event.html';
-        });
-
-        updateDevPanel();
+    function initializePageDevControls() {
+        const gameState = {
+            winCondition: () => {
+                if (!state.gameActive) return;
+                state.currentGuess = state.solution;
+                submitGuess();
+            },
+            loseCondition: () => {
+                if (!state.gameActive) return;
+                state.guesses = Array(MAX_GUESSES - 1).fill("WRONG");
+                state.currentGuess = "GUESS";
+                submitGuess();
+            },
+            updateDevPanel: updateDevPanel,
+        };
+        initDevControls(gameState); // This now correctly calls the shared function
     }
 
     function handleSkip() {
@@ -506,5 +469,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INITIALIZE ---
     init();
-    initDevControls();
+    initializePageDevControls();
 });

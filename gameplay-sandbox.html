@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gameplay Sandbox</title>
+    <link rel="stylesheet" href="gameplay.css">
+    <link rel="stylesheet" href="sandbox.css">
+</head>
+<body>
+    <main class="sandbox-container">
+        <header class="sandbox-header">
+            <h1>Gameplay Sandbox</h1>
+            <a href="sandbox.html" class="nav-link">&larr; Back to Hub</a>
+        </header>
+        <section class="component-section">
+            <h2 class="component-title">Gameplay Components</h2>
+            <div class="component-showcase" id="gameplay-showcase">
+                <!-- New Game State Panel -->
+                <div class="sandbox-game-state-panel">
+                    <!-- Round & Stage Info -->
+                    <div class="gs-header">
+                        <div class="gs-round">
+                            <span class="gs-label">ROUND</span>
+                            <span class="gs-value" id="gs-round">1</span>
+                        </div>
+                        <div class="gs-stage" id="gs-stage">QUIZ</div>
+                    </div>
+                    <!-- Score Progress Bar -->
+                    <div class="gs-progress-bar">
+                        <div class="gs-progress-fill" id="gs-progress-fill"></div>
+                        <div class="gs-score-text"><span id="gs-current-score">0</span> / <span id="gs-target-score">100</span></div>
+                    </div>
+                    <!-- Player Stats -->
+                    <div class="gs-stats">
+                        <div class="gs-stat-pill"><span class="gs-label">WORDS</span><span class="gs-value" id="gs-words-left">5</span></div>
+                        <div class="gs-stat-pill"><span class="gs-label">REFRESHES</span><span class="gs-value" id="gs-refreshes-left">5</span></div>
+                        <div class="gs-stat-pill"><span class="gs-label">MONEY</span><span class="gs-value money" id="gs-money">$4</span></div>
+                    </div>
+                </div>
+
+                <!-- [NEW] Glyphs Section -->
+                <div class="sandbox-game-state-panel">
+                    <h3 class="gs-label" style="text-align: center; margin-bottom: 8px;">ACTIVE GLYPHS</h3>
+                    <div class="glyph-slots" id="gs-glyph-slots">
+                        <!-- Glyphs will be rendered here by JS -->
+                    </div>
+                </div>
+
+                <!-- [NEW] Consumables Section -->
+                <div class="sandbox-game-state-panel">
+                    <h3 class="gs-label" style="text-align: center; margin-bottom: 8px;">HELD CONSUMABLES</h3>
+                    <div class="consumable-slots" id="gs-consumable-slots"></div>
+                </div>
+
+                <!-- [MOVED] Scoring Area Section -->
+                <div class="scoring-area-wrapper">
+                    <div class="scoring">
+                        <div class="chips" id="playedTilesArea">
+                            <!-- Chips will be rendered here by JS -->
+                        </div>
+                        <div class="score-calculation">
+                            <div class="calc-box"><span class="calc-label">VALUE</span><span class="calc-value" id="calcValue">0</span></div>
+                            <span class="calc-operator">×</span>
+                            <div class="calc-box"><span class="calc-label">MULT</span><span class="calc-value" id="calcMult">1x</span></div>
+                            <span class="calc-operator">×</span>
+                            <div class="calc-box"><span class="calc-label">WORD</span><span class="calc-value" id="calcMultMult">1x</span></div>
+                            <span class="calc-operator">=</span>
+                            <div class="calc-total" id="calcTotal">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- [MOVED] Playable Tile Grid -->
+                <div class="grid-container-sandbox">
+                    <div id="sandboxTileGrid" class="grid"></div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+    <script src="gameplay-sandbox.js"></script>
+</body>
+</html>

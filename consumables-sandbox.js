@@ -809,4 +809,5 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTestGrid();
     renderPlayerConsumables();
     renderConsumables();
+    initDevControls(); // Initialize dev controls
 });

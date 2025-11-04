@@ -1,4 +1,5 @@
 // Minimal placeholder gameplay logic to render a 4x4 grid and basic interactions
+const consumablesSection = document.getElementById('consumablesSection');
 const gridEl = document.getElementById('tileGrid');
 const chipsEl = document.getElementById('playedTilesArea');
 const calcValueEl = document.getElementById('calcValue');
@@ -104,6 +105,7 @@ const state = {
     masterTileSet: [], // All 84 tiles for the entire run.
     availableTiles: [], // Tiles available to be drawn in the current round.
     bagTiles: [],
+    consumables: [],
     glyphs: [],
     upgrades: {},
     currentBagSort: 'alpha',
@@ -169,48 +171,75 @@ function generateGrid() {
     gridEl.innerHTML = '';
     state.grid = []; // Clear the state grid
 
-    for (let idx = 0; idx < 16; idx++) {
-        const tileObject = drawTile();
-        tileObject.index = idx; // Assign grid index to the drawn tile
-        state.grid.push(tileObject);
+    // --- [NEW] Set grid dimensions using CSS variables ---
+    const rows = 4; // As per your design
+    const cols = 6; // Increased to match the sandbox
+    gridEl.style.setProperty('--grid-rows', rows);
+    gridEl.style.setProperty('--grid-cols', cols);
 
-        const tile = document.createElement('button');
-        tile.className = 'tile';
-        tile.dataset.index = String(idx);
-        tile.setAttribute('aria-pressed', 'false');
+    for (let idx = 0; idx < (rows * cols); idx++) {
+        // 1. Create the persistent slot
+        const slot = document.createElement('div');
+        slot.className = 'grid-slot';
+        slot.dataset.slotIndex = idx;
+        const currentCol = idx % cols;
 
-        // Create a new wrapper for animation to avoid conflicts with JS transform
-        const tileAnimator = document.createElement('div');
-        tileAnimator.className = 'tile-animator';
-        tile.appendChild(tileAnimator); // Append animator to the tile early
+        // Apply special column styles
+        if (currentCol === cols - 1) slot.classList.add('dashed-outline');
+        if (currentCol === 0) slot.classList.add('transparent-slot');
 
-        tileAnimator.classList.add('fly-in');
-        tileAnimator.style.animationDelay = `${idx * 40}ms`;
+        gridEl.appendChild(slot);
 
-        tileAnimator.addEventListener('animationend', () => {
-            tileAnimator.classList.remove('fly-in');
-            tile.style.pointerEvents = 'auto';
-        }, { once: true });
+        // --- [MODIFIED] Only populate the middle 4 columns ---
+        if (currentCol > 0 && currentCol < cols - 1) {
+            const tileObject = drawTile();
+            if (!tileObject) {
+                state.grid[idx] = null; // Ensure slot is marked as empty
+                continue;
+            }
 
-        // Apply Top Row enhancement visual if purchased
-        if (state.upgrades.topRow && idx < 4) {
-            tile.classList.add('top-row-enhanced');
+            tileObject.index = idx;
+            state.grid[idx] = tileObject; // Assign to specific index
+
+            const tile = document.createElement('button');
+            tile.className = 'tile';
+            tile.dataset.index = String(idx);
+            tile.setAttribute('aria-pressed', 'false');
+
+            const tileAnimator = document.createElement('div');
+            tileAnimator.className = 'tile-animator';
+            tile.appendChild(tileAnimator);
+
+            tileAnimator.classList.add('fly-in');
+            tileAnimator.style.animationDelay = `${idx * 40}ms`;
+
+            tileAnimator.addEventListener('animationend', () => {
+                tileAnimator.classList.remove('fly-in');
+                tile.style.pointerEvents = 'auto';
+            }, { once: true });
+
+            if (state.upgrades.topRow && idx < cols) {
+                tile.classList.add('top-row-enhanced');
+            }
+
+            applyTileVisuals(tile, tileObject);
+
+            const tileContent = document.createElement('div');
+            tileContent.className = 'tile-content';
+            const displayLetter = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter === '_' ? '' : tileObject.letter;
+            const displayValue = tileObject.value + tileObject.mult;
+            tileContent.innerHTML = `${displayLetter}<span class="val">${displayValue}</span>`;
+            tileAnimator.appendChild(tileContent);
+            tile.addEventListener('click', () => toggleTile(idx));
+            slot.appendChild(tile);
+        } else {
+            // For the first and last columns, ensure the state.grid has a placeholder
+            state.grid[idx] = null;
+            // Add a placeholder div to maintain grid structure if you want visual empty slots
+            const emptySlotPlaceholder = document.createElement('div');
+            emptySlotPlaceholder.className = 'tile-placeholder';
+            slot.appendChild(emptySlotPlaceholder);
         }
-
-        // Use the new shared function to apply all visual styles
-        applyTileVisuals(tile, tileObject);
-
-
-        // Create an inner wrapper for the content and gelatine effect
-        const tileContent = document.createElement('div');
-        tileContent.className = 'tile-content';
-
-        const displayLetter = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter === '_' ? '' : tileObject.letter;
-        const displayValue = tileObject.value + tileObject.mult;
-        tileContent.innerHTML = `${displayLetter}<span class="val">${displayValue}</span>`;
-        tileAnimator.appendChild(tileContent);
-        tile.addEventListener('click', () => toggleTile(idx, tile));
-        gridEl.appendChild(tile);
     }
     initTileHoverEffects(); // Add this call to initialize the new hover effects
 }
@@ -219,10 +248,17 @@ function repopulateGrid(usedTiles, delayStart = 0) {
     usedTiles.forEach(usedTile => {
         const index = usedTile.index;
 
-        const newTileObject = drawTile();
-        newTileObject.index = index; // Assign grid index
-        state.grid[index] = newTileObject;
+        // Find the slot to repopulate
+        const slot = gridEl.querySelector(`[data-slot-index="${index}"]`);
+        // --- [MODIFIED] Only repopulate if the slot is valid and not in the side columns ---
+        const cols = parseInt(gridEl.style.getPropertyValue('--grid-cols'), 10) || 6;
+        const currentCol = index % cols;
+        if (!slot || currentCol === 0 || currentCol === cols - 1) return;
 
+
+        const newTileObject = drawTile();
+        if (!newTileObject) return; // Stop if the bag is empty
+        
         // If there's a gem to create, apply it to the new tile
         if (gemsToCreate.length > 0) {
             const gemType = gemsToCreate.shift(); // Get the next gem from the list
@@ -230,41 +266,51 @@ function repopulateGrid(usedTiles, delayStart = 0) {
         }
 
         const tileElement = gridEl.querySelector(`[data-index="${index}"]`);
-        if (tileElement) {
-            // Apply Top Row enhancement visual if purchased
-            if (state.upgrades.topRow && index < 4) {
-                tileElement.classList.add('top-row-enhanced');
-            }
+        if (tileElement) tileElement.remove(); // Remove the old tile element
 
-            applyTileVisuals(tileElement, newTileObject);
+        newTileObject.index = index;
+        state.grid[index] = newTileObject;
 
-            const tileContent = tileAnimator.querySelector('.tile-content');
-            const displayLetter = newTileObject.letter === 'Q' ? 'Qu' : newTileObject.letter === '_' ? '' : newTileObject.letter;
-            const displayValue = newTileObject.value + newTileObject.mult;
-            tileContent.innerHTML = `${displayLetter}<span class="val">${displayValue}</span>`;
+        // Create and render the new tile
+        const newTileEl = document.createElement('button');
+        newTileEl.className = 'tile';
+        newTileEl.dataset.index = String(index);
+        newTileEl.setAttribute('aria-pressed', 'false');
 
-            // Re-trigger the fly-in animation for the new tile
-            if (tileAnimator) {
-                // Force a reflow before re-adding the class
-                void tileAnimator.offsetWidth;
-                tileAnimator.classList.add('fly-in');
-                tileAnimator.style.animationDelay = `${delayStart}ms`;
+        const tileAnimator = document.createElement('div');
+        tileAnimator.className = 'tile-animator';
+        newTileEl.appendChild(tileAnimator);
 
-                // Add a new one-time listener to clean up after this specific animation
-                tileAnimator.addEventListener('animationend', () => {
-                    tileAnimator.classList.remove('fly-in');
-                    tileElement.style.pointerEvents = 'auto';
-                }, { once: true });
-            }
-        }
+        const tileContent = document.createElement('div');
+        tileContent.className = 'tile-content';
+        const displayLetter = newTileObject.letter === 'Q' ? 'Qu' : newTileObject.letter === '_' ? '' : newTileObject.letter;
+        const displayValue = newTileObject.value + newTileObject.mult;
+        tileContent.innerHTML = `${displayLetter}<span class="val">${displayValue}</span>`;
+        tileAnimator.appendChild(tileContent);
+
+        applyTileVisuals(newTileEl, newTileObject);
+        if (state.upgrades.topRow && index < 6) newTileEl.classList.add('top-row-enhanced');
+
+        newTileEl.addEventListener('click', () => toggleTile(index));
+        slot.appendChild(newTileEl);
+
+        // Fly-in animation
+        tileAnimator.classList.add('fly-in');
+        tileAnimator.style.animationDelay = `${delayStart}ms`;
+        tileAnimator.addEventListener('animationend', () => {
+            tileAnimator.classList.remove('fly-in');
+            newTileEl.style.pointerEvents = 'auto';
+        }, { once: true });
     });
 }
 
 
-function toggleTile(index, el) {
+function toggleTile(index) {
+    const el = gridEl.querySelector(`[data-index="${index}"]`);
     const tileObject = state.grid[index];
     const foundIndex = state.selected.findIndex(selectedTile => selectedTile.index === index);
 
+    if (!tileObject) return; // Do nothing if an empty slot is clicked
     if (foundIndex >= 0) {
         // Prevent deselecting a locked tile
         if (tileObject.isLocked) {
@@ -363,14 +409,41 @@ async function playWord() {
     await new Promise(resolve => setTimeout(resolve, totalAnimationTime));
     // --- End of Animation Logic ---
 
+    // --- [NEW] Plus Tile Logic ---
+    // Check if the word contains a Plus tile and split it if so.
+    const plusIndex = state.selected.findIndex(t => t.letter === '+');
+    if (plusIndex > -1) {
+        console.log("Plus tile detected! Scoring multiple words.");
+        const firstWordTiles = state.selected.slice(0, plusIndex);
+        const secondWordTiles = state.selected.slice(plusIndex + 1);
+        
+        // Score both words first and collect all used tiles
+        const firstWordResult = await playSubWord(firstWordTiles);
+        const secondWordResult = await playSubWord(secondWordTiles);
+
+        // Now, repopulate the grid with ALL used tiles from both words
+        // Filter out any undefined results from invalid sub-words
+        const allUsedTiles = [firstWordResult, secondWordResult].flat().filter(Boolean);
+        repopulateGrid(allUsedTiles, 500);
+
+        // Finally, clean up and end the turn
+        clearSelection();
+        updateRoundUI();
+        if (state.roundScore >= state.target || state.wordsRemaining === 0) {
+            gameOver();
+        }
+        return; // Exit the main function
+    }
+
     // --- [MODIFIED] Use the new Score Calculator ---
     const heldTiles = state.grid.filter(t => !state.selected.includes(t));
     const scoreResult = scoreCalculator.calculateScore(
         state.selected,
         heldTiles,
         state.glyphs,
-        { length: validatedWord.length, isPalindrome: false }, // Placeholder properties
-        { crossedDoubleWord: false } // Placeholder grid state
+        { length: validatedWord.length, isPalindrome: false },
+        { crossedDoubleWord: false },
+        state.availableTiles.length // Pass the count of remaining tiles
     );
     const score = scoreResult.finalScore;
 
@@ -447,6 +520,34 @@ async function playWord() {
     if (state.roundScore >= state.target || state.wordsRemaining === 0) {
         gameOver();
     }
+}
+
+/**
+ * A helper function to score sub-words created by the Plus tile.
+ */
+async function playSubWord(tiles) {
+    if (tiles.length === 0) return undefined; // Handle empty sub-words
+    const word = tiles.map(t => t.letter).join('');
+    const validatedWord = validateWord(word);
+    if (!validatedWord) return;
+
+    const heldTiles = state.grid.filter(t => !tiles.includes(t));
+    const scoreResult = scoreCalculator.calculateScore(
+        tiles,
+        heldTiles,
+        state.glyphs,
+        { length: validatedWord.length },
+        {},
+        state.availableTiles.length
+    );
+
+    state.roundScore += scoreResult.finalScore;
+    state.wordsRemaining--; // Decrement for each valid word
+    showSuccess(validatedWord, scoreResult.finalScore);
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for animations
+
+    // Return the tiles that were successfully used
+    return tiles;
 }
 
 function clearSelection() {
@@ -649,8 +750,23 @@ function renderGlyphs() {
         const glyph = state.glyphs[i];
         if (glyph) {
             slot.classList.add('filled');
-            slot.dataset.glyphIndex = i; // Store index for selling
-            slot.style.backgroundImage = `url('images/glyphs/${glyph.imageName}')`;
+            slot.dataset.glyphIndex = i;
+
+            // Create the new card structure
+            const glyphImage = document.createElement('div');
+            glyphImage.className = 'glyph-image';
+            glyphImage.style.backgroundImage = `url('images/glyphs/${glyph.imageName}')`;
+
+            const overlay = document.createElement('div');
+            overlay.className = 'glyph-overlay';
+            overlay.innerHTML = `
+                <div class="overlay-name">${glyph.name}</div>
+                <div class="overlay-description">${glyph.description}</div>
+                <div class="overlay-rarity ${glyph.rarity.toLowerCase()}">${glyph.rarity}</div>
+            `;
+
+            slot.appendChild(glyphImage);
+            slot.appendChild(overlay);
         }
         slotsContainer.appendChild(slot);
     }
@@ -658,12 +774,51 @@ function renderGlyphs() {
     counterEl.textContent = `${state.glyphs.length}/${maxSlots}`;
 }
 
-function updateScoreCalculation() {
-    const { baseScore, glyphBonusScore, tileMultiplier, glyphBonusMult, lengthMultiplier, finalScore } = calculateWordScore(state.selected);
+function renderConsumables() {
+    const slotsContainer = document.getElementById('consumableSlots');
+    if (!slotsContainer) return;
 
-    calcValueEl.textContent = baseScore + (glyphBonusScore || 0);
-    document.getElementById('calcMult').textContent = `${tileMultiplier + glyphBonusMult}x`;
-    calcMultMultEl.textContent = `${lengthMultiplier}x`; // This seems to be the word length multiplier
+    const maxSlots = 4; // Or however many consumable slots you want
+    slotsContainer.innerHTML = '';
+
+    for (let i = 0; i < maxSlots; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'consumable-slot';
+
+        const consumable = state.consumables[i];
+        if (consumable) {
+            slot.classList.add('filled');
+            slot.dataset.consumableId = consumable.id;
+            slot.style.backgroundImage = `url('images/glyphs/${consumable.imageName}')`;
+            // Add click listener to use the consumable
+            slot.addEventListener('click', () => {
+                console.log(`Attempting to use ${consumable.name}`);
+                // Placeholder for future use logic
+            });
+        }
+        slotsContainer.appendChild(slot);
+    }
+}
+
+function updateScoreCalculation() {
+    if (!calcValueEl) return; // Guard if elements aren't on the page
+
+    const heldTiles = state.grid.filter(t => t && !state.selected.includes(t));
+    
+    // Get the detailed breakdown from the new calculator
+    const { totalPoints, totalMult, totalXmult, finalScore } = scoreCalculator.calculateScore(
+        state.selected,
+        heldTiles,
+        state.glyphs,
+        { length: state.selected.length },
+        {},
+        state.availableTiles.length
+    );
+
+    // Update the UI with the new, accurate values
+    calcValueEl.textContent = Math.round(totalPoints);
+    document.getElementById('calcMult').textContent = `${Math.round(totalMult * 10) / 10}x`;
+    calcMultMultEl.textContent = `${Math.round(totalXmult * 10) / 10}x`;
     calcTotalEl.textContent = finalScore;
 }
 
@@ -1032,8 +1187,24 @@ function refreshBoard() {
     // 2. Clear any currently selected tiles
     clearSelection();
 
-    // 3. Generate a new grid of tiles
-    generateGrid();
+    // --- [REFACTORED] ---
+    // 3. Instead of rebuilding the whole grid, just replace the existing tiles.
+    const cols = parseInt(gridEl.style.getPropertyValue('--grid-cols'), 10) || 6;
+    const allSlots = gridEl.querySelectorAll('.grid-slot');
+
+    allSlots.forEach((slot, idx) => {
+        const currentCol = idx % cols;
+        // Only target the playable middle columns
+        if (currentCol > 0 && currentCol < cols - 1) {
+            // Remove the old tile element if it exists
+            const oldTile = slot.querySelector('.tile');
+            if (oldTile) {
+                oldTile.remove();
+            }
+            // Repopulate this single slot using the same logic as repopulateGrid
+            repopulateGrid([{ index: idx }], idx * 40);
+        }
+    });
 
     // 4. If no discards are left, disable the button
     if (state.discards === 0) {
@@ -1162,54 +1333,24 @@ function updateDevScorePanel() {
     }
 
     let breakdown = '';
-    let baseScore = 0;
-
-    state.selected.forEach(tile => {
-        const letter = tile.letter;
-        const baseValue = tile.value;
-        let line = `${letter}: ${baseValue} pts`;
-        baseScore += baseValue;
-
-        if (tile.modifier === CONSTANTS.MODIFIERS.BOOSTER && tile.mult > 0) {
-            line += ` (+${tile.mult} Booster)`;
-            baseScore += tile.mult;
-        }
-        breakdown += line + '\n';
-    });
-
-    // Add Glyph breakdown
-    let glyphBonus = 0;
-    let glyphScoreBonus = 0;
-    state.glyphs.forEach(glyphData => { // glyphData is a plain object from localStorage
-        const GlyphClass = GLYPH_MAP[glyphData.id];
-        if (!GlyphClass) return;
-        const glyph = new GlyphClass();
-        if (glyph && typeof glyph.onScoring === 'function') {
-            const result = glyph.onScoring(state, { playedTiles: state.selected });
-            if (result && result.bonusScore) {
-                glyphScoreBonus += result.bonusScore;
-                breakdown += `${glyph.name}: +${result.bonusScore} Pts\n`;
-            }
-            if (result && result.bonusMult) {
-                breakdown += `${glyph.name}: +${result.bonusMult} Mult\n`;
-            }
-        }
-    });
-
-
-    const wordLength = state.selected.length;
-    const lengthMultiplier = WORD_LENGTH_MULTIPLIERS[wordLength] || 1;
-    if (lengthMultiplier > 1) {
-        breakdown += `Length Multiplier (x${lengthMultiplier})\n`;
-    }
 
     // Check for Stone tiles
     if (state.selected.some(t => t.modifier === 'Stone')) {
         breakdown += `Stone Tile(s): No score contribution\n`;
     }
 
-    const { finalScore } = calculateWordScore(state.selected);
-    detailsEl.textContent = `${breakdown}------------------\nTotal: ${finalScore} pts`;
+    // --- [REFACTORED] Use the new score calculator for an accurate breakdown ---
+    const heldTiles = state.grid.filter(t => !state.selected.includes(t));
+    const scoreResult = scoreCalculator.calculateScore(
+        state.selected,
+        heldTiles,
+        state.glyphs,
+        { length: state.selected.length },
+        {},
+        state.availableTiles.length
+    );
+
+    detailsEl.textContent = `Word: ${state.selected.map(t => t.letter).join('')}\n------------------\nTotal: ${scoreResult.finalScore} pts`;
 }
 
 function resetForNewBoss() {
@@ -1361,105 +1502,6 @@ function initTileHoverEffects() {
     });
 }
 
-function initTooltips() {
-    const tooltipEl = document.getElementById('tileTooltip');
-    const tooltipLetterEl = tooltipEl.querySelector('.tooltip-letter');
-    const tooltipValueEl = tooltipEl.querySelector('.tooltip-value');
-    const tooltipInfoEl = tooltipEl.querySelector('.tooltip-info');
-    const tooltipTileEl = tooltipEl.querySelector('.tooltip-tile');
-
-    let tooltipTimer;
-
-    // --- Touch Event Handling for Mobile Tooltips ---
-    gridEl.addEventListener('touchstart', (e) => {
-        const tile = e.target.closest('.tile');
-        if (!tile) return;
-
-        // Start a timer for the long press
-        tooltipTimer = setTimeout(() => {
-            showTooltipForTile(tile);
-        }, 500); // 500ms for a long press
-    }, { passive: true });
-
-    gridEl.addEventListener('touchend', () => {
-        clearTimeout(tooltipTimer);
-        hideTooltip();
-    });
-
-    gridEl.addEventListener('touchmove', () => {
-        // If the user starts dragging their finger, cancel the tooltip
-        clearTimeout(tooltipTimer);
-        hideTooltip();
-    });
-
-    gridEl.addEventListener('mouseover', (e) => {
-        const tile = e.target.closest('.tile');
-        if (!tile) return;
-
-        // Clear any existing timer
-        clearTimeout(tooltipTimer);
-
-        // Start a new timer to show the tooltip
-        tooltipTimer = setTimeout(() => {
-            showTooltipForTile(tile);
-        }, 300); // 300ms delay
-    });
-
-    gridEl.addEventListener('mouseout', () => {
-        clearTimeout(tooltipTimer);
-        hideTooltip();
-    });
-
-    function showTooltipForTile(tile) {
-        const index = parseInt(tile.dataset.index, 10);
-        const tileObject = state.grid[index];
-
-        // 1. Populate tooltip content
-        tooltipLetterEl.textContent = tileObject.letter === 'Q' ? 'Qu' : tileObject.letter;
-        tooltipValueEl.textContent = tileObject.value;
-
-        let infoHTML = `Base Value: <span class="tooltip-value-color">${tileObject.value}</span>`;
-        if (tileObject.mult > 0) {
-            infoHTML += `\n<span class="tooltip-value-color">+${tileObject.mult}</span> (Booster)`;
-        }
-        if (tileObject.mult_mult > 1) {
-            infoHTML += `\n<span class="tooltip-mult-color">×${tileObject.mult_mult}</span> Multiplier`;
-        }
-        if (state.upgrades.topRow && tileObject.index < 4) {
-            infoHTML += `\n<span class="tooltip-mult-mult-color">+1x</span> Word Multiplier`;
-        }
-        tooltipInfoEl.innerHTML = infoHTML;
-
-        // 2. Handle visual enhancements
-        tooltipTileEl.className = 'tooltip-tile'; // Reset classes
-        if (tileObject.modifier === CONSTANTS.MODIFIERS.BOOSTER) {
-            tooltipTileEl.classList.add('enhanced-booster');
-        }
-        if (state.upgrades.topRow && tileObject.index < 4) {
-            tooltipTileEl.classList.add('top-row-enhanced');
-        }
-        const oldIcon = tooltipTileEl.querySelector('.mult-icon');
-        if (oldIcon) oldIcon.remove();
-        if (tileObject.modifier === CONSTANTS.MODIFIERS.MULTIPLIER) {
-            const multIcon = document.createElement('div');
-            multIcon.className = 'mult-icon';
-            multIcon.textContent = '×';
-            tooltipTileEl.appendChild(multIcon);
-        }
-
-        // 3. Position and show the tooltip
-        const rect = tile.getBoundingClientRect();
-        tooltipEl.style.left = `${rect.left + rect.width / 2 - tooltipEl.offsetWidth / 2}px`;
-        tooltipEl.style.top = `${rect.top - tooltipEl.offsetHeight - 10}px`;
-        tooltipEl.classList.add('visible');
-    }
-
-    function hideTooltip() {
-        clearTimeout(tooltipTimer);
-        tooltipEl.classList.remove('visible');
-    }
-}
-
 function initBlobEffect() {
     const blob = document.getElementById("blob");
     if (!blob) return;
@@ -1606,6 +1648,7 @@ async function init() {
     // 4. Initialize UI components
     document.getElementById('roundValue').textContent = state.round;
     renderChips();
+    renderConsumables();
     renderGlyphs();
     updateBossDialog('start');
     updateDevPanelVisibility(); // Set initial visibility of dev panel
@@ -1613,8 +1656,6 @@ async function init() {
     initGooglyEyes();
     initBlobEffect(); // Initialize the new background effect
     initializePageDevControls(); // Initialize the developer control panel
-    initHowToPlayModal(); // Check if we need to show the tutorial
-    initTooltips(); // Initialize the new tooltip functionality
     // Use the shared implementation for glyph interactions
     initGlyphInteractions(state, saveRunState, () => {
         document.getElementById('money').textContent = `$${state.money}`;

@@ -1,14 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     const packShowcase = document.getElementById('pack-showcase');
     const mockMoneyDisplay = document.getElementById('mockMoneyDisplay');
-
+    
     // --- Modal UI Elements ---
     const packOpenOverlay = document.getElementById('packOpenOverlay');
     const packOpenTitle = document.getElementById('packOpenTitle');
     const packOpenSubtitle = document.getElementById('packOpenSubtitle');
     const packTargetGrid = document.getElementById('packTargetGrid');
     const packChoiceGrid = document.getElementById('packChoiceGrid');
-    const packOpenSkipBtn = document.getElementById('packOpenSkipBtn');
+    const packOpenActions = document.querySelector('.pack-open-actions');
+    const packOpenSkipBtn = document.getElementById('packOpenSkipBtn'); // Assuming this exists
 
     // --- Game & UI State ---
     let gameState = 'SHOP'; // Can be 'SHOP' or 'CONSUMABLE_CHOICE'
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mockPlayerBag = TILE_DISTRIBUTION.map((letter, i) => new Tile(letter, i));
     let activeTarotCard = null;
     let selectedTargetTiles = [];
+    let selectedChoiceItems = [];
 
     // --- UI Update Functions ---
     function updateMoneyDisplay() {
@@ -34,12 +36,18 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMoneyDisplay();
 
         // 2. Generate Data for UI
-        const lootPool = ALL_CONSUMABLES.filter(c => c.type === 'Tarot');
-        const tarotChoices = [...lootPool].sort(() => 0.5 - Math.random()).slice(0, pack.packSize);
+        let lootPool = [];
+        if (pack.lootTable.itemType === 'Tarot') {
+            lootPool = ALL_CONSUMABLES.filter(c => c.type === 'Tarot');
+        } else if (pack.lootTable.itemType === 'Special') {
+            lootPool = ALL_SPECIAL_TILES;
+        }
+
+        const choices = [...lootPool].sort(() => 0.5 - Math.random()).slice(0, pack.packSize);
         const playerTiles = [...mockPlayerBag].sort(() => 0.5 - Math.random()).slice(0, 8);
 
         // 3. Render UI
-        renderPackUI(pack, playerTiles, tarotChoices);
+        renderPackUI(pack, playerTiles, choices);
         packOpenOverlay.style.display = 'flex';
     }
 
@@ -49,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeArcanaPack() {
         gameState = 'SHOP';
         activeTarotCard = null;
+        selectedChoiceItems = [];
         selectedTargetTiles = [];
         packOpenOverlay.style.display = 'none';
         renderPacks(); // Re-render packs in case one was consumed
@@ -57,27 +66,60 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * The "UI" function to draw the pack opening screen.
      */
-    function renderPackUI(pack, playerTiles, tarotChoices) {
+    function renderPackUI(pack, playerTiles, choices) {
+        // Reset UI
         packOpenTitle.textContent = pack.name;
-        packOpenSubtitle.textContent = `Choose a card to use, or skip.`;
         packTargetGrid.innerHTML = '';
         packChoiceGrid.innerHTML = '';
+        packOpenActions.innerHTML = ''; // Clear old buttons
 
-        // Render Player's Tiles (Targets)
-        playerTiles.forEach(tile => {
-            const tileEl = document.createElement('div');
-            tileEl.className = 'tile-selection-item';
-            tileEl.textContent = tile.letter === 'Q' ? 'Qu' : tile.letter;
-            tileEl.onclick = () => onTileTargetSelected(tile, tileEl, playerTiles);
-            packTargetGrid.appendChild(tileEl);
-        });
+        if (pack.type === 'Arcana') {
+            // For Arcana packs, show the target tiles and a skip button
+            packOpenSubtitle.textContent = `Choose a card to use, or skip.`;
+            packTargetGrid.parentElement.style.display = 'block'; // Show target section
+            playerTiles.forEach(tile => {
+                const tileEl = document.createElement('div');
+                tileEl.className = 'tile-selection-item';
+                tileEl.textContent = tile.letter === 'Q' ? 'Qu' : tile.letter;
+                tileEl.onclick = () => onTileTargetSelected(tile, tileEl, playerTiles);
+                packTargetGrid.appendChild(tileEl);
+            });
+            const skipBtn = document.createElement('button');
+            skipBtn.id = 'packOpenSkipBtn';
+            skipBtn.className = 'btn-secondary';
+            skipBtn.textContent = 'Skip';
+            skipBtn.onclick = closeArcanaPack;
+            packOpenActions.appendChild(skipBtn);
+        } else if (pack.type === 'Special') {
+            // For Special packs, hide the target tiles and show a confirm button
+            packOpenSubtitle.textContent = `Choose ${pack.picks} to add to your bag.`;
+            packTargetGrid.parentElement.style.display = 'none'; // Hide target section
+            const confirmBtn = document.createElement('button');
+            confirmBtn.id = 'packOpenConfirmBtn';
+            confirmBtn.className = 'btn-confirm';
+            confirmBtn.textContent = 'Confirm';
+            confirmBtn.disabled = true;
+            confirmBtn.onclick = () => {
+                selectedChoiceItems.forEach(item => {
+                    mockPlayerBag.push(item); // Simulate adding to bag
+                    console.log(`Added Special Tile '${item.name}' to bag.`);
+                });
+                closeArcanaPack();
+            };
+            packOpenActions.appendChild(confirmBtn);
+        }
 
-        // Render Tarot Cards (Choices)
-        tarotChoices.forEach(card => {
+        // Render the choices (Tarot or Special)
+        choices.forEach(card => {
             const cardEl = document.createElement('div');
             cardEl.className = 'sandbox-glyph-item';
-            cardEl.innerHTML = `<div class="sandbox-glyph-image" style="background-image: url('images/glyphs/${card.imageName}')"></div>`;
-            cardEl.onclick = () => onTarotSelected(card, cardEl, tarotChoices);
+            // Special tiles use a symbol, others use an image
+            if (card.id.startsWith('special_')) {
+                cardEl.innerHTML = `<div class="sandbox-glyph-image"><div class="special-tile-symbol">${card.letter}</div></div>`;
+            } else {
+                cardEl.innerHTML = `<div class="sandbox-glyph-image" style="background-image: url('images/glyphs/${card.imageName}')"></div>`;
+            }
+            cardEl.onclick = () => onChoiceSelected(card, cardEl, pack);
             packChoiceGrid.appendChild(cardEl);
         });
     }
@@ -85,20 +127,33 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * "UI" function called when a Tarot card is clicked.
      */
-    function onTarotSelected(tarotCard, cardEl, allChoices) {
-        activeTarotCard = tarotCard;
-        selectedTargetTiles = []; // Clear previous targets
+    function onChoiceSelected(item, itemEl, pack) {
+        if (pack.type === 'Arcana') {
+            activeTarotCard = item;
+            selectedTargetTiles = []; // Clear previous targets
 
-        // Update visuals
-        document.querySelectorAll('#packChoiceGrid .sandbox-glyph-item').forEach(el => el.classList.remove('active'));
-        cardEl.classList.add('active');
+            // Update visuals for Arcana selection
+            document.querySelectorAll('#packChoiceGrid .sandbox-glyph-item').forEach(el => el.classList.remove('active'));
+            itemEl.classList.add('active');
 
-        if (tarotCard.effect.target === 'NONE') {
-            // No target needed, apply immediately.
-            applyTarotEffect(tarotCard, []);
-        } else {
-            // Target is needed, update UI prompt.
-            packOpenSubtitle.textContent = `Select ${tarotCard.effect.details.targetCount} tile(s) to enhance.`;
+            if (item.effect.target === 'NONE') {
+                applyTarotEffect(item, []);
+            } else {
+                packOpenSubtitle.textContent = `Select ${item.effect.details.targetCount} tile(s) to enhance.`;
+            }
+        } else if (pack.type === 'Special') {
+            // Handle multi-selection for Special Tile packs
+            const confirmBtn = document.getElementById('packOpenConfirmBtn');
+            if (selectedChoiceItems.includes(item)) {
+                selectedChoiceItems = selectedChoiceItems.filter(i => i !== item);
+                itemEl.classList.remove('selected');
+            } else if (selectedChoiceItems.length < pack.picks) {
+                selectedChoiceItems.push(item);
+                itemEl.classList.add('selected');
+            }
+            if (confirmBtn) {
+                confirmBtn.disabled = selectedChoiceItems.length !== pack.picks;
+            }
         }
     }
 
@@ -156,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!packShowcase || typeof ALL_GRAB_BAGS === 'undefined') return;
         packShowcase.innerHTML = '';
 
-        ALL_GRAB_BAGS.filter(p => p.type === 'Arcana').forEach(pack => {
+        ALL_GRAB_BAGS.filter(p => ['Arcana', 'Special'].includes(p.type)).forEach(pack => {
             const packContainer = document.createElement('div');
             packContainer.className = 'pack-item';
             packContainer.innerHTML = `
@@ -170,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- INITIALIZATION ---
-    packOpenSkipBtn.addEventListener('click', closeArcanaPack);
     updateMoneyDisplay();
     renderPacks();
 });
