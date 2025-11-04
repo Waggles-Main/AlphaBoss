@@ -218,28 +218,93 @@ const TILE_VALUES = {
     _: 0
 };
 
+// New Gem Definitions
+const GEM_DEFINITIONS = {
+    Amethyst: { length: 5, chance: 0.15, multiplier: 1.15 },
+    Emerald:  { length: 6, chance: 0.20, multiplier: 1.20 },
+    Garnet:   { length: 7, chance: 0.30, multiplier: 1.30 },
+    Sapphire: { length: 8, chance: 0.25, multiplier: 1.25 },
+    Ruby:     { length: 9, chance: 0.35, multiplier: 1.35 },
+    Crystal:  { length: 10, chance: 0.50, multiplier: 1.50 },
+    Diamond:  { length: 11, chance: 1.00, multiplier: 2.00 },
+};
+
 class Tile {
     constructor(letter, index = null) {
         this.id = `tile-${index ?? 'pool'}-${Date.now()}-${Math.random()}`; // Unique ID for the tile instance
         this.index = index;
         this.letter = letter;
-        this.value = TILE_VALUES[letter] || 0; // Base point value
+        const baseValue = TILE_VALUES[letter] || 0;
+        this.value = baseValue;
+        this.rarity = this.getTileRarity(letter); // MODIFIED: Pass letter instead of value
         this.mult = 0;                         // Additive bonus (e.g., +5 from a booster)
         this.mult_mult = 1;                    // Multiplicative bonus (not used yet, but available)
         this.type = null;                      // 'enhancement', 'seal', etc.
         this.modifier = null;                  // 'booster', 'steel', etc.
+        this.gemModifier = null;               // New property for Amethyst, Emerald, etc.
+        this.stamp = null;                     // New property for Gold, Red, Blue, etc.
 
         // --- MODIFIER ASSIGNMENT ---
-        // Placeholder for modifier logic. Here, we'll give a 15% chance for a tile to be Enhanced.
         const rand = Math.random();
         if (rand < 0.15) { // 15% chance for a Booster
             this.type = 'enhancement';
             this.modifier = 'booster';
-            this.mult = 10; // Booster adds +10 to the tile's score contribution
+            // --- [MODIFIED] ---
+            // The bonus now depends on the tile's rarity.
+            switch (this.rarity) {
+                case 'Bronze': this.mult = 5; break;
+                case 'Silver': this.mult = 10; break;
+                case 'Gold': this.mult = 20; break;
+                default: this.mult = 5;
+            }
         } else if (rand < 0.25) { // Next 10% chance for a Multiplier
             this.type = 'enhancement';
             this.modifier = 'multiplier';
             this.mult_mult = 2; // Multiplies the tile's contribution by 2
+        } else if (rand < 0.35) { // Next 10% chance for a Mult Tile
+            this.type = 'enhancement';
+            this.modifier = 'mult_tile';
+            // The bonus depends on the tile's rarity.
+            switch (this.rarity) {
+                case 'Bronze': this.mult = 2; break;
+                case 'Silver': this.mult = 4; break;
+                case 'Gold': this.mult = 8; break;
+                default: this.mult = 2;
+            }
+        } else if (rand < 0.40) { // Next 5% chance for a Glass Tile
+            this.type = 'enhancement';
+            this.modifier = 'glass_tile';
+            this.mult_mult = 2; // Glass tiles double the mult contribution
+        } else if (rand < 0.45) { // Next 5% chance for a Steel Tile
+            this.type = 'enhancement';
+            this.modifier = 'steel_tile';
+            // The effect is passive and is handled by the score calculator.
+        } else if (rand < 0.50) { // Next 5% chance for a Gold Tile
+            this.type = 'enhancement';
+            this.modifier = 'gold_tile';
+            // The effect is passive and is handled at the end of the round.
+        } else if (rand < 0.55) { // Next 5% chance for a Lucky Tile
+            this.type = 'enhancement';
+            this.modifier = 'lucky_tile';
+            // The effect triggers when played.
+        }
+    }
+
+    /**
+     * Determines the rarity of a tile based on its point value.
+     * @param {string} letter - The letter of the tile.
+     * @returns {string} - The rarity ('Bronze', 'Silver', or 'Gold').
+     */
+    getTileRarity(letter) {
+        const goldLetters = ['J', 'K', 'Q', 'X', 'Z'];
+        const silverLetters = ['B', 'C', 'F', 'H', 'M', 'P', 'V', 'W', 'Y'];
+
+        if (goldLetters.includes(letter)) {
+            return 'Gold';
+        } else if (silverLetters.includes(letter)) {
+            return 'Silver';
+        } else {
+            return 'Bronze';
         }
     }
 }

@@ -14,10 +14,34 @@
             <a href="sandbox.html" class="nav-link">&larr; Back to Hub</a>
         </header>
         <section class="component-section">
+            <h2 class="component-title">Mock Game State</h2>
+            <div class="game-state-display">Player Money: <span id="mockMoneyDisplay">$0</span></div>
+        </section>
+        <section class="component-section">
             <h2 class="component-title">Available Packs (Grab Bags)</h2>
             <div class="component-showcase" id="pack-showcase"></div>
         </section>
     </main>
+
+    <!-- Pack Opening Modal -->
+    <div class="modal-overlay" id="packOpenOverlay">
+        <div class="pack-open-modal">
+            <h2 id="packOpenTitle">Opening Pack...</h2>
+            <p id="packOpenSubtitle">Choose a card to use, or skip.</p>
+            <div class="pack-section">
+                <h3 class="pack-section-title">Your Tiles (Targets)</h3>
+                <div class="pack-target-grid" id="packTargetGrid"></div>
+            </div>
+            <div class="pack-section">
+                <h3 class="pack-section-title">Your Choices</h3>
+                <div class="pack-choice-grid" id="packChoiceGrid"></div>
+            </div>
+            <div class="pack-open-actions">
+                <button id="packOpenSkipBtn" class="btn-secondary">Skip</button>
+            </div>
+        </div>
+    </div>
+
     <script src="game-objects.js"></script>
     <script src="sandbox-definitions.js"></script>
     <script src="packs-sandbox.js"></script>

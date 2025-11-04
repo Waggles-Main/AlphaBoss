@@ -86,6 +86,42 @@ function saveRunState(runState) {
     localStorage.setItem('alphaBossRun', JSON.stringify(runState));
 }
 
+/**
+ * Applies all necessary visual styles and data attributes to a tile element
+ * based on its corresponding tile data object.
+ * @param {HTMLElement} tileElement - The DOM element for the tile (e.g., the `.tile` div).
+ * @param {object} tileObject - The tile data object from the game state.
+ */
+function applyTileVisuals(tileElement, tileObject) {
+    if (!tileElement || !tileObject) return;
+
+    const tileAnimator = tileElement.querySelector('.tile-animator');
+    if (!tileAnimator) return;
+
+    // Clear old modifier classes and icons
+    tileElement.className = 'tile';
+    const oldIcon = tileAnimator.querySelector('.mult-icon');
+    if (oldIcon) oldIcon.remove();
+
+    // Apply enhancement visuals
+    if (tileObject.modifier === 'booster') tileElement.classList.add('enhanced-booster');
+    if (tileObject.modifier === 'mult_tile') {
+        tileElement.classList.add('enhanced-mult_tile');
+        const multBonus = tileObject.rarity === 'Gold' ? 8 : tileObject.rarity === 'Silver' ? 4 : 2;
+        tileAnimator.querySelector('.val').dataset.multBonus = multBonus;
+    }
+    if (tileObject.modifier === 'glass_tile') tileElement.classList.add('enhanced-glass');
+    if (tileObject.modifier === 'gold_tile') tileElement.classList.add('enhanced-gold');
+    if (tileObject.modifier === 'lucky_tile') tileElement.classList.add('enhanced-lucky');
+    if (tileObject.modifier === 'steel_tile') tileElement.classList.add('enhanced-steel');
+    if (tileObject.modifier === 'Stone') tileElement.classList.add('debuff-stone');
+
+    // Apply gem visuals
+    if (tileObject.gemModifier) {
+        tileElement.classList.add('gem-tile', `gem-${tileObject.gemModifier.toLowerCase()}`);
+    }
+}
+
 // --- UTILITIES ---
 
 function shuffleArray(array) {

@@ -114,6 +114,9 @@ const state = {
     audioUnlocked: false,
 };
 
+// --- [NEW] Instantiate the Score Calculator ---
+const scoreCalculator = new WordScoreCalculator();
+
 // --- UTILITY FUNCTIONS ---
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -194,16 +197,8 @@ function generateGrid() {
             tile.classList.add('top-row-enhanced');
         }
 
-        // Apply visual class and modifiers to the correct elements
-        if (tileObject.modifier === CONSTANTS.MODIFIERS.BOOSTER) {
-            tile.classList.add('enhanced-booster');
-        } else if (tileObject.modifier === CONSTANTS.MODIFIERS.MULTIPLIER) {
-            // Add a visual indicator for the multiplier inside the animator
-            const multIcon = document.createElement('div');
-            multIcon.className = 'mult-icon';
-            multIcon.textContent = '×';
-            tileAnimator.appendChild(multIcon);
-        }
+        // Use the new shared function to apply all visual styles
+        applyTileVisuals(tile, tileObject);
 
 
         // Create an inner wrapper for the content and gelatine effect
@@ -228,33 +223,20 @@ function repopulateGrid(usedTiles, delayStart = 0) {
         newTileObject.index = index; // Assign grid index
         state.grid[index] = newTileObject;
 
+        // If there's a gem to create, apply it to the new tile
+        if (gemsToCreate.length > 0) {
+            const gemType = gemsToCreate.shift(); // Get the next gem from the list
+            newTileObject.gemModifier = gemType;
+        }
+
         const tileElement = gridEl.querySelector(`[data-index="${index}"]`);
         if (tileElement) {
-            // Clear old modifiers and classes
-            tileElement.className = 'tile'; // Reset classes
-
-            const tileAnimator = tileElement.querySelector('.tile-animator');
-            // Clear any old modifier icons
-            const oldIcon = tileAnimator.querySelector('.mult-icon');
-            if (oldIcon) oldIcon.remove();
-
             // Apply Top Row enhancement visual if purchased
             if (state.upgrades.topRow && index < 4) {
                 tileElement.classList.add('top-row-enhanced');
             }
 
-            // Apply new visual class based on the new tile object
-            if (newTileObject.modifier === CONSTANTS.MODIFIERS.BOOSTER) {
-                tileElement.classList.add('enhanced-booster');
-            } else if (newTileObject.modifier === CONSTANTS.MODIFIERS.MULTIPLIER) {
-                // Add a visual indicator for the multiplier
-                const multIcon = document.createElement('div');
-                multIcon.className = 'mult-icon';
-                multIcon.textContent = '×';
-                tileAnimator.appendChild(multIcon);
-            } else if (newTileObject.modifier === 'Stone') {
-                tileElement.classList.add('debuff-stone');
-            }
+            applyTileVisuals(tileElement, newTileObject);
 
             const tileContent = tileAnimator.querySelector('.tile-content');
             const displayLetter = newTileObject.letter === 'Q' ? 'Qu' : newTileObject.letter === '_' ? '' : newTileObject.letter;
@@ -381,8 +363,57 @@ async function playWord() {
     await new Promise(resolve => setTimeout(resolve, totalAnimationTime));
     // --- End of Animation Logic ---
 
-    // Now, proceed with the rest of the game logic
-    const { finalScore: score } = calculateWordScore(state.selected);
+    // --- [MODIFIED] Use the new Score Calculator ---
+    const heldTiles = state.grid.filter(t => !state.selected.includes(t));
+    const scoreResult = scoreCalculator.calculateScore(
+        state.selected,
+        heldTiles,
+        state.glyphs,
+        { length: validatedWord.length, isPalindrome: false }, // Placeholder properties
+        { crossedDoubleWord: false } // Placeholder grid state
+    );
+    const score = scoreResult.finalScore;
+
+    // --- [NEW] Gold Stamp Logic ---
+    if (scoreResult.goldBonus > 0) {
+        state.money += scoreResult.goldBonus;
+        console.log(`Gold Stamp triggered! +$${scoreResult.goldBonus}`);
+    }
+
+    // --- [NEW] Blue Stamp Logic ---
+    heldTiles.forEach(tile => {
+        if (tile.stamp === 'BLUE') { // Assuming 'BLUE' is a valid StampType string
+            // This is where you would add your logic to apply a random
+            // word length bonus to a random tile in the player's bag.
+            console.log(`Blue Stamp on held tile '${tile.letter}' triggered!`);
+        }
+    });
+
+    // --- [NEW] Glass Tile Destruction Logic ---
+    // This runs after scoring is complete.
+    const glassTilesPlayed = state.selected.filter(t => t.modifier === 'glass_tile');
+    glassTilesPlayed.forEach(glassTile => {
+        if (Math.random() < 0.25) { // 1 in 4 chance
+            console.log(`Glass Tile '${glassTile.letter}' shattered!`);
+            // Find the tile in the master set and remove it permanently.
+            const indexInMaster = state.masterTileSet.findIndex(t => t.id === glassTile.id);
+            if (indexInMaster > -1) {
+                state.masterTileSet.splice(indexInMaster, 1);
+                // You could add a visual/sound effect for shattering here.
+            }
+        }
+    });
+
+    // --- [NEW] Lucky Tile Money Bonus Logic ---
+    const luckyTilesPlayed = state.selected.filter(t => t.modifier === 'lucky_tile');
+    luckyTilesPlayed.forEach(luckyTile => {
+        if (Math.random() < 1/15) { // 1 in 15 chance
+            state.money += 20;
+            console.log(`Lucky Tile '${luckyTile.letter}' won you $20!`);
+            // You could add a visual/sound effect for winning money here.
+        }
+    });
+
     const wordLength = validatedWord.length;
 
     // --- Update Boss Dialogue based on performance ---
@@ -409,7 +440,7 @@ async function playWord() {
 
     showSuccess(validatedWord, score); // Show success message
     clearSelection();
-    repopulateGrid(usedTilesInfo, 500); // Delay repopulation to not clash with success animation
+    repopulateGrid(usedTilesInfo, gemsToCreate, 500); // Pass gems to be created
     updateRoundUI();
 
     // Check for win/loss conditions after every successful word
@@ -417,7 +448,6 @@ async function playWord() {
         gameOver();
     }
 }
-
 
 function clearSelection() {
     state.selected = [];
@@ -482,10 +512,25 @@ function showVictoryScreen() {
     const runState = getRunState();
 
     // --- Calculate Bonuses ---
+    // [NEW] Gold Tile Bonus
+    const heldGoldTiles = state.grid.filter(t => t.modifier === 'gold_tile');
+    const goldTileBonus = heldGoldTiles.length * 3;
+
     // For now, boss bonus is a flat rate. This can be made dynamic later.
     const bossBonus = 3; 
     const wordsBonus = state.wordsRemaining * 2;
-    const totalWinnings = bossBonus + wordsBonus;
+    const totalWinnings = bossBonus + wordsBonus + goldTileBonus;
+
+    // [NEW] Dynamically add a row to the victory modal for the gold bonus
+    if (goldTileBonus > 0) {
+        const goldRow = document.createElement('div');
+        goldRow.className = 'victory-row';
+        goldRow.innerHTML = `
+            <span class="victory-label-num">${heldGoldTiles.length}</span>
+            <span class="victory-label">HELD GOLD TILES ($3 EACH)</span>
+            <span class="victory-value money">+$${goldTileBonus}</span>`;
+        wordsValueEl.closest('.victory-row').after(goldRow);
+    }
     
     // --- Update and Save Run State ---
     runState.money += totalWinnings;
@@ -704,6 +749,7 @@ function calculateWordScore(selectedTiles) {
     let tileMultiplier = 1;
     let lengthMultiplier = 1; // For word length bonus
     let glyphBonusMult = 0;
+    let gemMultiplier = 1; // New multiplier for gems
     let glyphBonusScore = 0;
     const wordLength = selectedTiles.length;
 
@@ -737,7 +783,7 @@ function calculateWordScore(selectedTiles) {
     lengthMultiplier = WORD_LENGTH_MULTIPLIERS[wordLength] || 1;
 
     // 4. Calculate the final score.
-    const finalScore = Math.round((baseScore + glyphBonusScore) * (tileMultiplier + glyphBonusMult) * lengthMultiplier);
+    const finalScore = Math.round((baseScore + glyphBonusScore) * (tileMultiplier + glyphBonusMult) * lengthMultiplier * gemMultiplier);
 
     // Return a detailed object for use in different UI components
     return {
@@ -1470,6 +1516,7 @@ async function init() {
     // --- New State Management ---
     // Load the saved run state and merge it into the current game state.
     // This is safer than manually copying each property.
+    // Note: This requires WordScoreCalculator.js to be loaded before gameplay.js
     Object.assign(state, getRunState());
 
     // --- Apply Boss Effect if it's an Exam round ---

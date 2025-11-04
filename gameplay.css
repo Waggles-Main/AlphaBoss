@@ -561,8 +561,12 @@ button.pill:disabled {
     font-weight: bold;
     position: absolute; /* Position relative to .tile-content */
     bottom: 4px;
-    right: 4px;
-    line-height: 1;
+    right: 5px;
+    /* New flex properties for vertical stacking */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 0.9; /* Tighten up the line spacing */
 }
 
 /* Style for the new multiplier icon */
@@ -600,22 +604,69 @@ button.pill:disabled {
 
 /* --- MODIFIER STYLES --- */
 /* Style for the "Booster" enhancement */
-.tile.enhanced-booster .tile-animator {
-    box-shadow: 0 4px 0 var(--shadow), inset 0 0 0 4px var(--accent-blue);
+.tile.enhanced-booster .val::before {
+    content: '▲';
+    color: var(--accent-blue);
+    margin-right: 1px;
+    font-size: 14px;
+    vertical-align: middle;
+    text-shadow: 0 1px 0 var(--shadow);
+}
+
+.tile.enhanced-booster .val {
+    color: var(--accent-blue); /* Make the number blue as well */
+}
+
+/* [MODIFIED] Style for the "Mult Tile" enhancement */
+.tile.enhanced-mult_tile .val::before {
+    content: 'x' attr(data-mult-bonus);
+    color: var(--accent-red);
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Style for the "Glass" enhancement */
+.tile.enhanced-glass .tile-animator {
+    /* Make the background transparent but keep the text opaque */
+    background-color: rgba(220, 235, 255, 0.2); /* Faint, see-through blue-white */
+    color: #a9d6f5; /* Lighter blue text for contrast */
+    border: 2px solid rgba(220, 235, 255, 0.5); /* A sharp glass edge */
+    box-shadow: 0 4px 0 var(--shadow), inset 0 0 8px rgba(169, 214, 245, 0.4);
+
+    /* Add a frosted glass effect to blur content behind it */
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px); /* For Safari compatibility */
+}
+
+/* Style for the "Gold" enhancement */
+.tile.enhanced-gold .tile-animator {
+    color: #4a380e;
+    background: linear-gradient(45deg, #b38728, #fcf6ba, #bf953f, #fbf5b7, #aa771c);
+    border-color: #fcf6ba;
 }
 
 /* Style for the "Steel" enhancement */
 .tile.enhanced-steel .tile-animator {
-    background-color: #c0c0c0; /* Silver color */
-    background-image: linear-gradient(
-        -45deg,
-        rgba(255, 255, 255, 0.3) 25%, transparent 25%,
-        transparent 50%,
-        rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.3) 75%,
-        transparent 75%, transparent
+    color: #000;
+    background: linear-gradient(
+        45deg,
+        #999 5%,
+        #fff 10%,
+        #ccc 30%,
+        #ddd 50%,
+        #ccc 70%,
+        #fff 80%,
+        #999 95%
     );
-    background-size: 40px 40px;
-    color: #333;
+}
+
+/* Style for the "Lucky" enhancement */
+.tile.enhanced-lucky .tile-animator {
+    color: white;
+    text-shadow: 0 2px 2px rgba(0,0,0,0.5);
+    background: linear-gradient(45deg, #ff5f4f, #fd8c1f, #ffd700, #56a67a, #1f8df2, #7a73bb);
+    background-size: 400% 400%;
+    animation: rainbow-bg 6s ease infinite;
 }
 
 /* Style for the "Stone" debuff */
@@ -623,6 +674,86 @@ button.pill:disabled {
     background: #757575; /* Grey color */
     color: #424242;
     box-shadow: 0 4px 0 #333;
+}
+
+/* --- NEW: Gem Tile Styles --- */
+.tile.gem-tile .tile-animator {
+    animation: gem-pulse 2s ease-in-out infinite;
+}
+
+@keyframes gem-pulse {
+    0%, 100% { box-shadow: 0 4px 0 var(--shadow), inset 0 0 5px rgba(255,255,255,0.5); }
+    50% { box-shadow: 0 4px 0 var(--shadow), inset 0 0 15px rgba(255,255,255,1); }
+}
+
+/* 
+ * Specific Gem Colors 
+ * We make these rules more specific (e.g., .tile.gem-amethyst.gem-tile) to ensure 
+ * they override other styles, like the .selected state.
+*/
+.tile.gem-amethyst.gem-tile .tile-animator {
+    background: linear-gradient(45deg, #8e44ad, #c39bd3, #8e44ad);
+    background-size: 400% 400%; animation: rainbow-bg 7s ease infinite; color: white;
+}
+.tile.gem-emerald.gem-tile .tile-animator {
+    background: linear-gradient(45deg, #27ae60, #7fecad, #27ae60);
+    background-size: 400% 400%; animation: rainbow-bg 7s ease infinite; color: white;
+}
+.tile.gem-garnet.gem-tile .tile-animator {
+    background: linear-gradient(45deg, #c0392b, #f1948a, #c0392b);
+    background-size: 400% 400%; animation: rainbow-bg 7s ease infinite; color: white;
+}
+.tile.gem-sapphire.gem-tile .tile-animator {
+    background: linear-gradient(45deg, #2980b9, #a9cce3, #2980b9);
+    background-size: 400% 400%; animation: rainbow-bg 7s ease infinite; color: white;
+}
+.tile.gem-ruby.gem-tile .tile-animator {
+    background: linear-gradient(45deg, #e74c3c, #f5b7b1, #e74c3c);
+    background-size: 400% 400%; animation: rainbow-bg 7s ease infinite; color: white;
+}
+.tile.gem-crystal.gem-tile .tile-animator {
+    background: linear-gradient(45deg, #f1c40f, #e67e22, #e74c3c, #9b59b6, #3498db, #2ecc71);
+    background-size: 400% 400%;
+    animation: gem-pulse 2s ease-in-out infinite, rainbow-bg 8s ease infinite;
+}
+.tile.gem-diamond.gem-tile .tile-animator {
+    background: radial-gradient(ellipse at center, #ffffff 0%, #e0e8f0 40%, #b9c4d4 100%);
+    color: #2c3e50;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 0 var(--shadow), 0 0 15px rgba(185, 213, 237, 0.8);
+    position: relative; /* Needed for the pseudo-element */
+    overflow: hidden; /* Keep the glint inside the tile */
+    animation: diamond-pulse 3s ease-in-out infinite; /* Add a pulsing glow */
+}
+
+/* New glint effect for Diamond tiles */
+.tile.gem-diamond.gem-tile .tile-animator::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 20%;
+    height: 200%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0.1) 100%);
+    transform: rotate(25deg);
+    animation: diamond-glint 4s ease-in-out infinite;
+}
+
+@keyframes rainbow-bg {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
+@keyframes diamond-glint {
+    0% { left: -60%; }
+    40% { left: 140%; } /* Sweep across */
+    100% { left: 140%; } /* Stay off-screen for the rest of the duration */
+}
+
+@keyframes diamond-pulse {
+    0%, 100% { box-shadow: 0 4px 0 var(--shadow), 0 0 15px rgba(185, 213, 237, 0.8); }
+    50% { box-shadow: 0 4px 0 var(--shadow), 0 0 25px rgba(220, 235, 255, 1); }
 }
 
 /* Style for the "Locked" state */

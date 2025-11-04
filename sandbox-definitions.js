@@ -2408,14 +2408,14 @@ const ALL_CONSUMABLES = [
     new TarotTile({
         id: 'tarot_star',
         name: 'The Star (XVII)',
-        description: 'Converts up to 4 selected tiles on grid to Amethyst.',
+        description: 'Randomly converts 4 tiles on the grid to Amethyst.',
         effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { action: 'change_suit', suit: 'Diamonds', targetCount: 4 } },
         imageName: 'star.png',
     }),
     new TarotTile({
         id: 'tarot_moon',
         name: 'The Moon (XVIII)',
-        description: 'Converts up to 3 selected tiles on grid to Sapphire.',
+        description: 'Converts up to 3 tiles on the grid to Sapphire.',
         effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { action: 'change_suit', suit: 'Clubs', targetCount: 3 } },
         imageName: 'moon.png',
     }),
@@ -2527,7 +2527,7 @@ const ALL_CONSUMABLES = [
     new TarotTile({
         id: 'tarot_sun',
         name: 'The Sun (XIX)',
-        description: 'Converts up to 2 selected tiles on grid to Ruby.',
+        description: 'Converts up to 2 tiles on the grid to Ruby.',
         effect: { type: 'MODIFY_TILE', target: 'TILE_IN_HAND', details: { action: 'change_suit', suit: 'Hearts', targetCount: 2 } },
         imageName: 'sun.png',
     }),
@@ -2540,20 +2540,108 @@ const ALL_CONSUMABLES = [
     }),
 ];
 
+// --- [NEW] CONSUMABLE FACTORY MAP ---
+// This allows us to re-create consumable instances from a saved ID.
+const CONSUMABLE_MAP = {
+    'tarot_fool': TarotTile,
+    'tarot_magician': TarotTile,
+    'tarot_priestess': TarotTile,
+    'tarot_empress': TarotTile,
+    'tarot_emperor': TarotTile,
+    'tarot_hierophant': TarotTile,
+    'tarot_lovers': TarotTile,
+    'tarot_chariot': TarotTile,
+    'tarot_justice': TarotTile,
+    'tarot_hermit': TarotTile,
+    'tarot_wheel': TarotTile,
+    'tarot_strength': TarotTile,
+    'tarot_hanged_man': TarotTile,
+    'tarot_death': TarotTile,
+    'tarot_temperance': TarotTile,
+    'tarot_devil': TarotTile,
+    'tarot_tower': TarotTile,
+    'tarot_star': TarotTile,
+    'tarot_moon': TarotTile,
+    'tarot_sun': TarotTile,
+    'tarot_judgement': TarotTile,
+    'tarot_world': TarotTile,
+};
+
+// --- [NEW] SPECIAL TILE DEFINITIONS ---
+// These are unique tiles that can be added to a player's bag.
+const ALL_SPECIAL_TILES = [
+    {
+        id: 'special_wildcard',
+        name: 'Wild Tile',
+        letter: '*',
+        description: 'Can be used as any letter. Consumed on use.',
+        imageName: 'wild.png', // Placeholder image
+    },
+    {
+        id: 'special_anchor',
+        name: 'Anchor',
+        letter: '#',
+        description: 'Must be the first letter. Triples the score of the letter immediately following it.',
+        imageName: 'anchor.png', // Placeholder image
+    },
+    {
+        id: 'special_mirror',
+        name: 'Mirror',
+        letter: '||',
+        description: 'Copies abilities of left and right tiles.',
+        imageName: 'mirror.png', // Placeholder image
+    },
+    {
+        id: 'special_exclamation',
+        name: 'Exclamation',
+        letter: '!',
+        description: 'Scores equal to the number of unsubmitted tiles you have left over, but it has to end the word.',
+        imageName: 'exclamation.png', // Placeholder image
+    },
+    {
+        id: 'special_plus',
+        name: 'Plus',
+        letter: '+',
+        description: 'Allows you to submit multiple words at once (e.g. FROG+RACE).',
+        imageName: 'plus.png', // Placeholder image
+    },
+];
 
 // --- GRAB BAG DEFINITIONS ---
 
 const ALL_GRAB_BAGS = [
+    // --- [NEW] Specific Arcana Packs ---
     new GrabBag({
-        id: 'grab_bag_arcana',
-        name: 'Arcana Grab Bag',
+        id: 'pack_arcana_normal',
+        name: 'Arcana Pack',
         type: 'Arcana',
         description: 'Choose 1 of 3 Tarot Tiles.',
         purchaseCost: 4,
         packSize: 3,
         picks: 1,
-        lootTable: { itemType: 'TarotTile', rarityWeights: null }
+        lootTable: { itemType: 'Tarot' }
     }),
+    new GrabBag({
+        id: 'pack_arcana_jumbo',
+        name: 'Jumbo Arcana Pack',
+        type: 'Arcana',
+        description: 'Choose 1 of 5 Tarot Tiles.',
+        purchaseCost: 6,
+        packSize: 5,
+        picks: 1,
+        lootTable: { itemType: 'Tarot' }
+    }),
+    new GrabBag({
+        id: 'pack_arcana_mega',
+        name: 'Mega Arcana Pack',
+        type: 'Arcana',
+        description: 'Choose 2 of 5 Tarot Tiles.',
+        purchaseCost: 8,
+        packSize: 5,
+        picks: 2,
+        lootTable: { itemType: 'Tarot' }
+    }),
+    // --- Other Grab Bags ---
     new GrabBag({
         id: 'grab_bag_glyph',
         name: 'Glyph Grab Bag',

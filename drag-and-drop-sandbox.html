@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag & Drop Sandbox</title>
+    <link rel="stylesheet" href="gameplay.css">
+    <link rel="stylesheet" href="sandbox.css">
+</head>
+<body>
+    <main class="sandbox-container">
+        <header class="sandbox-header">
+            <h1>Drag & Drop Sandbox</h1>
+            <a href="sandbox.html" class="nav-link">&larr; Back to Hub</a>
+        </header>
+        <section class="component-section">
+            <h2 class="component-title">Drag items between lists and reorder them.</h2>
+            <div class="drag-drop-wrapper">
+                <div class="drag-list-container">
+                    <h3>Toolbox</h3>
+                    <div class="drop-zone" id="source-zone">
+                        <div class="draggable-item" draggable="true">Item 1</div>
+                        <div class="draggable-item" draggable="true">Item 2</div>
+                        <div class="draggable-item" draggable="true">Item 3</div>
+                    </div>
+                </div>
+                <div class="drag-list-container">
+                    <h3>Target Area</h3>
+                    <div class="drop-zone" id="target-zone"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="drag-and-drop-sandbox.js"></script>
+</body>
+</html>
